@@ -1,0 +1,157 @@
+.wrapper {
+    background-color: white;
+}
+.container {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0px;
+}
+.containerLocation {
+    display: flex;
+    align-items: center;
+    padding: 0px 25px;
+    cursor: pointer;
+}
+.flexLocationIcon {
+    display: flex;
+}
+.locationIcon {
+    font-size: 25px;
+}
+.containerLocation:hover .flexLocationIcon .locationIcon {
+    color: var(--primary-color);
+}
+.flexLocationText {
+    margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    font-size: 11pt;
+    white-space: nowrap;
+}
+.containerSearch {
+    position: relative;
+    width: 100%;
+    margin: 0px 15px;
+}
+.formSearch {
+    position: relative;
+    display: flex;
+}
+.inputSearch {
+    width: 100%;
+    height: 100%;
+    padding: 8px 20px;
+    font-size: 12pt;
+    outline: 0;
+    border: 1px solid var(--text-color-two);
+    color: var(--text-color-one);
+}
+.inputSearch:focus {
+    border-color: var(--text-color-two-focus);
+}
+.buttonSearch {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding: 0px 10px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.iconSearch {
+    font-size: 25px;
+    color: var(--text-color-two);
+}
+.inputSearch:focus + .buttonSearch .iconSearch {
+    color: var(--text-color-two-focus);
+}
+.containerSuggestions {
+    position: absolute;
+    z-index: 10;
+    margin-top: 5px;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
+    transform-origin: top;
+    transition: 0.5s;
+}
+.ulSuggestions {
+    list-style: none;
+}
+.liSuggestions {
+}
+.aSuggestions {
+    display: flex;
+    width: 100%;
+    text-decoration: none;
+    padding: 8px 20px;
+    color: var(--text-color-one);
+}
+.aSuggestions:hover {
+    background-color: var(--background-color);
+}
+.containerUtils {
+    display: flex;
+    align-items: center;
+}
+.flexUtil {
+}
+.flexUtil:first-child {
+    margin-left: 0px;
+}
+.utilIconContainer {
+    position: relative;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.utilIcon {
+    font-size: 30px;
+    color: var(--text-color-one);
+}
+.utilIconContainer:hover .utilIcon {
+    color: var(--primary-color);
+}
+.tagNumberContainer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8pt;
+}
+
+/* OUTROS */
+.shadow {
+    box-shadow: 0px 3px 15px -3px rgba(0,0,0,0.1);
+}
+.showEffect {
+    transform: scale(1, 1);
+}
+.hideEffect {
+    transform: scale(1, 0);
+}
+
+/* CONJUNTOS */
+.containerLocation, .flexUtil {
+    margin-left: 15px;
+}
+.inputSearch, .containerSuggestions {
+    border-radius: 3px;
+}
+.inputSearch, .iconSearch, .aSuggestions, .utilIconContainer, .utilIcon {
+    transition: 0.3s;
+}

@@ -1,0 +1,51 @@
+.wrapper {
+
+}
+.container {
+    display: flex;
+}
+.controller {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    gap: 5px;
+    border-left: 1.5px;
+    border-right: 1.5px;
+}
+.controller:first-child {
+    border-right: 1.5px;
+    border-radius: 5px 0px 0px 5px;
+}
+.controller:last-child {
+    border-left: 1.5px;
+    border-radius: 0px 5px 5px 0px;
+}
+.controllerText {
+
+}
+.controllerIcon {
+    font-size: 22pt;
+}
+.flexItem {
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.flexItemText {
+    display: block;
+}
+.selected {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.flexItem, .controller {
+    border-top: 1.5px;
+    border-bottom: 1.5px;
+    cursor: pointer;
+    border-color: rgba(0, 0, 0, 0.200);
+    border-style: solid;
+    user-select: none;
+}

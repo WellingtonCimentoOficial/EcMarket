@@ -1,0 +1,28 @@
+.customCheckbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.checkbox{
+    display: none;
+}
+
+.checkmark {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    margin-right: 8px;
+    text-align: center;
+    line-height: 18px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.customCheckbox.checked .checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}

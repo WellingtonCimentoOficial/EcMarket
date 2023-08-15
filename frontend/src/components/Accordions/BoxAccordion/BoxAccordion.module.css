@@ -1,0 +1,74 @@
+
+.container {
+    background-color: transparent;
+    color: var(--text-color-one);
+}
+.containerHeader {
+    background-color: white;
+    display: flex;
+    align-items: center;
+}
+.containerHeaderTitle {
+    font-weight: 500;
+    font-size: 15pt;
+}
+.containerHeaderDescription {
+    margin-left: 20px;
+    font-size: 11pt;
+}
+.containerBody {
+    margin-top: 30px;
+    background-color: transparent;
+}
+.flexItem {
+    margin-bottom: 30px;
+    background-color: white;
+}
+.flexItemheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: transparent;
+    cursor: pointer;
+}
+.flexItemIcon {
+}
+.icon {
+    font-size: 25px;
+}
+.flexItemBody {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden; /* Certifique-se de ocultar qualquer conteúdo além da altura máxima */
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.flexItem:last-child {
+    margin-bottom: 0px;
+}
+.flexItemTitle {
+    font-weight: 500;
+}
+.flexItemDescription {
+
+}
+.show {
+    margin-top: 10px;
+    max-height: 1000px; /* Um valor grande o suficiente para acomodar qualquer conteúdo */
+    opacity: 1;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    padding: 0px 20px 20px 20px;
+}
+
+/* CONJUNTOS */
+.containerHeaderDescription, .flexItemDescription {
+    color: var(--text-color-one-blur);
+}
+.flexItemheader, .containerHeader {
+    padding: 20px;
+}
+.flexItem, .containerHeader {
+    border-radius: 10px;
+}
+.flexItemTitle, .flexItemDescription {
+    max-width: 800px;
+}

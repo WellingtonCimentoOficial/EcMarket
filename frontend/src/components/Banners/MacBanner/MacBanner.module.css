@@ -1,0 +1,55 @@
+.wrapper {
+    background-color: transparent;
+    color: var(--text-color-one);
+}
+.container {
+    display: flex;
+}
+.inverse {
+    flex-direction: row-reverse;
+}
+.flexImage {
+    min-width: 600px;
+    height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.image {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.content {
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.contentHeader {
+    width: 100%;
+}
+.preTitle {
+    font-size: 10pt;
+    color: var(--primary-color);
+}
+.title {
+    font-size: 18pt;
+    font-weight: 500;
+}
+.contentBody {
+    margin: 20px 0px;
+}
+.description {
+    font-style: italic;
+}
+.contentFooter {
+    display: flex;
+    width: 100%;
+}
+
+.preTitle, .title {
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}

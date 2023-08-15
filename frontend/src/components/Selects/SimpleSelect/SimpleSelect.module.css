@@ -1,0 +1,48 @@
+.wrapper {
+    user-select: none;
+}
+.container {
+    position: relative;
+}
+.header {
+    background-color: white;
+    padding: 5px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.200);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.title {
+    font-weight: 400;
+    font-size: 12pt
+}
+.body {
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    z-index: 1;
+    transition: 0.3s;
+    transform-origin: top;
+    border: 1px solid transparent;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
+    margin-top: 3px;
+}
+.hide {
+    transform: scaleY(0);
+}
+.ul {
+    list-style: none;
+}
+.li {
+    padding: 3px 10px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.li:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.body, .header {
+    border-radius: 5px;
+}

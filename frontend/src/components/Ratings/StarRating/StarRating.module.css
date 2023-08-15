@@ -1,0 +1,8 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+}
+.star {
+    color: rgb(255, 187, 0);
+    font-size: 15pt;
+}

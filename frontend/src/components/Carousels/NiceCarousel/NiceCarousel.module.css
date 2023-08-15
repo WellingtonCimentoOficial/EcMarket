@@ -1,0 +1,86 @@
+.wrapper {
+    background-color: transparent;
+    position: relative;
+}
+.container {
+    overflow: hidden;
+    scroll-behavior: smooth;
+}
+.carousel {
+    display: flex;
+    height: 500px;
+}
+.carouselA {
+    min-width: 100%;
+    background-color: transparent;
+    display: flex;
+}
+.carouselImg {
+    min-width: 100%;
+    object-fit: cover;
+}
+.flexController {
+    position: absolute;
+    top: calc((500px / 2) - (50px / 2));
+    cursor: pointer;
+    display: flex;
+}
+.controllerIcon {
+    font-size: 50px;
+    color: white;
+}
+.left {
+    left: 0;
+}
+.right {
+    right: 0;
+}
+.detail {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+}
+.detailItem {
+    width: 15px;
+    height: 15px;
+    border: 2px solid white;
+    border-radius: 100%;
+    margin: 0px 5px;
+    transition: 0.3s;
+}
+.active {
+    background-color: white;
+}
+.hideEffect {
+    transition: 0.5s;
+    opacity: 0%;
+}
+.debug {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: red;
+}
+.debugWidth {
+    position: absolute;
+    top: 50%;
+    background-color: gold;
+    width: 100%;
+    height: 1px;
+}
+.debugHeight {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    background-color: gold;
+    width: 1px;
+    height: 100%;
+}

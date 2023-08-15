@@ -1,0 +1,106 @@
+.wrapper {
+    width: 260px;
+    /* height: 400px; */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
+}
+.container {
+    position: relative;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    padding: 20px;
+    color: var(--text-color-one);
+    height: 100%;
+}
+.header {
+}
+.containerImage {
+    width: 100%;
+    height: 150px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.image {
+    max-width: 100%;
+    max-height: 100%;
+}
+.containerText {
+    border-top: 1px solid rgba(0, 0, 0, 0.082);
+    padding: 10px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.title {
+    font-size: 13pt;
+    transition: 0.3s;
+}
+.wrapper:hover .title {
+    color: var(--primary-color);
+}
+.description {
+    font-style: italic;
+    font-weight: 300;
+}
+.containerRating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.ratingText {
+    font-size: 10pt;
+}
+.body {
+}
+.containerPrices {
+    display: flex;
+    flex-wrap: wrap-reverse;
+}
+.discountPrice {
+    font-size: 16pt;
+    margin-right: 10px;
+}
+.defaultPrice {
+    text-decoration: line-through;
+    color: var(--text-color-one-blur);
+}
+.installments {
+    color: var(--text-color-one-blur);
+}
+.containerPercentage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--primary-color);
+    padding: 0px 5px;
+    border-radius: 10px 0px 100% 0px;
+    width: 50px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.discountPercentage {
+    color: white;
+    font-size: 13pt;
+    font-weight: 300;
+    font-size: 11.5pt;
+    align-self: flex-start;
+    transform: rotate(-30deg);
+    margin-right: 8px;
+    margin-top: 2px;
+    
+}
+
+/* CONJUNTOS */
+.installments, .description, .defaultPrice {
+    font-size: 11pt;
+}
+.discountPrice, .title {
+    font-weight: 500;
+}

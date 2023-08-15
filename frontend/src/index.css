@@ -1,0 +1,24 @@
+:root {
+  --primary-color: #FF4000;
+  --disabled: #cecece;
+  --primary-color-focus: #e23900;
+  --text-color-one: #201E1F;
+  --text-color-one-blur: #201e1fb9;
+  --text-color-two: rgba(0, 0, 0, 0.150);
+  --text-color-two-focus: rgba(0, 0, 0, 0.300);
+  --background-color: #f5f5f5;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background-color: var(--background-color);
+  color: var(--text-color-one);
+}
+a {
+  color: var(--primary-color);
+}

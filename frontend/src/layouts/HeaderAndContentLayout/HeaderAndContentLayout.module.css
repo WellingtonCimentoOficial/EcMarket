@@ -1,0 +1,84 @@
+.wrapper {
+    background-color: transparent;
+}
+.container {
+    background-color: transparent;
+}
+.header {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+}
+.title {
+    color: var(--text-color-one);
+    font-weight: 500;
+}
+.description {
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+.description:hover {
+    color: var(--primary-color-focus);
+}
+.descriptionIcon {
+    margin-left: 5px;
+    font-size: 18px;
+}
+.body {
+    position: relative;
+    margin-top: 30px;
+}
+.containerBody {
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: transparent;
+    gap: 10px;
+}
+.scroll {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    flex-wrap: nowrap;
+}
+.flexItem {
+    display: flex;
+    background-color: transparent;
+}
+.controller {
+    --size: 40px;
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    background-color: var(--primary-color);
+    top: calc(50% - (var(--size) / 2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.3s;
+}
+.disabled {
+    max-height: 0;
+    max-width: 0;
+    opacity: 0;
+    transition: max-height 5s ease-in-out, max-width 5s ease-in-out, opacity 5s ease-in-out;
+}
+.controllerIcon {
+    color: white;
+    font-size: 25px;
+}
+.left {
+    left: 0;
+    transform: translate(-50%);
+}
+.right {
+    right: -0;
+    transform: translate(50%);
+}

@@ -1,0 +1,8 @@
+.sectionA {
+    margin: 50px 0px;
+    background-color: transparent;
+}
+.center {
+    display: flex;
+    justify-content: center
+}
