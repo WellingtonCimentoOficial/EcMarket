@@ -18,25 +18,30 @@ import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
 
 const SearchPage = () => {
+    const [searchParams] = useSearchParams()
+    
+    const queryParam = searchParams.get('q')
+    const ratingParam = searchParams.get('rating')
+    const pageParam = searchParams.get('page')
+
+    const { setIsLoading } = useContext(LoadingContext)
+    const {addParam, removeParam} = useQueryParam()
+
     const [products, setProducts] = useState<Product[]>([])
-    const [currentPage, setCurrentPage] = useState<number>(0)
+    const [currentPage, setCurrentPage] = useState<number>(pageParam && /^[0-9]+$/.test(pageParam) ? parseInt(pageParam) - 1 : 0)
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const [totalProductCount, setTotalProductCount] = useState(1)
     const [freeShipping, setFreeShipping] = useState<boolean>(false)
-    const [searchParams] = useSearchParams()
     const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: boolean }>({})
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
-    const { setIsLoading } = useContext(LoadingContext)
-    const queryParam = searchParams.get('q')
-    const ratingParam = searchParams.get('rating')
-    const {addParam, removeParam} = useQueryParam()
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
+    
     const arrayFilters = Array.from(Array(2), (_, index) => index + 1)
     
     const itemsPerPageData = [
         {
-            text: "20",
-            value: 20
+            text: "1",
+            value: 1
         },
         {
             text: "40",
@@ -83,9 +88,23 @@ const SearchPage = () => {
         removeParam('rating')
     }
 
+    const handlePage = (value: number) => {
+        if(value >= 0){
+            addParam('page', String(value + 1))
+            return
+        }
+        removeParam('page')
+    }
+
     useEffect(() => {
         addParam('limit', String(itemsPerPage.value))
-        handleRating(ratingFilter)
+        setCurrentPage(0)
+    }, [itemsPerPage])
+
+    useEffect(() => handlePage(currentPage), [currentPage])
+    useEffect(() => handleRating(ratingFilter), [ratingFilter])
+
+    useEffect(() => {
         const get_products = async () => {
             setIsLoading(true)
             try {
