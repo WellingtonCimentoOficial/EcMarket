@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from django.db.models import Q
 from rest_framework.pagination import LimitOffsetPagination
+from .utils import apply_product_filters
 
 # Create your views here.
 class ProductsPagination(LimitOffsetPagination):
@@ -27,19 +28,10 @@ def get_products(request):
     try:
         search = request.query_params.get('search')
         random = request.query_params.get('random')
+        rating = request.query_params.get('rating')
 
-        # verifing if search param exists and if his value is true 
-        if search is not None:
-            products = ProductFather.objects.filter(Q(name__icontains=search)).all()
-        else:
-            products = ProductFather.objects.all()
-
-
-        # verifing if random param is true and then organizing
-        if random is not None and random.lower() == 'true':
-            products = products.order_by('?')
-        else:
-            products = products.order_by('-id')
+        #applying some filters
+        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating)
         
         #making a pagination
         paginator = ProductsPagination()
@@ -47,6 +39,9 @@ def get_products(request):
 
         serializer = ProductFatherMinimalSerializer(paginated_products, many=True, context={'request': request})
         
+        #returning 404 if no product is found
+        if products.count() == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         return paginator.get_paginated_response(serializer.data)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -70,15 +70,20 @@
     user-select: none;
 }
 .flexFilterFooter {
-    margin-top: 10px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+}
+.flexFilterWidth {
+    width: 90%;
 }
 .flexFilterSeparator {
     width: 80%;
     margin: auto;
     height: 1px;
     background-color: rgba(0, 0, 0, 0.11);
+    margin-top: 10px;
 }
 .containerProducts {
     background-color: transparent;

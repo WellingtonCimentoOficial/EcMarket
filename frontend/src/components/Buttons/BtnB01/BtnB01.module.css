@@ -1,14 +1,16 @@
-.BtnA01 {
-    display: block;
+.wrapper {
+    background-color: transparent;
+}
+.BtnB01 {
     background-color: var(--primary-color);
     color: white;
-    text-decoration: none;
     padding: 10px 30px;
     border-radius: 5px;
+    font-size: 12pt;
+    cursor: pointer;
     transition: 0.3s;
-    text-align: center;
 }
-.BtnA01:hover {
+.BtnB01:hover {
     background-color: var(--primary-color-focus);
 }
 .AutoWidth {

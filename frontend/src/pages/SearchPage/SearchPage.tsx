@@ -14,7 +14,8 @@ import { Category } from '../../types/CategoryType'
 import { LoadingContext } from '../../contexts/LoadingContext'
 import SimpleSelect from '../../components/Selects/SimpleSelect/SimpleSelect'
 import { SelectType } from '../../types/SelectType'
-import { useAddQueryParam } from '../../hooks/useAddQueryParam'
+import { useQueryParam } from '../../hooks/useQueryParam'
+import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
 
 const SearchPage = () => {
     const [products, setProducts] = useState<Product[]>([])
@@ -27,8 +28,9 @@ const SearchPage = () => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
     const { setIsLoading } = useContext(LoadingContext)
     const queryParam = searchParams.get('q')
-    const addQueryParam = useAddQueryParam()
-    
+    const ratingParam = searchParams.get('rating')
+    const {addParam, removeParam} = useQueryParam()
+    const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     const arrayFilters = Array.from(Array(2), (_, index) => index + 1)
     
     const itemsPerPageData = [
@@ -71,14 +73,24 @@ const SearchPage = () => {
         }));
     };
 
+    const handleRating = (value : null | number) => {
+        if(value !== null && value > 0 && value <= 5){
+            setRatingFilter(value)
+            addParam('rating', String(value))
+            return
+        }
+        setRatingFilter(value)
+        removeParam('rating')
+    }
+
     useEffect(() => {
-        addQueryParam('limit', String(itemsPerPage.value))
+        addParam('limit', String(itemsPerPage.value))
+        handleRating(ratingFilter)
         const get_products = async () => {
             setIsLoading(true)
             try {
                 const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
-                const path = `/products/?search=${queryParam}&limit=${itemsPerPage?.value}&offset=${offset}`
-                console.log(path)
+                const path = `/products/?search=${queryParam}&limit=${itemsPerPage?.value}&offset=${offset}&rating=${ratingFilter}`
                 const response = await axios.get(path)
                 if(response.status === 200){
                     setProducts(response.data.results)
@@ -93,7 +105,7 @@ const SearchPage = () => {
             setIsLoading(false)
         }
         get_products()
-    }, [itemsPerPage, currentPage, queryParam, setIsLoading])
+    }, [itemsPerPage, currentPage, queryParam, ratingFilter, setIsLoading])
 
     useEffect(() => {
         const get_categories = async () => {
@@ -155,17 +167,16 @@ const SearchPage = () => {
                                                 </div>
                                                 <div className={styles.flexFilterBody}>
                                                     {Array.from(Array(4), (_, index) => index + 1).map((index) => (
-                                                        <div className={styles.flexFilterItem} key={index}>
+                                                        <div className={styles.flexFilterItem} key={index} onClick={() => handleRating(index)}>
                                                             <StarRating rate={index} />
                                                             <span className={styles.flexFilterDescription}>e acima</span>
                                                         </div>
                                                     ))}
                                                 </div>
-                                                {index !== arrayFilters.length && (
-                                                    <div className={styles.flexFilterFooter}>
-                                                        <div className={styles.flexFilterSeparator}></div>
-                                                    </div>
-                                                )}
+                                                <div className={styles.flexFilterFooter}>
+                                                    {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>}
+                                                    {index !== arrayFilters.length && <div className={styles.flexFilterSeparator}></div>}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
