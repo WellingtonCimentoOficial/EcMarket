@@ -27,7 +27,7 @@ const SearchPage = () => {
     const relevanceParam = searchParams.get('relevance')
 
     const { setIsLoading } = useContext(LoadingContext)
-    const {addParam, removeParam} = useQueryParam()
+    const { addParam, removeParam } = useQueryParam()
     const { updateTitle } = usePageTitleChanger()
 
     const [products, setProducts] = useState<Product[]>([])
