@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from "./MainHeader.module.css"
 import { BsSearch } from 'react-icons/bs';
 import { 
@@ -23,13 +23,17 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
+    const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault()
-        navigate(`/search?q=${searchText}`)
         setShowSuggestions(false)
+        if(searchText){
+            searchInputRef.current?.blur()
+            navigate(`/search?q=${searchText}`)
+        }
     }
 
     const handleShow = (show: boolean) => {
@@ -44,7 +48,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         const get_categories_name = async () => {
             try {
                 const response = await axios.get(`/products/name/?search=${searchText}`)
-                if(response.status === 200){
+                if(searchText && response.status === 200){
                     setSuggestions(response.data.results)
                 }
             } catch (error) {
@@ -54,7 +58,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
 
         const timeout = setTimeout(() => {
             get_categories_name()
-        }, 500)
+        }, 300)
 
         return () => {
             clearTimeout(timeout)
@@ -81,6 +85,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                 <div className={styles.containerSearch}>
                     <form className={styles.formSearch} onSubmit={handleSearch}>
                         <input 
+                            ref={searchInputRef}
                             className={styles.inputSearch} 
                             type="text" 
                             name="search" 

@@ -29,9 +29,10 @@ def get_products(request):
         search = request.query_params.get('search')
         random = request.query_params.get('random')
         rating = request.query_params.get('rating')
+        relevance = request.query_params.get('relevance')
 
         #applying some filters
-        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating)
+        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating, relevance=relevance)
         
         #making a pagination
         paginator = ProductsPagination()
@@ -43,7 +44,9 @@ def get_products(request):
         if products.count() == 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return paginator.get_paginated_response(serializer.data)
-    except:
+    except Exception as e:
+        if hasattr(e, "detail") and hasattr(e, "status_code"):
+            return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['GET'])

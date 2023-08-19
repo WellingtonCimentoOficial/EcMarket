@@ -16,6 +16,7 @@ import SimpleSelect from '../../components/Selects/SimpleSelect/SimpleSelect'
 import { SelectType } from '../../types/SelectType'
 import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
+import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams()
@@ -23,9 +24,11 @@ const SearchPage = () => {
     const queryParam = searchParams.get('q')
     const ratingParam = searchParams.get('rating')
     const pageParam = searchParams.get('page')
+    const relevanceParam = searchParams.get('relevance')
 
     const { setIsLoading } = useContext(LoadingContext)
     const {addParam, removeParam} = useQueryParam()
+    const { updateTitle } = usePageTitleChanger()
 
     const [products, setProducts] = useState<Product[]>([])
     const [currentPage, setCurrentPage] = useState<number>(pageParam && /^[0-9]+$/.test(pageParam) ? parseInt(pageParam) - 1 : 0)
@@ -37,11 +40,11 @@ const SearchPage = () => {
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     
     const arrayFilters = Array.from(Array(2), (_, index) => index + 1)
-    
+
     const itemsPerPageData = [
         {
-            text: "1",
-            value: 1
+            text: "20",
+            value: 20
         },
         {
             text: "40",
@@ -53,7 +56,7 @@ const SearchPage = () => {
         },
     ]
 
-    const filter1Data = [
+    const relevanceFilterData = [
         {
             text: "Mais relevantes",
             value: 0
@@ -69,7 +72,7 @@ const SearchPage = () => {
     ]
     
     const [itemsPerPage, setItemsPerPage] = useState<SelectType>(itemsPerPageData.find(item => String(item.value) === searchParams.get('limit')) || itemsPerPageData[0])
-    const [filter1, setFilter1] = useState<SelectType>(filter1Data[0])
+    const [relevanceFilter, setRelevanceFilter] = useState<SelectType>(relevanceParam && relevanceFilterData.find(item => item.value === parseInt(relevanceParam)) || relevanceFilterData[0] )
 
     const handleCheckboxChange = (id: string) => {
         setCheckBoxValues((prevState) => ({
@@ -96,6 +99,10 @@ const SearchPage = () => {
         removeParam('page')
     }
 
+    const handleRelevance = ({ value }: SelectType) => {
+        addParam('relevance', String(value))
+    }
+
     useEffect(() => {
         addParam('limit', String(itemsPerPage.value))
         setCurrentPage(0)
@@ -103,13 +110,15 @@ const SearchPage = () => {
 
     useEffect(() => handlePage(currentPage), [currentPage])
     useEffect(() => handleRating(ratingFilter), [ratingFilter])
+    useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter])
+    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam}` : ""), [queryParam])
 
     useEffect(() => {
         const get_products = async () => {
             setIsLoading(true)
             try {
                 const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
-                const path = `/products/?search=${queryParam}&limit=${itemsPerPage?.value}&offset=${offset}&rating=${ratingFilter}`
+                const path = `/products/?search=${queryParam}&limit=${itemsPerPage?.value}&offset=${offset}&rating=${ratingFilter}&relevance=${relevanceFilter.value}`
                 const response = await axios.get(path)
                 if(response.status === 200){
                     setProducts(response.data.results)
@@ -124,7 +133,7 @@ const SearchPage = () => {
             setIsLoading(false)
         }
         get_products()
-    }, [itemsPerPage, currentPage, queryParam, ratingFilter, setIsLoading])
+    }, [itemsPerPage, currentPage, queryParam, ratingFilter, relevanceFilter, setIsLoading])
 
     useEffect(() => {
         const get_categories = async () => {
@@ -148,7 +157,7 @@ const SearchPage = () => {
                 <div className={styles.container}>
                     <div className={styles.header}>
                         <span>{currentPage + 1}-{totalPageCount} de {totalProductCount} resultados para <span className={styles.searchText}>{queryParam}</span></span>
-                        <SimpleSelect data={filter1Data} value={filter1} onChange={setFilter1} />
+                        <SimpleSelect data={relevanceFilterData} value={relevanceFilter} onChange={setRelevanceFilter} />
                     </div>
                     <div className={styles.body}>
                         <div className={`${styles.containerFilters} ${styles.filtersWrapper}`}>
