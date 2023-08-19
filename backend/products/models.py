@@ -15,6 +15,7 @@ class ProductFather(models.Model):
     store = models.ForeignKey('stores.Store', on_delete=models.CASCADE)
     description = models.TextField()
     categories = models.ManyToManyField('categories.CategoryProduct')
+    brand = models.ForeignKey('brands.ProductBrand', on_delete=models.CASCADE, related_name="products", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -17,6 +17,7 @@ import { SelectType } from '../../types/SelectType'
 import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
+import { Filter } from '../../types/FilterType'
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams()
@@ -31,6 +32,7 @@ const SearchPage = () => {
     const { updateTitle } = usePageTitleChanger()
 
     const [products, setProducts] = useState<Product[]>([])
+    const [filters, setFilters] = useState<Filter[]>([])
     const [currentPage, setCurrentPage] = useState<number>(pageParam && /^[0-9]+$/.test(pageParam) ? parseInt(pageParam) - 1 : 0)
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const [totalProductCount, setTotalProductCount] = useState(1)
@@ -39,8 +41,6 @@ const SearchPage = () => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     
-    const arrayFilters = Array.from(Array(2), (_, index) => index + 1)
-
     const itemsPerPageData = [
         {
             text: "20",
@@ -151,6 +151,22 @@ const SearchPage = () => {
         get_categories()
     }, [setIsLoading])
 
+    useEffect(() => {
+        const get_filters = async () => {
+            setIsLoading(true)
+            try {
+                const response = await axios.get('/products/filters/')
+                if(response.status === 200){
+                    setFilters(response.data)
+                }
+            } catch (error) {
+                setFilters([])
+            }
+            setIsLoading(false)
+        }
+        get_filters()
+    }, [])
+
     return (
         <WidthLayout width={90}>
             <div className={styles.wrapper}>
@@ -165,30 +181,31 @@ const SearchPage = () => {
                                 <span>Frete grátis</span>
                                 <ToggleSwitchCheckBox onChange={setFreeShipping} value={freeShipping} />
                             </div>
-                            {arrayFilters.map((index) => {
+                            {filters && filters.map((filter, index) => {
+                                const adjustedIndex  = index + 1
                                 return (
-                                    <div className={styles.filtersWrapper} key={index}>
+                                    <div className={styles.filtersWrapper} key={adjustedIndex}>
                                         <div className={styles.flexFilter}>
                                             <div className={styles.flexFilterHeader}>
-                                                <h3 className={styles.flexFilterTitle}>Marcas</h3>
+                                                <h3 className={styles.flexFilterTitle}>{filter.name}</h3>
                                             </div>
                                             <div className={`${styles.flexFilterBody} ${styles.flexFilterBodyScroll}`}>
-                                                {Array.from(Array(10)).map((_, index) => {
+                                                {filter.data.map((item) => {
                                                     return (
-                                                        <div className={styles.flexFilterItem} key={index} onClick={() => handleCheckboxChange(String(index))}>
-                                                            <SimpleCheckBox value={checkBoxValues[String(index)]} />
-                                                            <span className={styles.flexFilterDescription}>{`Iphone 12 (200)`}</span>
+                                                        <div className={styles.flexFilterItem} key={item.id} onClick={() => handleCheckboxChange(String(item.id))}>
+                                                            <SimpleCheckBox value={checkBoxValues[String(item.id)]} />
+                                                            <span className={styles.flexFilterDescription}>{`${item.name} (${item.count})`}</span>
                                                         </div>
                                                     )
                                                 })}
                                             </div>
-                                            {index !== arrayFilters.length && (
+                                            {adjustedIndex !== filters.length && (
                                                 <div className={styles.flexFilterFooter}>
                                                     <div className={styles.flexFilterSeparator}></div>
                                                 </div>
                                             )}
                                         </div>
-                                        {index === 1 && (
+                                        {adjustedIndex === 1 && (
                                             <div className={styles.flexFilter}>
                                                 <div className={styles.flexFilterHeader}>
                                                     <h3 className={styles.flexFilterTitle}>Avaliações</h3>
@@ -203,7 +220,7 @@ const SearchPage = () => {
                                                 </div>
                                                 <div className={styles.flexFilterFooter}>
                                                     {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>}
-                                                    {index !== arrayFilters.length && <div className={styles.flexFilterSeparator}></div>}
+                                                    {index !== filters.length && <div className={styles.flexFilterSeparator}></div>}
                                                 </div>
                                             </div>
                                         )}

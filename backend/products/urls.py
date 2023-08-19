@@ -5,4 +5,5 @@ urlpatterns = [
     path('', views.get_products),
     path('<int:pk>', views.get_product),
     path('name/', views.get_products_name),
+    path('filters/', views.get_product_filters),
 ]

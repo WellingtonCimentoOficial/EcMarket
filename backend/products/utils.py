@@ -41,3 +41,30 @@ def apply_product_filters(product_instance, **kwargs):
         products = products.order_by('-id')
     
     return products
+
+
+def mount_product_filters(categories_query_set, brands_query_set):
+    categories_data = {
+        "name": "Categorias",
+        "data": []
+    }
+    brands_data = {
+        "name": "Marcas",
+        "data": []
+    }
+
+    for category in categories_query_set:
+        categories_data['data'].append({
+            "id": category.id,
+            "name": category.name,
+            "count": category.productfather_set.count()
+        })
+
+    for brand in brands_query_set:
+        brands_data['data'].append({
+            "id": brand.id,
+            "name": brand.name,
+            "count": brand.products.count()
+        })
+
+    return [categories_data, brands_data]

@@ -5,7 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from django.db.models import Q
 from rest_framework.pagination import LimitOffsetPagination
-from .utils import apply_product_filters
+from .utils import apply_product_filters, mount_product_filters
+from brands.models import ProductBrand
+from categories.models import CategoryProduct
 
 # Create your views here.
 class ProductsPagination(LimitOffsetPagination):
@@ -81,3 +83,12 @@ def get_product(request, pk):
         return Response(serializer.data)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET']) 
+def get_product_filters(request):
+    categories = CategoryProduct.objects.all()
+    brands = ProductBrand.objects.all()
+
+    filters_data = mount_product_filters(categories_query_set=categories, brands_query_set=brands)
+
+    return Response(filters_data)

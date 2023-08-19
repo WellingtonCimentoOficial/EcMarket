@@ -7,7 +7,7 @@
 .header {
     background-color: white;
     padding: 5px 10px;
-    border: 1px solid rgba(0, 0, 0, 0.200);
+    border: 1px solid rgba(0, 0, 0, 0.150);
     cursor: pointer;
     display: flex;
     align-items: center;
