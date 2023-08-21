@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import styles from "./SearchPage.module.css"
 import { useSearchParams } from 'react-router-dom'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
@@ -17,7 +17,7 @@ import { SelectType } from '../../types/SelectType'
 import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
-import { Filter } from '../../types/FilterType'
+import { Filter, FilterData } from '../../types/FilterType'
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams()
@@ -37,9 +37,9 @@ const SearchPage = () => {
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const [totalProductCount, setTotalProductCount] = useState(1)
     const [freeShipping, setFreeShipping] = useState<boolean>(false)
-    const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: boolean }>({})
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
+    const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: {[key: string]: boolean} }>({})
     
     const itemsPerPageData = [
         {
@@ -74,14 +74,45 @@ const SearchPage = () => {
     const [itemsPerPage, setItemsPerPage] = useState<SelectType>(itemsPerPageData.find(item => String(item.value) === searchParams.get('limit')) || itemsPerPageData[0])
     const [relevanceFilter, setRelevanceFilter] = useState<SelectType>(relevanceParam && relevanceFilterData.find(item => item.value === parseInt(relevanceParam)) || relevanceFilterData[0] )
 
-    const handleCheckboxChange = (id: string) => {
-        setCheckBoxValues((prevState) => ({
-            ...prevState,
-            [id]: !prevState[id], // Inverte o valor do estado do checkbox
-        }));
-    };
 
-    const handleRating = (value : null | number) => {
+    const checkBoxInitialValues = useCallback(() => {
+        const initialValues: { [key: string]: {[key: string]: boolean} } = {}
+        filters.forEach(filter => {
+            if(searchParams.has(filter.param)){
+                initialValues[filter.id] = {}
+                const paramData = searchParams.get(filter.param)?.split(',').map(str => parseInt(str))
+                filter.data.forEach(item => {
+                    if(paramData?.includes(item.id)){
+                        initialValues[filter.id][item.id] = true
+                    }
+                })
+            }
+        })
+        return initialValues
+    }, [filters, searchParams])
+
+    const handleFilter = useCallback((filter: Filter, item: FilterData) => {
+        setCheckBoxValues((prevState) => {
+            const updatedValues = {
+                ...prevState,
+                [filter.id]: {
+                    ...prevState[filter.id],
+                    [item.id]: !prevState[filter.id]?.[item.id] || false,
+                },
+            }
+            console.log("no state", updatedValues)
+            const ids = Object.entries(updatedValues[filter.id] ? updatedValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")
+            if(ids.length > 0){
+                addParam(filter.param, ids)
+            }else{
+                removeParam(filter.param)
+            }
+
+            return updatedValues
+        })
+    }, [setCheckBoxValues, addParam, removeParam])
+
+    const handleRating = useCallback((value : null | number) => {
         if(value !== null && value > 0 && value <= 5){
             setRatingFilter(value)
             addParam('rating', String(value))
@@ -89,41 +120,54 @@ const SearchPage = () => {
         }
         setRatingFilter(value)
         removeParam('rating')
-    }
+    }, [setRatingFilter, addParam, removeParam])
 
-    const handlePage = (value: number) => {
+    const handlePage = useCallback((value: number) => {
         if(value >= 0){
             addParam('page', String(value + 1))
             return
         }
         removeParam('page')
-    }
+    }, [addParam, removeParam])
 
-    const handleRelevance = ({ value }: SelectType) => {
+    const handleRelevance = useCallback(({ value }: SelectType) => {
         addParam('relevance', String(value))
-    }
+    }, [addParam])
 
-    useEffect(() => {
-        addParam('limit', String(itemsPerPage.value))
+    const handleLimit = useCallback(() => {
         setCurrentPage(0)
-    }, [itemsPerPage])
-
-    useEffect(() => handlePage(currentPage), [currentPage])
-    useEffect(() => handleRating(ratingFilter), [ratingFilter])
-    useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter])
-    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam}` : ""), [queryParam])
+        addParam('limit', String(itemsPerPage.value))
+    }, [itemsPerPage, setCurrentPage, addParam])
+    
+    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
+    useEffect(() => handleLimit(), [itemsPerPage, handleLimit])
+    useEffect(() => handlePage(currentPage), [currentPage, handlePage])
+    useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating])
+    useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance])
+    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam}` : ""), [queryParam, totalProductCount, updateTitle])
 
     useEffect(() => {
         const get_products = async () => {
             setIsLoading(true)
             try {
                 const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
-                const path = `/products/?search=${queryParam}&limit=${itemsPerPage?.value}&offset=${offset}&rating=${ratingFilter}&relevance=${relevanceFilter.value}`
-                const response = await axios.get(path)
-                if(response.status === 200){
-                    setProducts(response.data.results)
-                    setTotalPageCount(response.data.total_page_count)
-                    setTotalProductCount(response.data.total_item_count)
+                const dynamicFilters = filters?.map(filter => filter.param && `&${filter.param}=${Object.entries(checkBoxValues[filter.id] ? checkBoxValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`).join('')
+                
+                const path = `/products/
+                ?search=${queryParam}
+                &limit=${itemsPerPage?.value}
+                &offset=${offset}
+                &rating=${ratingFilter}
+                &relevance=${relevanceFilter.value}
+                ${dynamicFilters}`.replaceAll(' ', '')
+
+                if(dynamicFilters){
+                    const response = await axios.get(path)
+                    if(response.status === 200){
+                        setProducts(response.data.results)
+                        setTotalPageCount(response.data.total_page_count)
+                        setTotalProductCount(response.data.total_item_count)
+                    }
                 }
             } catch (error) {
                 setTotalPageCount(0)
@@ -133,7 +177,12 @@ const SearchPage = () => {
             setIsLoading(false)
         }
         get_products()
-    }, [itemsPerPage, currentPage, queryParam, ratingFilter, relevanceFilter, setIsLoading])
+    }, [
+        itemsPerPage, currentPage, queryParam, 
+        ratingFilter, relevanceFilter, filters, 
+        checkBoxValues, setIsLoading, setProducts,
+        setTotalPageCount, setTotalProductCount
+    ])
 
     useEffect(() => {
         const get_categories = async () => {
@@ -149,7 +198,7 @@ const SearchPage = () => {
             setIsLoading(false)
         }
         get_categories()
-    }, [setIsLoading])
+    }, [setIsLoading, setCategoriesData])
 
     useEffect(() => {
         const get_filters = async () => {
@@ -165,7 +214,7 @@ const SearchPage = () => {
             setIsLoading(false)
         }
         get_filters()
-    }, [])
+    }, [setIsLoading, setFilters])
 
     return (
         <WidthLayout width={90}>
@@ -184,7 +233,7 @@ const SearchPage = () => {
                             {filters && filters.map((filter, index) => {
                                 const adjustedIndex  = index + 1
                                 return (
-                                    <div className={styles.filtersWrapper} key={adjustedIndex}>
+                                    <div className={styles.filtersWrapper} key={filter.id}>
                                         <div className={styles.flexFilter}>
                                             <div className={styles.flexFilterHeader}>
                                                 <h3 className={styles.flexFilterTitle}>{filter.name}</h3>
@@ -192,8 +241,8 @@ const SearchPage = () => {
                                             <div className={`${styles.flexFilterBody} ${styles.flexFilterBodyScroll}`}>
                                                 {filter.data.map((item) => {
                                                     return (
-                                                        <div className={styles.flexFilterItem} key={item.id} onClick={() => handleCheckboxChange(String(item.id))}>
-                                                            <SimpleCheckBox value={checkBoxValues[String(item.id)]} />
+                                                        <div className={styles.flexFilterItem} key={item.id} onClick={() => handleFilter(filter, item)}>
+                                                            <SimpleCheckBox value={checkBoxValues[filter.id]?.[item.id] || false} onChange={() => {}} />
                                                             <span className={styles.flexFilterDescription}>{`${item.name} (${item.count})`}</span>
                                                         </div>
                                                     )

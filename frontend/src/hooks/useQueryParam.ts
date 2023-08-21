@@ -1,28 +1,32 @@
 import React from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 type ArgsAddParam = (key: string, value: string) => void
 type ArgsRemoveParam = (key: string) => void
 
 export const useQueryParam = (): { addParam: ArgsAddParam, removeParam: ArgsRemoveParam} => {
-    const location = useLocation()
-    const navigate = useNavigate()
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const addParam: ArgsAddParam = (key, value) => {
-        if(searchParams.get(key)){
-            searchParams.set(key, value)
+        const currentParams = new URLSearchParams(searchParams.toString())
+        if(searchParams.has(key)){
+            if(value !== searchParams.get(key)){
+                currentParams.set(key, value)
+                setSearchParams(currentParams)
+                return
+            }
         }else{
-            searchParams.append(key, value)
+            currentParams.append(key, value)
+            setSearchParams(currentParams)
         }
-        navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
     }
 
     const removeParam: ArgsRemoveParam = (key) => {
-        if(searchParams.get(key)){
-            searchParams.delete(key)
+        const currentParams = new URLSearchParams(searchParams.toString());
+        if(searchParams.has(key)){
+            currentParams.delete(key)
+            setSearchParams(currentParams)
         }
-        navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
     }
 
     return {addParam, removeParam}

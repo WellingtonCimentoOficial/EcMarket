@@ -32,9 +32,11 @@ def get_products(request):
         random = request.query_params.get('random')
         rating = request.query_params.get('rating')
         relevance = request.query_params.get('relevance')
+        categories = request.query_params.get('categories')
+        brands = request.query_params.get('brands')
 
         #applying some filters
-        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating, relevance=relevance)
+        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating, relevance=relevance, categories=categories, brands=brands)
         
         #making a pagination
         paginator = ProductsPagination()
@@ -86,9 +88,12 @@ def get_product(request, pk):
 
 @api_view(['GET']) 
 def get_product_filters(request):
-    categories = CategoryProduct.objects.all()
-    brands = ProductBrand.objects.all()
+    try:
+        categories = CategoryProduct.objects.all()
+        brands = ProductBrand.objects.all()
 
-    filters_data = mount_product_filters(categories_query_set=categories, brands_query_set=brands)
+        filters_data = mount_product_filters(categories_query_set=categories, brands_query_set=brands)
 
-    return Response(filters_data)
+        return Response(filters_data)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

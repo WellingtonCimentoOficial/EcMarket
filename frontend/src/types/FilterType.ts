@@ -1,10 +1,12 @@
-type FilterData = {
+export type FilterData = {
     id: number
     name: string
     count: number
 }
 
 export interface Filter {
-    name: string,
+    id: string
+    name: string
+    param: string
     data: FilterData[]
 }

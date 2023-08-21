@@ -8,8 +8,7 @@ type FuctionArgs = {
 export const usePageTitleChanger = (): FuctionArgs => {
     const updateTitle = (title: string) => {
         if(title !== ""){
-            const currentTitle = document.title
-            const newTitle = `${title} | ${currentTitle}`
+            const newTitle = title
             document.title = newTitle
         }
     }
