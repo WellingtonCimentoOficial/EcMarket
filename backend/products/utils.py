@@ -15,7 +15,7 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
     if categories is not None and categories != "":
         if categories.replace(',', '').isdigit():
             category_ids = [int(item) for item in categories.split(',')]
-            products = products.filter(categories__id__in=category_ids)
+            products = products.filter(categories__id__in=category_ids).distinct()
         else:
             raise ProductFilterError()
     
@@ -23,7 +23,7 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
     if brands is not None and brands != "":
         if brands.replace(',', '').isdigit():
             brand_ids = [int(item) for item in brands.split(',')]
-            products = products.filter(brand__id__in=brand_ids)
+            products = products.filter(brand__id__in=brand_ids).distinct()
         else:
             raise ProductFilterError()
 
