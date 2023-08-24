@@ -28,6 +28,8 @@ const SearchPage = () => {
     const ratingParam = searchParams.get('rating')
     const pageParam = searchParams.get('page')
     const relevanceParam = searchParams.get('relevance')
+    const minPriceParam = searchParams.get('minPrice')
+    const maxPriceParam = searchParams.get('maxPrice')
 
     const { setIsLoading } = useContext(LoadingContext)
     const { addParam, removeParam } = useQueryParam()
@@ -43,7 +45,7 @@ const SearchPage = () => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: {[key: string]: boolean} }>({})
-    const [priceFilter, setPriceFilter] = useState<[number, number]>([0, 10000])
+    const [priceFilter, setPriceFilter] = useState<[number, number]>(minPriceParam !== null && /^[0-9]+$/.test(minPriceParam) && maxPriceParam !== null && /^[0-9]+$/.test(maxPriceParam) ? [parseFloat(minPriceParam), parseFloat(maxPriceParam)] : [0, 10000])
     const [priceFilterText, setPriceFilterText] = useState<[number, number]>([0, 10000])
 
     const minPrice = 0
