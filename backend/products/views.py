@@ -34,9 +34,21 @@ def get_products(request):
         relevance = request.query_params.get('relevance')
         categories = request.query_params.get('categories')
         brands = request.query_params.get('brands')
+        min_price = request.query_params.get('minPrice')
+        max_price = request.query_params.get('maxPrice')
 
         #applying some filters
-        products = apply_product_filters(ProductFather, search=search, random=random, rating=rating, relevance=relevance, categories=categories, brands=brands)
+        products = apply_product_filters(
+            ProductFather, 
+            search=search, 
+            random=random, 
+            rating=rating, 
+            relevance=relevance, 
+            categories=categories, 
+            brands=brands, 
+            min_price=min_price, 
+            max_price=max_price
+        )
         
         #making a pagination
         paginator = ProductsPagination()

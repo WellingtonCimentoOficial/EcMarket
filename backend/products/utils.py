@@ -3,7 +3,7 @@ from django.db.models.functions import Coalesce
 from .exceptions import ProductFilterError
 from uuid import uuid4
 
-def apply_product_filters(product_instance, search, rating, random, relevance, categories, brands):
+def apply_product_filters(product_instance, search, rating, random, relevance, categories, brands, min_price, max_price):
 
     # verifing if search param exists and if his value is true 
     if search is not None:
@@ -46,6 +46,15 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
             products = products.annotate(ordering_price=Coalesce('children__discount_price', 'children__default_price')).order_by('-ordering_price')
         elif int(relevance) == 2:
             products = products.annotate(ordering_price=Coalesce('children__discount_price', 'children__default_price')).order_by('ordering_price')
+        else:
+            raise ProductFilterError()
+        
+    # filtering by price
+    if min_price is not None and max_price is not None:
+        if min_price.replace('.', '').replace(',', '').isdigit() and max_price.replace('.', '').replace(',', '').isdigit():
+            products = products.annotate(
+                price_to_filter=Coalesce('children__discount_price', 'children__default_price')
+            ).filter(price_to_filter__range=(float(min_price), float(max_price)))
         else:
             raise ProductFilterError()
         

@@ -1,0 +1,56 @@
+.wrapper {
+    width: 100%;
+}
+.horizontalSlider {
+    width: 100%;
+    max-width: 500px;
+    height: 50px;
+}
+.mark {
+    width: 8px;
+    height: 8px;
+    border: 2px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+.track {
+    top: 20px;
+    height: 3px;
+    border-radius: 999px;
+}
+.track0 {
+    background: #ddddddd5;
+}
+.track1 {
+    background: #ddddddd5; /* Cor da faixa quando o valor está na parte esquerda */
+}
+
+.track2 {
+    background: var(--primary-color); /* Cor da faixa quando o valor está na parte direita */
+}
+
+.thumb {
+    top: 10px;
+    width: 23px;
+    height: 23px;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-size: 0.9em;
+    text-align: center;
+    background-color: white;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.2);
+}
+.thumbActive {
+}
+
+.horizontalSlider .example-mark {
+    margin: 0 calc(25px - 6px);
+    bottom: calc(50% - 6px);
+}

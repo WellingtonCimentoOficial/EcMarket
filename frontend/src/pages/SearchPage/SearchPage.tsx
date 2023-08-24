@@ -18,6 +18,8 @@ import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/Buttons/BtnB01/BtnB01'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { Filter, FilterData } from '../../types/FilterType'
+import NickRangeSlider from '../../components/RangeSliders/NickRangeSlider/NickRangeSlider'
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams()
@@ -30,6 +32,7 @@ const SearchPage = () => {
     const { setIsLoading } = useContext(LoadingContext)
     const { addParam, removeParam } = useQueryParam()
     const { updateTitle } = usePageTitleChanger()
+    const { CurrencyFormatter } = useCurrencyFormatter()
 
     const [products, setProducts] = useState<Product[]>([])
     const [filters, setFilters] = useState<Filter[]>([])
@@ -40,6 +43,10 @@ const SearchPage = () => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: {[key: string]: boolean} }>({})
+    const [priceFilter, setPriceFilter] = useState<[number, number]>([0, 10000])
+
+    const minPrice = 0
+    const maxPrice = 10000
     
     const itemsPerPageData = [
         {
@@ -112,6 +119,11 @@ const SearchPage = () => {
         })
     }, [setCheckBoxValues, addParam, removeParam])
 
+    const handlePrice = useCallback(() => {
+        addParam('minPrice', String(priceFilter[0]))
+        addParam('maxPrice', String(priceFilter[1]))
+    }, [priceFilter, addParam])
+
     const handleRating = useCallback((value : null | number) => {
         if(value !== null && value > 0 && value <= 5){
             setRatingFilter(value)
@@ -140,11 +152,12 @@ const SearchPage = () => {
     }, [itemsPerPage, setCurrentPage, addParam])
     
     useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
-    useEffect(() => handleLimit(), [itemsPerPage, handleLimit])
+    useEffect(() => handlePrice(), [handlePrice])
+    useEffect(() => handleLimit(), [handleLimit])
     useEffect(() => handlePage(currentPage), [currentPage, handlePage])
     useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating])
     useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance])
-    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam}` : ""), [queryParam, totalProductCount, updateTitle])
+    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle])
 
     useEffect(() => {
         const get_products = async () => {
@@ -159,6 +172,8 @@ const SearchPage = () => {
                 &offset=${offset}
                 &rating=${ratingFilter}
                 &relevance=${relevanceFilter.value}
+                &minPrice=${priceFilter[0]}
+                &maxPrice=${priceFilter[1]}
                 ${dynamicFilters}`.replaceAll(' ', '')
 
                 if(dynamicFilters){
@@ -248,13 +263,51 @@ const SearchPage = () => {
                                                     )
                                                 })}
                                             </div>
-                                            {adjustedIndex !== filters.length && (
-                                                <div className={styles.flexFilterFooter}>
-                                                    <div className={styles.flexFilterSeparator}></div>
-                                                </div>
-                                            )}
+                                            <div className={styles.flexFilterFooter}>
+                                                <div className={styles.flexFilterSeparator}></div>
+                                            </div>
                                         </div>
                                         {adjustedIndex === 1 && (
+                                            <div className={styles.flexFilter}>
+                                                <div className={styles.flexFilterHeader}>
+                                                    <h3 className={styles.flexFilterTitle}>Preço</h3>
+                                                </div>
+                                                <div className={styles.flexFilterBody}>
+                                                    <div className={styles.flexFilterItem}>
+                                                        <div className={styles.flexPriceFilter}>
+                                                            <div className={styles.flexPriceFilterHeader}>
+                                                                <div className={styles.flexPriceFilterHeaderA}>
+                                                                    <div className={styles.flexPriceFilterHeaderAItem}>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Mínimo:</span>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(minPrice)}</span>
+                                                                    </div>
+                                                                    <div className={styles.flexPriceFilterHeaderAItem}>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Máximo:</span>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(maxPrice)}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className={`${styles.flexPriceFilterHeaderA} ${styles.flexPriceFilterHeaderB}`}>
+                                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilter[0])}</span>
+                                                                    </div>
+                                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilter[1])}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.flexPriceFilterBody}>
+                                                                <NickRangeSlider min={minPrice} max={maxPrice} value={priceFilter} onChange={setPriceFilter} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className={styles.flexFilterFooter}>
+                                                    {/* {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>} */}
+                                                    <div className={styles.flexFilterSeparator}></div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {adjustedIndex === 2 && (
                                             <div className={styles.flexFilter}>
                                                 <div className={styles.flexFilterHeader}>
                                                     <h3 className={styles.flexFilterTitle}>Avaliações</h3>
@@ -269,7 +322,7 @@ const SearchPage = () => {
                                                 </div>
                                                 <div className={styles.flexFilterFooter}>
                                                     {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>}
-                                                    {index !== filters.length && <div className={styles.flexFilterSeparator}></div>}
+                                                    {adjustedIndex !== filters.length && <div className={styles.flexFilterSeparator}></div>}
                                                 </div>
                                             </div>
                                         )}
