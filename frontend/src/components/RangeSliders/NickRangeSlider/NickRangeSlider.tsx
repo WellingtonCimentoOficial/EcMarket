@@ -7,13 +7,10 @@ type Props = {
     min: number
     max: number
     onChange: React.Dispatch<React.SetStateAction<[number, number]>>
+    onAfterChange: React.Dispatch<React.SetStateAction<[number, number]>>
 }
 
-const NickRangeSlider = ({value, min, max, onChange}: Props) => {
-
-    const handleChange = (value: [number, number], index: number) => {
-        onChange(value)
-    }
+const NickRangeSlider = ({value, min, max, onChange, onAfterChange}: Props) => {
 
     const renderTrack = (props: any, state: any) => {
         const trackClassName = state.index === 0 ? styles.track1 : state.index === 1 ? styles.track2 : styles.track0;
@@ -31,7 +28,8 @@ const NickRangeSlider = ({value, min, max, onChange}: Props) => {
                 min={min}
                 max={max}
                 value={value}
-                onAfterChange={handleChange}
+                onChange={(value: [number, number]) => onChange(value)}
+                onAfterChange={(value: [number, number]) => onAfterChange(value)}
                 // renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
                 pearling
                 minDistance={10}

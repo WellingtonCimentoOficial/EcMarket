@@ -44,6 +44,7 @@ const SearchPage = () => {
     const [ratingFilter, setRatingFilter] = useState<number | null>(ratingParam !== null && /^[0-9]+$/.test(ratingParam) ? parseInt(ratingParam) : null)
     const [checkBoxValues, setCheckBoxValues] = useState<{ [key: string]: {[key: string]: boolean} }>({})
     const [priceFilter, setPriceFilter] = useState<[number, number]>([0, 10000])
+    const [priceFilterText, setPriceFilterText] = useState<[number, number]>([0, 10000])
 
     const minPrice = 0
     const maxPrice = 10000
@@ -288,15 +289,15 @@ const SearchPage = () => {
                                                                 </div>
                                                                 <div className={`${styles.flexPriceFilterHeaderA} ${styles.flexPriceFilterHeaderB}`}>
                                                                     <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilter[0])}</span>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[0])}</span>
                                                                     </div>
                                                                     <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilter[1])}</span>
+                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[1])}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div className={styles.flexPriceFilterBody}>
-                                                                <NickRangeSlider min={minPrice} max={maxPrice} value={priceFilter} onChange={setPriceFilter} />
+                                                                <NickRangeSlider min={minPrice} max={maxPrice} value={priceFilter} onAfterChange={setPriceFilter} onChange={setPriceFilterText} />
                                                             </div>
                                                         </div>
                                                     </div>
