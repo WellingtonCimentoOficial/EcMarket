@@ -7,7 +7,10 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
 
     # verifing if search param exists and if his value is true 
     if search is not None:
-        products = product_instance.objects.filter(Q(name__icontains=search)).all()
+        if search != "":
+            products = product_instance.objects.filter(Q(name__icontains=search)).all()
+        else:
+            raise ProductFilterError()
     else:
         products = product_instance.objects.all()
 
