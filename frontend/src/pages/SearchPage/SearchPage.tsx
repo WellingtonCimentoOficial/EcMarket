@@ -110,7 +110,6 @@ const SearchPage = () => {
                     [item.id]: !prevState[filter.id]?.[item.id] || false,
                 },
             }
-            console.log("no state", updatedValues)
             const ids = Object.entries(updatedValues[filter.id] ? updatedValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")
             if(ids.length > 0){
                 addParam(filter.param, ids)

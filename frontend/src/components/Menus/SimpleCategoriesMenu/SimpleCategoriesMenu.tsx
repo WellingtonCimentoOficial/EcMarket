@@ -61,7 +61,7 @@ const SimpleCategoriesMenu = (props: Props) => {
                             <div className={styles.containerChildren} ref={scrollRef}>
                                 {categories && categories.map(category => (
                                     <li className={styles.liFather} key={category.id}>
-                                        <a href="/" className={styles.title}>{category.name}</a>
+                                        <a href={`/search?q=&categories=${category.id}`} className={styles.title}>{category.name}</a>
                                     </li>
                                 ))}
                             </div>
