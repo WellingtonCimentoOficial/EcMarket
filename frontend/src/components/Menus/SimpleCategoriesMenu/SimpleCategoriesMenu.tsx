@@ -33,7 +33,7 @@ const SimpleCategoriesMenu = (props: Props) => {
         const get_categories = async () => {
             setIsLoading(true)
             try {
-                const response = await axios.get('/categories/name/?limit=20')
+                const response = await axios.get('/categories/name/?limit=20&random=true')
                 if(response.status === 200){
                     setCategories(response.data.results)
                 }

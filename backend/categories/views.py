@@ -4,9 +4,8 @@ from .models import CategoryProduct
 from .serializers import CategoryProductSerializer
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from django.db.models import Q, Count, F, OuterRef
-from .exceptions import CategoryFilterError
 from products.models import ProductFather
+from .utils import apply_category_filters
 
 # Create your views here.
 class CategoriesPagination(LimitOffsetPagination):
@@ -21,24 +20,14 @@ def get_categories(request):
         min_product_count_param = request.query_params.get('min_product_count')
         max_product_count_param = request.query_params.get('max_product_count')
 
-        if max_product_count_param is not None:
-            if max_product_count_param.isdigit():
-                categories_subquery = ProductFather.objects.filter(categories=OuterRef('pk')).order_by('-id')[:max_product_count_param]
-                categories = CategoryProduct.objects.annotate(limit_products=categories_subquery)
-            else:
-                raise CategoryFilterError()
-        else:
-            categories = CategoryProduct.objects.all().order_by('-id')
-            
-        if min_product_count_param is not None:
-            if min_product_count_param.isdigit():
-                categories = categories.annotate(product_count=Count('productfather')).filter(product_count__gte=int(min_product_count_param))
-            else:
-                raise CategoryFilterError()
-
-
-        if random_param is not None and random_param.lower() == 'true':
-            categories = categories.order_by('?')
+        # applying filters
+        categories = apply_category_filters(
+            productfather_instance=ProductFather, 
+            categoryproduct_instance=CategoryProduct, 
+            min_product_count_param=min_product_count_param, 
+            max_product_count_param=max_product_count_param, 
+            random_param=random_param
+        )
         
         #making a pagination
         paginator = CategoriesPagination()
@@ -63,15 +52,16 @@ def get_category(request, pk):
 @api_view(['GET'])
 def get_categories_name(request):
     try:
-        search = request.query_params.get('search')
+        search_param = request.query_params.get('search')
+        random_param = request.query_params.get('random')
 
-        if search is not None:
-            if search != "":
-                categories = CategoryProduct.objects.filter(Q(name__icontains=search)).order_by('?').values_list('id', 'name')
-            else:
-                raise CategoryFilterError()
-        else:
-            categories = CategoryProduct.objects.values_list('name', 'id')
+        # applying filters
+        categories = apply_category_filters(
+            productfather_instance=ProductFather, 
+            categoryproduct_instance=CategoryProduct,
+            search_param=search_param,
+            random_param=random_param
+        ).values_list('name', 'id')
 
         categories_formatted = [{'id': id, 'name': str(name)} for name, id in categories]
 
