@@ -66,7 +66,7 @@ const HomePage = (): JSX.Element => {
         const get_categories = async () => {
             setIsLoading(true)
             try {
-                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count_param=20&random=true')
+                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
                 if(response.status === 200){
                     setCategoriesData(response.data.results)
                 }

@@ -205,7 +205,7 @@ const SearchPage = () => {
         const get_categories = async () => {
             setIsLoading(true)
             try {
-                const response = await axios.get('/categories/?limit=1&random=true')
+                const response = await axios.get('/categories/?limit=1&min_product_count=10&max_product_count=20&random=true')
                 if(response.status === 200){
                     setCategoriesData(response.data.results)
                 }
