@@ -66,7 +66,7 @@ const HomePage = (): JSX.Element => {
         const get_categories = async () => {
             setIsLoading(true)
             try {
-                const response = await axios.get('/categories/?limit=6&random=true')
+                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count_param=20&random=true')
                 if(response.status === 200){
                     setCategoriesData(response.data.results)
                 }
@@ -99,7 +99,7 @@ const HomePage = (): JSX.Element => {
                         <section className={styles.sectionA}>
                             {categoriesData[1] && categoriesData[1].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[1].name} href='/'>
-                                    {categoriesData[1].products.map((product) => (
+                                    {categoriesData[1].products.slice(0, 10).map((product) => (
                                         <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
                                     ))}
                                 </HeaderAndContentLayout>

@@ -45,6 +45,9 @@
     scroll-behavior: smooth;
     flex-wrap: nowrap;
 }
+.center {
+    justify-content: center;
+}
 .flexItem {
     display: flex;
     background-color: transparent;

@@ -43,7 +43,7 @@ const HeaderAndContentLayout: React.FC<Props> = ({ title, href, enableScroll, au
                     </a>
                 </div>
                 <div className={styles.body}>
-                    <div ref={scrollRef} className={`${styles.containerBody} ${enableScroll ? styles.scroll : null}`}>
+                    <div ref={scrollRef} className={`${styles.containerBody} ${enableScroll ? styles.scroll : styles.center}`}>
                         {React.Children.count(children) > 1 ? (
                             React.Children.map(children, (child, index) => (
                                 <div className={styles.flexItem} key={index}>

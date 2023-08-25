@@ -4,8 +4,9 @@ from .models import CategoryProduct
 from .serializers import CategoryProductSerializer
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from django.db.models import Q
+from django.db.models import Q, Count, F, OuterRef
 from .exceptions import CategoryFilterError
+from products.models import ProductFather
 
 # Create your views here.
 class CategoriesPagination(LimitOffsetPagination):
@@ -17,11 +18,27 @@ class CategoriesPagination(LimitOffsetPagination):
 def get_categories(request):
     try:
         random_param = request.query_params.get('random')
+        min_product_count_param = request.query_params.get('min_product_count')
+        max_product_count_param = request.query_params.get('max_product_count')
 
-        if random_param is not None and random_param.lower() == 'true':
-            categories = CategoryProduct.objects.all().order_by('?')
+        if max_product_count_param is not None:
+            if max_product_count_param.isdigit():
+                categories_subquery = ProductFather.objects.filter(categories=OuterRef('pk')).order_by('-id')[:max_product_count_param]
+                categories = CategoryProduct.objects.annotate(limit_products=categories_subquery)
+            else:
+                raise CategoryFilterError()
         else:
             categories = CategoryProduct.objects.all().order_by('-id')
+            
+        if min_product_count_param is not None:
+            if min_product_count_param.isdigit():
+                categories = categories.annotate(product_count=Count('productfather')).filter(product_count__gte=int(min_product_count_param))
+            else:
+                raise CategoryFilterError()
+
+
+        if random_param is not None and random_param.lower() == 'true':
+            categories = categories.order_by('?')
         
         #making a pagination
         paginator = CategoriesPagination()

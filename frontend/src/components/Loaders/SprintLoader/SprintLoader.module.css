@@ -31,6 +31,7 @@
     background-color: rgba(0, 0, 0, 0.808);
     z-index: 9999999999999999999;
     pointer-events: auto;
+    backdrop-filter: blur(1px);
 }
 .container {
     width: 100%;
