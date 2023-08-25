@@ -13,7 +13,7 @@ const BoxBanner = ({ mainData, data }: Props) => {
             <div className={styles.container}>
                 <div className={styles.containerBig}>
                     <div className={styles.flexBig}>
-                        <a href='/' className={styles.flexBigHeader}>
+                        <a href='/' className={styles.flexBigHeader} title={mainData.name}>
                             <img className={styles.flexBigImage} src={mainData.children[0].images.principal_image} alt="" />
                         </a>
                     </div>
