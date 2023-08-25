@@ -82,7 +82,7 @@ const SearchPage = () => {
     ]
     
     const [itemsPerPage, setItemsPerPage] = useState<SelectType>(itemsPerPageData.find(item => String(item.value) === searchParams.get('limit')) || itemsPerPageData[0])
-    const [relevanceFilter, setRelevanceFilter] = useState<SelectType>(relevanceParam && relevanceFilterData.find(item => item.value === parseInt(relevanceParam)) || relevanceFilterData[0] )
+    const [relevanceFilter, setRelevanceFilter] = useState<SelectType>(relevanceFilterData.find(item => item.value === parseInt(relevanceParam || '0')) || relevanceFilterData[0] )
 
 
     const checkBoxInitialValues = useCallback(() => {
@@ -198,8 +198,8 @@ const SearchPage = () => {
     }, [
         itemsPerPage, currentPage, queryParam, 
         ratingFilter, relevanceFilter, filters, 
-        checkBoxValues, setIsLoading, setProducts,
-        setTotalPageCount, setTotalProductCount
+        checkBoxValues, priceFilter, setIsLoading, 
+        setProducts, setTotalPageCount, setTotalProductCount
     ])
 
     useEffect(() => {

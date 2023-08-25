@@ -5,6 +5,7 @@ from .serializers import CategoryProductSerializer
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Q
+from .exceptions import CategoryFilterError
 
 # Create your views here.
 class CategoriesPagination(LimitOffsetPagination):
@@ -48,11 +49,14 @@ def get_categories_name(request):
         search = request.query_params.get('search')
 
         if search is not None:
-            categories = CategoryProduct.objects.filter(Q(name__icontains=search)).order_by('?').values_list('id', 'name')
+            if search != "":
+                categories = CategoryProduct.objects.filter(Q(name__icontains=search)).order_by('?').values_list('id', 'name')
+            else:
+                raise CategoryFilterError()
         else:
             categories = CategoryProduct.objects.values_list('name', 'id')
 
-        categories_formatted = [{'id': id, 'name': str(name)} for id, name in categories]
+        categories_formatted = [{'id': id, 'name': str(name)} for name, id in categories]
 
         #making a pagination
         paginator = CategoriesPagination()

@@ -1,6 +1,9 @@
-import React, { RefObject, useEffect, useRef, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import styles from "./AllCategoriesMenu.module.css"
 import { PiCaretRightLight, PiArrowBendUpLeftLight } from 'react-icons/pi';
+import { CategoryName } from '../../../types/CategoryType';
+import { axios } from '../../../services/api';
+import { LoadingContext } from '../../../contexts/LoadingContext';
 
 
 type Props = {
@@ -12,30 +15,8 @@ type Props = {
 const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) => {
     const [hoveredIndex, setHoveredIndex] = useState<number>(-1);
     const containerRef = useRef<HTMLDivElement>(null)
-    const categories: string[] = [
-        "Eletronicos",
-        "Camisetas",
-        "Shorts",
-        "Kit calça jeans",
-        "Acessórios pessoais",
-        "Iphone",
-        "Mac book",
-        "Ipad",
-        "Suprimentos",
-        "Medicamentos",
-        "Creatina",
-        "Eeletronicos",
-        "Camisetas",
-        "Shorts",
-        "Kit calça jeans",
-        "Acessórios pessoais",
-        "Iphone",
-        "Mac book",
-        "Ipad",
-        "Suprimentos",
-        "Medicamentos",
-        "Creatina",
-    ]
+    const [categories, setCategories] = useState<CategoryName[] | null>(null)
+    const { setIsLoading } = useContext(LoadingContext)
 
     useEffect(() => {
         if(!show){
@@ -57,16 +38,32 @@ const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) =
         }
     }, [setShow, triggerElement])
 
+    useEffect(() => {
+        const get_categories = async () => {
+            setIsLoading(true)
+            try {
+                const response = await axios.get('/categories/name/?limit=20')
+                if(response.status === 200){
+                    setCategories(response.data.results)
+                }
+            } catch (error) {
+                setCategories(null)
+            }
+            setIsLoading(false)
+        }
+        get_categories()
+    }, [setIsLoading])
+
     return (
         <div className={`${styles.wrapper} ${show ? styles.showEffect : styles.hideEffect}`} ref={containerRef}>
             <div className={styles.container}>
-                {categories.map((categ, index) => (
-                    <div className={styles.containerFather} key={index}>
-                        <span className={styles.title} onClick={(): void => setHoveredIndex(index)}>
-                            {categ}
+                {categories && categories.map(category => (
+                    <div className={styles.containerFather} key={category.id}>
+                        <span className={styles.title} onClick={(): void => setHoveredIndex(category.id)}>
+                            {category.name}
                             <PiCaretRightLight className={styles.iconTitle} />
                         </span>
-                        <div className={`${styles.containerChild} ${hoveredIndex === index ? styles.showEffect : styles.hideEffect}`}>
+                        <div className={`${styles.containerChild} ${hoveredIndex === category.id ? styles.showEffect : styles.hideEffect}`}>
                             
                             <div className={styles.containerChildBody}>
                                 <ul className={styles.ulChild}>
@@ -77,64 +74,64 @@ const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) =
                                         <span className={styles.containerChildHeaderText}>Voltar</span>
                                     </div>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                     <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{categ + index}</a>
+                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
                                     </li>
                                 </ul>
                             </div>

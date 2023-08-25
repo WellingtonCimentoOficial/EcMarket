@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 import styles from "./SimpleCategoriesMenu.module.css"
 import { PiCaretRightLight, PiCaretLeftLight, PiListLight } from 'react-icons/pi';
 import AllCategoriesMenu from '../AllCategoriesMenu/AllCategoriesMenu';
 import { useScrollHandler } from '../../../hooks/useScrollHandler';
+import { LoadingContext } from '../../../contexts/LoadingContext';
+import { CategoryName } from '../../../types/CategoryType';
+import { axios } from '../../../services/api';
 
 type Props = {
     shadow?: boolean
@@ -13,31 +16,8 @@ const SimpleCategoriesMenu = (props: Props) => {
     const btnShowMenuAllCategoriesRef = useRef<HTMLLIElement>(null)
     const scrollRef = useRef<HTMLDivElement>(null)
     const { handleScroll } = useScrollHandler({ref: scrollRef})
-
-    const categories: string[] = [
-        "Eletronicos",
-        "Camisetas",
-        "Shorts",
-        "Kit calça jeans",
-        "Acessórios pessoais",
-        "Iphone",
-        "Mac book",
-        "Ipad",
-        "Suprimentos",
-        "Medicamentos",
-        "Creatina",
-        "Eeletronicos",
-        "Camisetas",
-        "Shorts",
-        "Kit calça jeans",
-        "Acessórios pessoais",
-        "Iphone",
-        "Mac book",
-        "Ipad",
-        "Suprimentos",
-        "Medicamentos",
-        "Creatina",
-    ]
+    const { setIsLoading } = useContext(LoadingContext)
+    const [categories, setCategories] = useState<CategoryName[] | null>(null)
     
     useEffect(() => {
         const interval = setInterval(() => {
@@ -48,6 +28,22 @@ const SimpleCategoriesMenu = (props: Props) => {
             clearInterval(interval)
         }
     }, [handleScroll])
+
+    useEffect(() => {
+        const get_categories = async () => {
+            setIsLoading(true)
+            try {
+                const response = await axios.get('/categories/name/?limit=20')
+                if(response.status === 200){
+                    setCategories(response.data.results)
+                }
+            } catch (error) {
+                setCategories(null)
+            }
+            setIsLoading(false)
+        }
+        get_categories()
+    }, [setIsLoading])
 
     return (
         <>
@@ -63,9 +59,9 @@ const SimpleCategoriesMenu = (props: Props) => {
                                 <PiCaretLeftLight className={styles.nextIcon} />
                             </li>
                             <div className={styles.containerChildren} ref={scrollRef}>
-                                {categories.map((categ, index) => (
-                                    <li className={styles.liFather} key={index}>
-                                        <a href="/" className={styles.title}>{categ}</a>
+                                {categories && categories.map(category => (
+                                    <li className={styles.liFather} key={category.id}>
+                                        <a href="/" className={styles.title}>{category.name}</a>
                                     </li>
                                 ))}
                             </div>
