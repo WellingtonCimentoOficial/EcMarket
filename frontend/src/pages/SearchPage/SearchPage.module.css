@@ -119,6 +119,9 @@
 .flexPriceFilter {
     width: 100%;
     background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .flexPriceFilterHeader {
     display: flex;
@@ -147,7 +150,7 @@
     font-weight: 500;
 }
 .flexPriceFilterBody {
-
+    background-color: transparent;
 }
 
 /* CONJUNTOS */
