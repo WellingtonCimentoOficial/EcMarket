@@ -151,17 +151,17 @@ const SearchPage = () => {
     }, [addParam])
 
     const handleLimit = useCallback(() => {
-        setCurrentPage(0)
         addParam('limit', String(itemsPerPage.value))
     }, [itemsPerPage, setCurrentPage, addParam])
     
-    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
-    useEffect(() => handlePrice(), [handlePrice])
-    useEffect(() => handleLimit(), [handleLimit])
-    useEffect(() => handlePage(currentPage), [currentPage, handlePage])
-    useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating])
-    useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance])
-    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle])
+    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues]) // calls a function whenever the page is loaded
+    useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
+    useEffect(() => handleLimit(), [handleLimit]) // calls a function whenever the page is loaded
+    useEffect(() => setCurrentPage(0), [itemsPerPage, setCurrentPage]) // resets currentPage whenever itemsPerPage updates
+    useEffect(() => handlePage(currentPage), [currentPage, handlePage]) // calls a function whenever currentPage updates
+    useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating]) // calls a function whenever ratingFilter updates
+    useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance]) // calls a function whenever relevanceFilter updates
+    useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle]) // update page title whenever queryParam and totalProductCount update
 
     useEffect(() => {
         const get_products = async () => {

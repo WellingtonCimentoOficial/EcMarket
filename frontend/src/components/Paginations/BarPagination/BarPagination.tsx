@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import styles from "./BarPagination.module.css"
 import { PiArrowUUpLeftLight, PiArrowUUpRightLight } from 'react-icons/pi';
 
@@ -42,15 +41,18 @@ const BarPagination = ({ totalPageCount, currentPage, onChange }: Props) => {
                 )}
                 {Array.from(Array(totalPageCount)).map((_, index) => {
                     if(totalPageCount > 5){
-                        if (totalPageCount > 5 && currentPage === index || // Página atual
-                            totalPageCount > 5 && currentPage + 1 === index || // Próxima página
-                            totalPageCount > 5 && currentPage + 2 === index // Página seguinte à próxima
+                        if (
+                            (totalPageCount > 5 && currentPage === index) || // Página atual
+                            (totalPageCount > 5 && currentPage + 1 === index) || // Próxima página
+                            (totalPageCount > 5 && currentPage + 2 === index) // Página seguinte à próxima
                         ) {
                             return (
                                 <div className={`${styles.flexItem} ${index === currentPage ? styles.selected : null}`} key={index} onClick={() => onChange(index)}>
                                     <span className={styles.flexItemText}>{index + 1}</span>
                                 </div>
                             )
+                        }else{
+                            return null
                         }
                     }else{
                         return (
