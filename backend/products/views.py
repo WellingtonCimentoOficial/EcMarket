@@ -91,9 +91,8 @@ def get_products_name(request):
 @api_view(['GET'])
 def get_product(request, pk):
     try:
-        product_father = ProductFather
-        products = product_father.objects.get(id=pk)
-        serializer = ProductFatherDetailSerializer(products, many=False, context={'request': request})
+        product = ProductFather.objects.get(id=pk)
+        serializer = ProductFatherDetailSerializer(product, many=False, context={'request': request})
         return Response(serializer.data)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)

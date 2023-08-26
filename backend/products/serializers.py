@@ -103,7 +103,7 @@ class ProductTechnicalInformationSerializer(serializers.ModelSerializer):
         exclude = ['product']
 
 class ProductFatherDetailSerializer(serializers.ModelSerializer):
-    shipping_weight = serializers.DecimalField(max_digits=3, decimal_places=2, coerce_to_string=False)
+    shipping_weight = serializers.DecimalField(max_digits=7, decimal_places=2, coerce_to_string=False)
     shipping_width = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     shipping_height = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     shipping_length = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)

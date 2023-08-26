@@ -3,6 +3,7 @@ import styles from "./SimpleProductCard.module.css"
 import { Product } from '../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../hooks/useCurrencyFormatter'
 import StarRating from '../../Ratings/StarRating/StarRating'
+import { useSlug } from '../../../hooks/useSlug'
 
 type Props = {
     data: Product
@@ -12,9 +13,10 @@ type Props = {
 
 const SimpleProductCard: React.FC<Props> = ({ data, showDiscountPercentage = false, showRating = false }) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
+    const { createSlug } = useSlug()
     return (
         <div className={styles.wrapper}>
-            <a className={styles.container} href='/'>
+            <a className={styles.container} href={`/${createSlug(data.name)}/p/${data.id}`}>
                 <div className={styles.header}>
                     <div className={styles.containerImage}>
                         <img className={styles.image} src={data.children[0].images.principal_image} alt="" />
