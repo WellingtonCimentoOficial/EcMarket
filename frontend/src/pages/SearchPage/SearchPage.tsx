@@ -152,12 +152,12 @@ const SearchPage = () => {
 
     const handleLimit = useCallback(() => {
         addParam('limit', String(itemsPerPage.value))
-    }, [itemsPerPage, setCurrentPage, addParam])
+    }, [itemsPerPage, addParam])
     
-    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues]) // calls a function whenever the page is loaded
+    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
     useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
     useEffect(() => handleLimit(), [handleLimit]) // calls a function whenever the page is loaded
-    useEffect(() => setCurrentPage(0), [itemsPerPage, setCurrentPage]) // resets currentPage whenever itemsPerPage updates
+    //useEffect(() => setCurrentPage(0), [itemsPerPage, setCurrentPage]) // resets currentPage whenever itemsPerPage updates
     useEffect(() => handlePage(currentPage), [currentPage, handlePage]) // calls a function whenever currentPage updates
     useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating]) // calls a function whenever ratingFilter updates
     useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance]) // calls a function whenever relevanceFilter updates
