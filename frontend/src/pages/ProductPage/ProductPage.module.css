@@ -1,0 +1,56 @@
+.wrapper {
+
+}
+.header {
+    padding: 20px 0px;
+}
+.body {
+
+}
+.containerMain {
+    display: flex;
+}
+.containerMainImages {
+    display: flex;
+    flex-grow: 1;
+    background-color: transparent;
+    gap: 10px;
+}
+.flexMainImagesThumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.flexMainImagesThumb {
+    cursor: pointer;
+    border: 2px solid rgba(0, 0, 0, 0.103);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+}
+.flexMainImagesThumbActive {
+    border-color: var(--primary-color);
+}
+.flexMainImagesThumbImg {
+    max-width: 100%;
+    max-height: 100%;
+}
+.flexMainImagesThumbnail {
+    background-color: transparent;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+.flexMainImagesThumbnailImg {
+    max-width: 100%;
+}
+.containerMainInfo {
+    width: 40%;
+    min-height: 100%;
+    background-color: red;
+}
+.containerSecondary {
+
+}
