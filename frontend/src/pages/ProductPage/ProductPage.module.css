@@ -4,6 +4,15 @@
 .header {
     padding: 20px 0px;
 }
+.headerTitle {
+    font-weight: bold;
+    font-size: 15pt;
+    text-decoration: none;
+    color: var(--text-color-one);
+}
+.headerTitle:hover {
+    text-decoration: underline;
+}
 .body {
 
 }
@@ -27,8 +36,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
 }
 .flexMainImagesThumbActive {
     border-color: var(--primary-color);
@@ -49,8 +58,67 @@
 .containerMainInfo {
     width: 40%;
     min-height: 100%;
-    background-color: red;
+    background-color: rgba(255, 0, 0, 0.082);
+    padding: 10px;
 }
+.containerMainInfoHeader {
+    background-color: transparent;
+}
+.containerMainInfoHeaderTitle {
+
+}
+.containerMainInfoHeaderTitleText {
+    font-size: 15pt;
+    font-weight: 500;
+}
+.containerMainInfoHeaderRating {
+    display: flex;
+    align-items: center;
+    padding: 10px 0px;
+    background-color: transparent;
+}
+.containerMainInfoHeaderRatingSubOne {
+    display: flex;
+    align-items: center;
+    border-left: 2px solid var(--text-color-two);
+    background-color: transparent;
+    padding: 0px 20px;
+}
+.containerMainInfoHeaderRatingSubOne:first-child {
+    border: 0;
+    padding-left: 0
+}
+.containerMainInfoHeaderRatingSubOneSText {
+    margin-right: 10px;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+.containerMainInfoHeaderRatingSubOneText {
+    color: var(--text-color-one-blur);
+}
+.containerMainInfoBody {
+
+}
+.containerMainInfoBodyPrice {
+    background-color: gold;
+    padding: 10px 0px;
+}
+.containerMainInfoBodyPricePrice {
+    display: flex;
+    gap: 20px;
+}
+.containerMainInfoBodyPriceDefaultText {
+    text-decoration: line-through;
+    color: var(--text-color-one-blur);
+}
+.containerMainInfoBodyPriceDiscountText {
+    font-size: 18pt;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+
 .containerSecondary {
 
 }

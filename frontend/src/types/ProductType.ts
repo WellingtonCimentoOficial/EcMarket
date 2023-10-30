@@ -1,3 +1,5 @@
+import { Store } from "./StoreType"
+
 export type Images = {
     principal_image: string
     image_2: string | null
@@ -31,4 +33,5 @@ export interface Product {
     description: string | null
     rating: Rating
     children: Children[]
+    store: Store
 }
