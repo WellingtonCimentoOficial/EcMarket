@@ -1,0 +1,43 @@
+.wrapper {
+
+}
+.container {
+    display: flex;
+    align-items: center;
+}
+.flexController {
+    border: 1px solid var(--text-color-two);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+.flexControllerIcon {
+
+}
+.flexInput {
+    display: flex;
+    background-color: red;
+    height: 30px;
+}
+.flexInputInput {
+    outline: 0;
+    border-top: 1px solid var(--text-color-two);
+    border-bottom: 1px solid var(--text-color-two);
+    max-width: 60px;
+    padding: 0px 10px;
+    font-size: 12pt;
+    text-align: center;
+}
+.flexInputInput::-webkit-inner-spin-button, 
+.flexInputInput::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+.flexInputInput { 
+    -moz-appearance: textfield; 
+}

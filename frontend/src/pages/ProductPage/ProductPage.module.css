@@ -55,6 +55,7 @@
 }
 .flexMainImagesThumbnailImg {
     max-width: 100%;
+    max-height: 600px;
 }
 .containerMainInfo {
     width: 40%;
@@ -168,12 +169,12 @@
     max-height: 100%;
 }
 .containerMainInfoBodyActions {
-    display: flex;
-    gap: 10px;
+    
 }
 .containerMainInfoBodyActionsSubOne {
+    display: flex;
+    gap: 10px;
     background-color: transparent;
-    width: 50%;
 }
 
 .containerSecondary {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styles from "./NickRangeSlider.module.css"
 import ReactSlider from 'react-slider'
 

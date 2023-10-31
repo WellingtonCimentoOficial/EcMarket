@@ -10,6 +10,7 @@ import StarRating from '../../components/Ratings/StarRating/StarRating'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
 import BtnA01 from '../../components/Buttons/BtnA01/BtnA01'
 import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
+import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySelect'
 
 type Props = {}
 
@@ -116,14 +117,14 @@ const ProductPage = (props: Props) => {
                                         ))}
                                     </div>
                                     <div className={styles.containerMainInfoBodyActions}>
-                                        <div className={styles.containerMainInfoBodyActionsSubOne}>
-                                            <BtnA01 href='' autoWidth>Comprar</BtnA01>
+                                        <div className={styles.containerMainInfoBodyActionsSubTwo}>
+                                            <QuantitySelect min={1} max={1000} />
                                         </div>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
                                             <BtnB02 autoWidth>Adicionar aos favoritos</BtnB02>
+                                            <BtnA01 href='' autoWidth>Comprar</BtnA01>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
