@@ -8,6 +8,8 @@ import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import StarRating from '../../components/Ratings/StarRating/StarRating'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
+import BtnA01 from '../../components/Buttons/BtnA01/BtnA01'
+import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
 
 type Props = {}
 
@@ -89,12 +91,39 @@ const ProductPage = (props: Props) => {
                                             {product?.children[0].discount_price &&
                                                 <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(product.children[0].default_price)}</span>
                                             }
-                                            <span className={styles.containerMainInfoBodyPriceDiscountText}>{CurrencyFormatter(product.children[0].discount_price || product.children[0].default_price)}</span>
+                                            <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
+                                                <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(product.children[0].discount_price || product.children[0].default_price)}</span>
+                                                {product?.children[0].discount_percentage && 
+                                                    <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{product.children[0].discount_percentage}%</span>
+                                                }
+                                            </div>
                                         </div>
                                         <div className={styles.containerMainInfoBodyPriceInstallments}>
-                                            <span>Ou {product?.children[0].installment_details.installments}x de {CurrencyFormatter(product?.children[0].installment_details.installment_price)} sem juros</span>
+                                            <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {product?.children[0].installment_details.installments}x de {CurrencyFormatter(product?.children[0].installment_details.installment_price)} sem juros</span>
                                         </div>
                                     </div>
+                                    <div className={styles.containerMainInfoBodyChildren}>
+                                        {product?.children.map((child) => (
+                                            <div className={styles.containerMainInfoBodyChildrenChild} key={child.id}>
+                                                <div className={styles.containerMainInfoBodyChildrenChildHeader}>
+                                                    <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>Opção:</span>
+                                                    <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>{product?.children[0].id}</span>
+                                                </div>
+                                                <div className={styles.containerMainInfoBodyChildrenChildBody}>
+                                                    <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={child.images.principal_image} alt="" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className={styles.containerMainInfoBodyActions}>
+                                        <div className={styles.containerMainInfoBodyActionsSubOne}>
+                                            <BtnA01 href='' autoWidth>Comprar</BtnA01>
+                                        </div>
+                                        <div className={styles.containerMainInfoBodyActionsSubOne}>
+                                            <BtnB02 autoWidth>Adicionar aos favoritos</BtnB02>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

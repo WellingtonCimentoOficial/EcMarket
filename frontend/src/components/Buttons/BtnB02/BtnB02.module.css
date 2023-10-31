@@ -1,9 +1,9 @@
 .wrapper {
     background-color: transparent;
 }
-.BtnB01 {
-    background-color: var(--primary-color);
-    color: white;
+.BtnB02 {
+    background-color: transparent;
+    color: var(--primary-color);
     padding: 10px 30px;
     border-radius: 5px;
     border: 2px solid var(--primary-color);
@@ -11,9 +11,8 @@
     cursor: pointer;
     transition: 0.3s;
 }
-.BtnB01:hover {
-    background-color: var(--primary-color-focus);
-    border-color: var(--primary-color-focus);
+.BtnB02:hover {
+
 }
 .AutoWidth {
     width: 100%;

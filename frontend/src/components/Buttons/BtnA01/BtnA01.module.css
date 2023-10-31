@@ -5,11 +5,13 @@
     text-decoration: none;
     padding: 10px 30px;
     border-radius: 5px;
+    border: 2px solid var(--primary-color);
     transition: 0.3s;
     text-align: center;
 }
 .BtnA01:hover {
     background-color: var(--primary-color-focus);
+    border-color: var(--primary-color-focus);
 }
 .AutoWidth {
     width: 100%;
