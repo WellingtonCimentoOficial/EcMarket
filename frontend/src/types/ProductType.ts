@@ -1,3 +1,4 @@
+import { type } from "os"
 import { Store } from "./StoreType"
 
 export type Images = {
@@ -18,6 +19,14 @@ export type Rating = {
     count: number
 }
 
+export type Presentation = {
+    image1: string
+    image2: string
+    image3: string
+    image4: string
+    image5: string
+}
+
 export type Children = {
     id: number
     default_price: number
@@ -25,6 +34,8 @@ export type Children = {
     discount_percentage: number | null
     installment_details: InstallmentDetails
     images: Images
+    sku: string
+    quantity: number
 }
 
 export interface Product {
@@ -33,5 +44,6 @@ export interface Product {
     description: string | null
     rating: Rating
     children: Children[]
+    presentation: Presentation | null
     store: Store
 }

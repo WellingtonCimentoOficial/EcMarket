@@ -11,6 +11,9 @@ import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
 import BtnA01 from '../../components/Buttons/BtnA01/BtnA01'
 import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
 import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySelect'
+import { FaShippingFast } from 'react-icons/fa';
+import { PiHeartLight } from 'react-icons/pi';
+
 
 type Props = {}
 
@@ -50,7 +53,7 @@ const ProductPage = (props: Props) => {
                         <a className={styles.headerTitle} href='/'>{product?.store.name}</a>
                     </div>
                     <div className={styles.body}>
-                        <div className={styles.containerMain}>
+                        <div className={`${styles.containerMain} ${styles.default}`}>
                             <div className={styles.containerMainImages}>
                                 <div className={styles.flexMainImagesThumbs}>
                                     {Object.values(product.children[0].images).filter(value => value !== null).map((img, index) => (
@@ -65,10 +68,17 @@ const ProductPage = (props: Props) => {
                                         src={currentImage} 
                                         alt="" />
                                 </div>
+                                
                             </div>
                             <div className={styles.containerMainInfo}>
                                 <div className={styles.containerMainInfoHeader}>
                                     <div className={styles.containerMainInfoHeaderTitle}>
+                                        <div className={styles.containerMainInfoHeaderTitleSubOne}>
+                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {product.children[0].sku || `00000`}</span>
+                                            <div className={styles.favoriteButton}>
+                                                <PiHeartLight className={styles.favoriteIcon} />
+                                            </div>
+                                        </div>
                                         <span className={styles.containerMainInfoHeaderTitleText}>{product?.name}</span>
                                     </div>
                                     <div className={styles.containerMainInfoHeaderRating}>
@@ -95,7 +105,7 @@ const ProductPage = (props: Props) => {
                                             <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
                                                 <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(product.children[0].discount_price || product.children[0].default_price)}</span>
                                                 {product?.children[0].discount_percentage && 
-                                                    <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{product.children[0].discount_percentage}%</span>
+                                                    <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(product.children[0].discount_percentage)}%</span>
                                                 }
                                             </div>
                                         </div>
@@ -116,20 +126,58 @@ const ProductPage = (props: Props) => {
                                             </div>
                                         ))}
                                     </div>
-                                    <div className={styles.containerMainInfoBodyActions}>
-                                        <div className={styles.containerMainInfoBodyActionsSubTwo}>
-                                            <QuantitySelect min={1} max={1000} />
+                                    <div className={styles.containerMainInfoBodyShipping}>
+                                        <div className={styles.containerMainInfoBodyShippingHeader}>
+                                            <FaShippingFast className={styles.containerMainInfoBodyShippingIcon} />
+                                            <span>Chegará grátis</span>
                                         </div>
+                                        <div className={styles.containerMainInfoBodyShippingBody}>
+                                            <span>segunda feira</span>
+                                        </div>
+
+                                    </div>
+                                    <div className={styles.containerMainInfoBodyStock}>
+                                        <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
+                                        <QuantitySelect min={1} max={product.children[0].quantity || 1} />
+                                        <span className={styles.containerMainInfoBodyStockText}>restam {product?.children[0].quantity} disponíveis</span>
+                                    </div>
+                                    <div className={styles.containerMainInfoBodyActions}>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
                                             <BtnB02 autoWidth>Adicionar aos favoritos</BtnB02>
+                                            <BtnB02 autoWidth>Adicionar ao carrinho</BtnB02>
+                                        </div>
+                                        <div className={styles.containerMainInfoBodyActionsSubTwo}>
                                             <BtnA01 href='' autoWidth>Comprar</BtnA01>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className={styles.containerSecondary}>
-
+                        <div className={`${styles.containerSecondary} ${styles.default}`}>
+                            {product.presentation &&
+                                <div className={styles.containerSecondaryWindow}>
+                                    <div className={styles.containerSecondaryWindowHeader}>
+                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>Apresentação</h4>
+                                    </div>
+                                    <div className={styles.containerSecondaryWindowBody}>
+                                        <ul className={styles.containerSecondaryWindowUl}>
+                                            {Object.entries(product.presentation).map(([key, value], index) => (
+                                                <li key={index} className={styles.containerSecondaryWindowUlLi}><img className={styles.containerSecondaryWindowImg} src={value} alt="" /></li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            }
+                            {product.description && 
+                                <div className={styles.containerSecondaryWindow}>
+                                    <div className={styles.containerSecondaryWindowHeader}>
+                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>Descrição</h4>
+                                    </div>
+                                    <div className={styles.containerSecondaryWindowBody}>
+                                        <p className={styles.containerSecondaryWindowBodyText}>{product.description}</p>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </WidthLayout>

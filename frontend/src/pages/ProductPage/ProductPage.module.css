@@ -14,7 +14,11 @@
     text-decoration: underline;
 }
 .body {
-
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: white;
+    border-radius: 10px;
 }
 .containerMain {
     display: flex;
@@ -72,11 +76,20 @@
     gap: 10px;
 }
 .containerMainInfoHeaderTitle {
-
+    display: flex;
+    flex-direction: column;
+}
+.containerMainInfoHeaderTitleSubOne {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .containerMainInfoHeaderTitleText {
     font-size: 15pt;
     font-weight: 500;
+}
+.containerMainInfoHeaderDescriptionText {
+    font-size: 11pt;
 }
 .containerMainInfoHeaderRating {
     display: flex;
@@ -106,7 +119,7 @@
 .containerMainInfoBody {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
 }
 .containerMainInfoBodyPrice {
     background-color: transparent;
@@ -126,10 +139,9 @@
 .containerMainInfoBodyPriceDiscountFlexText {
     font-size: 18pt;
     font-weight: 600;
-    color: var(--primary-color);
 }
 .containerMainInfoBodyPriceDiscountFlag {
-    color: var(--text-color-one);
+    color: green;
     font-size: 13pt;
 }
 .containerMainInfoBodyPriceInstallments {
@@ -151,7 +163,7 @@
     gap: 10px;
 }
 .containerMainInfoBodyChildrenChildHeaderS {
-    font-weight: 600;
+    font-weight: 500;
 }
 .containerMainInfoBodyChildrenChildHeaderText {
 
@@ -168,8 +180,40 @@
     max-width: 100%;
     max-height: 100%;
 }
-.containerMainInfoBodyActions {
+.containerMainInfoBodyShipping {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.containerMainInfoBodyShippingHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+.containerMainInfoBodyShippingIcon {
+    font-size: 25px;
+}
+.containerMainInfoBodyShippingBody {
     
+}
+.containerMainInfoBodyStock {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.containerMainInfoBodyStockTextFocus {
+    font-weight: 500;
+}
+.containerMainInfoBodyStockText {
+
+}
+
+.containerMainInfoBodyActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .containerMainInfoBodyActionsSubOne {
     display: flex;
@@ -178,5 +222,48 @@
 }
 
 .containerSecondary {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.containerSecondaryWindow {
+    border-top: 1.5px solid var(--text-color-two);
+}
+.containerSecondaryWindowHeader {
+    background-color: transparent;
+    padding: 20px 0px;
+}
+.containerSecondaryWindowHeaderTitle {
+    font-size: 18pt;
+}
+.containerSecondaryWindowBody {
 
+}
+.containerSecondaryWindowUl {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+.containerSecondaryWindowUlLi {
+    display: flex;
+}
+.containerSecondaryWindowImg {
+    max-width: 100%;
+}
+
+/* EXTRAS */
+.favoriteButton {
+    background-color: transparent;
+    display: flex;
+    cursor: pointer;
+}
+.favoriteIcon {
+    font-size: 35px;
+    color: var(--primary-color);
+}
+
+/* CONJUNTOS */
+.default {
+    padding: 20px;
 }
