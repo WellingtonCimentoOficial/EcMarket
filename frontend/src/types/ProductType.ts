@@ -1,5 +1,12 @@
-import { type } from "os"
 import { Store } from "./StoreType"
+
+export type TechnicalInformations = {
+    id: number,
+    name: string,
+    description: string
+    created_at: string
+    updated_at: string
+}
 
 export type Images = {
     principal_image: string
@@ -46,4 +53,5 @@ export interface Product {
     children: Children[]
     presentation: Presentation | null
     store: Store
+    technical_informations: TechnicalInformations[]
 }
