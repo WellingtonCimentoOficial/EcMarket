@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 type FuctionArgs = {
     updateTitle: (title: string) => void
@@ -6,19 +6,19 @@ type FuctionArgs = {
 }
 
 export const usePageTitleChanger = (): FuctionArgs => {
-    const updateTitle = (title: string) => {
+    const updateTitle = useCallback((title: string) => {
         if(title !== ""){
             const newTitle = title
             document.title = newTitle
         }
-    }
+    }, [])
 
     const deleteTitle = () => {
         document.title = ""
     }
 
     return {
-        updateTitle: updateTitle,
-        deleteTitle: deleteTitle
+        updateTitle,
+        deleteTitle
     }
 }
