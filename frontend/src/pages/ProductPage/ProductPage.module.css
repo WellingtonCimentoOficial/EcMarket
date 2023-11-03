@@ -254,7 +254,8 @@
     flex-direction: column;
     gap: 10px;
     background: white;
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 0px 10px 10px 10px;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
 }
 .containerSecondaryWindow {
 }
@@ -278,6 +279,47 @@
 }
 .containerSecondaryWindowImg {
     max-width: 100%;
+}
+.containerSecondaryWindowBodyTable {
+    border: 0;
+    border-collapse: collapse;
+    background-color: transparent;
+    width: 100%;
+}
+.containerSecondaryWindowBodyTableHead {
+
+}
+.containerSecondaryWindowBodyTableHeadTr {
+}
+.containerSecondaryWindowBodyTableHeadTrTh {
+    width: 20%;
+}
+.containerSecondaryWindowBodyTableBody {
+    background-color: transparent;
+}
+.containerSecondaryWindowBodyTableBodyTr {
+    display: flex;
+    align-items: center;
+}
+.containerSecondaryWindowBodyTableBodyTrTd {
+    width: 80%;
+}
+.containerSecondaryWindowBodyTableHeadTrTh,
+.containerSecondaryWindowBodyTableBodyTrTd {
+    padding: 10px 20px;
+}
+.containerSecondaryWindowBodyTableHeadTr:nth-child(even),
+.containerSecondaryWindowBodyTableBodyTr:nth-child(even) {
+    background-color: var(--text-color-two);
+}
+.containerSecondaryWindowBodyTableHeadTr:nth-child(odd),
+.containerSecondaryWindowBodyTableBodyTr:nth-child(odd) {
+    background-color: white;
+}
+
+.sectionA {
+    margin: 50px 0px;
+    background-color: transparent;
 }
 
 /* EXTRAS */

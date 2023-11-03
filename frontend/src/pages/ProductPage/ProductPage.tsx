@@ -14,6 +14,9 @@ import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySele
 import { FaShippingFast } from 'react-icons/fa';
 import { PiHeartLight } from 'react-icons/pi';
 import { Presentation, TechnicalInformation } from '../../types/ProductType'
+import { Category } from '../../types/CategoryType'
+import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
+import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/SimpleProductCard'
 
 
 type Props = {}
@@ -26,6 +29,8 @@ const ProductPage = (props: Props) => {
 
     const [product, setProduct] = useState<Product | null>(null)
     const [currentImage, setCurrentImage] = useState<string>('')
+
+    const [categoriesData, setCategoriesData] = useState<Category[]>([])
 
     type ProductDetailsType = {
         id: number
@@ -93,6 +98,23 @@ const ProductPage = (props: Props) => {
             setProductCurrentDetail(firstItemId)
         }
     }, [productDetails])
+
+    useEffect(() => {
+        const get_categories = async () => {
+            setIsLoading(true)
+            try {
+                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
+                if(response.status === 200){
+                    setCategoriesData(response.data.results)
+                }
+                
+            } catch (error) {
+                setCategoriesData([])
+            }
+            setIsLoading(false)
+        }
+        get_categories()
+    }, [setIsLoading])
  
     return (
         product && (
@@ -213,7 +235,8 @@ const ProductPage = (props: Props) => {
                                                         <span className={styles.containerSecondaryHeaderUlLiText}>{productDetail.id === 3 ? productDetail.name + ` (${product.rating.count})` : productDetail.name}</span>
                                                     </li>
                                                 )
-                                            } 
+                                            }
+                                            return null
                                         })}
                                     </ul>
                                 </div>
@@ -221,7 +244,7 @@ const ProductPage = (props: Props) => {
                                     {productDetails.map(productDetail => {
                                         if (productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 0){
                                             return (
-                                                <div className={styles.containerSecondaryWindow}>
+                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
                                                     </div>
@@ -236,7 +259,7 @@ const ProductPage = (props: Props) => {
                                             )
                                         }else if(productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 1){
                                             return (
-                                                <div className={styles.containerSecondaryWindow}>
+                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
                                                     </div>
@@ -247,18 +270,27 @@ const ProductPage = (props: Props) => {
                                             )
                                         }else if(productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 2){
                                             return (
-                                                <div className={styles.containerSecondaryWindow}>
+                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
-                                                        <p className={styles.containerSecondaryWindowBodyText}>{String(productDetail.body)}</p>
+                                                        <table className={styles.containerSecondaryWindowBodyTable}>
+                                                            <tbody className={styles.containerSecondaryWindowBodyTableBody}>
+                                                                {Array.isArray(productDetail.body) && productDetail.body.map(techInfo => (
+                                                                    <tr className={styles.containerSecondaryWindowBodyTableBodyTr} key={techInfo.id}>
+                                                                        <th className={styles.containerSecondaryWindowBodyTableHeadTrTh}>{techInfo.name}</th>
+                                                                        <td className={styles.containerSecondaryWindowBodyTableBodyTrTd}>{techInfo.description}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             )
                                         }else if(productCurrentDetail === productDetail.id && productDetail.id === 3){
                                             return (
-                                                <div className={styles.containerSecondaryWindow}>
+                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${product.rating.count})`}</h4>
                                                     </div>
@@ -271,11 +303,33 @@ const ProductPage = (props: Props) => {
                                                     </div>
                                                 </div>
                                             )
+                                        }else{
+                                            return null
                                         }
                                     })}
                                 </div>
                             </div>
                         }
+                    </div>
+                    <div className={styles.footer}>
+                        <section className={styles.sectionA}>
+                            {categoriesData[0] && categoriesData[0].products.length > 0 && (
+                                <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
+                                    {categoriesData[0].products.map((product) => (
+                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                    ))}
+                                </HeaderAndContentLayout>
+                            )}
+                        </section>
+                        <section className={styles.sectionA}>
+                            {categoriesData[1] && categoriesData[1].products.length > 0 && (
+                                <HeaderAndContentLayout title={categoriesData[1].name} href={`/search?q=&categories=${categoriesData[1].id}`} enableScroll={true} autoScroll={true}>
+                                    {categoriesData[1].products.map((product) => (
+                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                    ))}
+                                </HeaderAndContentLayout>
+                            )}
+                        </section>
                     </div>
                 </WidthLayout>
             </div>
