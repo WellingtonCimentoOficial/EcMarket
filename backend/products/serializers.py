@@ -135,8 +135,10 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         try:
             technical_informations = obj.technical_information.all()
-            serializer = ProductTechnicalInformationSerializer(technical_informations, many=True, context={'request': request})
-            return serializer.data
+            if len(technical_informations) > 0:
+                serializer = ProductTechnicalInformationSerializer(technical_informations, many=True, context={'request': request})
+                return serializer.data
+            return None
         except:
             return None
 
