@@ -1,6 +1,6 @@
 import { Store } from "./StoreType"
 
-export type TechnicalInformations = {
+export type TechnicalInformation = {
     id: number,
     name: string,
     description: string
@@ -53,5 +53,5 @@ export interface Product {
     children: Children[]
     presentation: Presentation | null
     store: Store
-    technical_informations: TechnicalInformations[]
+    technical_informations: TechnicalInformation[]
 }

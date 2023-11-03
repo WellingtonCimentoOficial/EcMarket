@@ -13,7 +13,7 @@ import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
 import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySelect'
 import { FaShippingFast } from 'react-icons/fa';
 import { PiHeartLight } from 'react-icons/pi';
-import { Presentation, TechnicalInformations } from '../../types/ProductType'
+import { Presentation, TechnicalInformation } from '../../types/ProductType'
 
 
 type Props = {}
@@ -30,7 +30,7 @@ const ProductPage = (props: Props) => {
     type ProductDetailsType = {
         id: number
         name: string
-        body: Presentation | TechnicalInformations[] | string | null
+        body: Presentation | TechnicalInformation[] | string | null
         fixed: boolean
     }
 
