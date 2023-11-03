@@ -4,23 +4,24 @@ import styles from "./StarRating.module.css"
 
 type Props = {
     rate: number
+    size?: string
 }
 
-const StarRating = ({ rate }: Props) => {
+const StarRating = ({ rate, size }: Props) => {
     return (
         <div className={styles.wrapper}>
             {Array.from(Array(5), (_, index) => index + 1).map(index => {
                 if(index <= Math.floor(rate)){
                     return (
-                        <PiStarFill className={styles.star} key={index} />
+                        <PiStarFill className={styles.star} style={{fontSize: size || '15pt'}} key={index} />
                     )
                 }else if (rate > Math.floor(rate) && index === Math.floor(rate) + 1){
                     return (
-                        <PiStarHalfFill className={styles.star} key={index} />
+                        <PiStarHalfFill className={styles.star} style={{fontSize: size || '15pt'}} key={index} />
                     )
                 }else{
                     return (
-                        <PiStar className={styles.star} key={index} />
+                        <PiStar className={styles.star} style={{fontSize: size || '15pt'}} key={index} />
                     )
                 }
             })}
