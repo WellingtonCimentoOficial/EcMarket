@@ -264,7 +264,8 @@
     padding: 20px 0px;
 }
 .containerSecondaryWindowHeaderTitle {
-    font-size: 18pt;
+    font-size: 17pt;
+    font-weight: 500;
 }
 .containerSecondaryWindowBody {
 
@@ -285,11 +286,6 @@
     border-collapse: collapse;
     background-color: transparent;
     width: 100%;
-}
-.containerSecondaryWindowBodyTableHead {
-
-}
-.containerSecondaryWindowBodyTableHeadTr {
 }
 .containerSecondaryWindowBodyTableHeadTrTh {
     width: 20%;
@@ -315,6 +311,50 @@
 .containerSecondaryWindowBodyTableHeadTr:nth-child(odd),
 .containerSecondaryWindowBodyTableBodyTr:nth-child(odd) {
     background-color: white;
+}
+
+.containerSecondaryWindowBodyComments {
+    display: flex;
+    gap: 20px;
+}
+.containerSecondaryWindowBodyCommentsHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 25%;
+    background-color: transparent;
+}
+.containerSecondaryWindowBodyCommentsHeaderItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+}
+.containerSecondaryWindowBodyCommentsBody {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.containerSecondaryWindowBodyCommentsBodyComment {
+    display: flex;
+    gap: 15px;
+}
+.containerSecondaryWindowBodyCommentsBodyCommentHeader {
+}
+.containerSecondaryWindowBodyCommentsBodyCommentHeaderImage {
+    width: 45px;
+    height: 45px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+.containerSecondaryWindowBodyCommentsBodyCommentBody {
+
+}
+.containerSecondaryWindowBodyCommentsBodyCommentTitle {
+    font-weight: 500;
+}
+.containerSecondaryWindowBodyCommentsBodyCommentDescription {
+
 }
 
 .sectionA {

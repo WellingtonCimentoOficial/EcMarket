@@ -1,8 +1,8 @@
 import { Store } from "./StoreType"
 
 export type TechnicalInformation = {
-    id: number,
-    name: string,
+    id: number
+    name: string
     description: string
     created_at: string
     updated_at: string

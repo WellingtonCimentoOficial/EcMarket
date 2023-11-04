@@ -17,6 +17,7 @@ import { Presentation, TechnicalInformation } from '../../types/ProductType'
 import { Category } from '../../types/CategoryType'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
 import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/SimpleProductCard'
+import { Comment } from '../../types/CommentType'
 
 
 type Props = {}
@@ -35,12 +36,14 @@ const ProductPage = (props: Props) => {
     type ProductDetailsType = {
         id: number
         name: string
-        body: Presentation | TechnicalInformation[] | string | null
+        show: boolean
         fixed: boolean
     }
 
-    const [productDetails, setProductDetails] = useState<ProductDetailsType[]>()
-    const [productCurrentDetail, setProductCurrentDetail] = useState<number>()
+    const [productDetails, setProductDetails] = useState<ProductDetailsType[]>([])
+    const [currentProductDetailId, setCurrentProductDetailId] = useState<number>()
+
+    const [comments, setComments] = useState<Comment[]>([])
 
     useEffect(() => {
         const get_product = async () => {
@@ -62,40 +65,55 @@ const ProductPage = (props: Props) => {
     }, [productId, setIsLoading, updateTitle])
 
     useEffect(() => {
-        if(product){
+        const get_comments = async () => {
+            try {
+                const response = await axios.get(`/comments/product/${productId}`)
+                const data: Comment[] = await response.data.results
+                if(response.status === 200){
+                    setComments(data)
+                }
+            } catch (error) {
+                setComments([])
+            }
+        }
+        get_comments()
+    }, [productId, setComments])
+
+    useEffect(() => {
+        if(product && comments){
             setProductDetails([
                 {
                     id: 0,
                     name: 'Apresentação',
-                    body: product?.presentation,
+                    show: product.presentation ? true : false,
                     fixed: false
                 },
                 {
                     id: 1,
                     name: 'Descrição',
-                    body: product?.description,
+                    show: product.description ? true : false,
                     fixed: false
                 },
                 {
                     id: 2,
                     name: 'Ficha Técnica',
-                    body: product?.technical_informations,
+                    show: product.technical_informations ? true : false,
                     fixed: false
                 },
                 {
                     id: 3,
                     name: 'Avaliações',
-                    body: product?.presentation,
+                    show: comments.length > 0 ? true : false,
                     fixed: true
                 },
             ])
         }
-    }, [product])
+    }, [product, comments, setProductDetails])
 
     useEffect(() => {
         if(productDetails){
-            const firstItemId = productDetails.find(item => item.body)?.id
-            setProductCurrentDetail(firstItemId)
+            const firstItemId = productDetails.find(item => item.show)?.id
+            setCurrentProductDetailId(firstItemId)
         }
     }, [productDetails])
 
@@ -229,9 +247,9 @@ const ProductPage = (props: Props) => {
                                 <div className={styles.containerSecondaryHeader}>
                                     <ul className={styles.containerSecondaryHeaderUl}>
                                         {productDetails.map(productDetail => {
-                                            if(productDetail.body || productDetail.fixed){
+                                            if(productDetail.show || productDetail.fixed){
                                                 return (
-                                                    <li className={`${styles.containerSecondaryHeaderUlLi} ${productDetail.id === productCurrentDetail ? styles.containerSecondaryHeaderUlLiFocus : null}`} key={productDetail.id} onClick={() => setProductCurrentDetail(productDetail.id)}>
+                                                    <li className={`${styles.containerSecondaryHeaderUlLi} ${productDetail.id === currentProductDetailId ? styles.containerSecondaryHeaderUlLiFocus : null}`} key={productDetail.id} onClick={() => setCurrentProductDetailId(productDetail.id)}>
                                                         <span className={styles.containerSecondaryHeaderUlLiText}>{productDetail.id === 3 ? productDetail.name + ` (${product.rating.count})` : productDetail.name}</span>
                                                     </li>
                                                 )
@@ -242,7 +260,7 @@ const ProductPage = (props: Props) => {
                                 </div>
                                 <div className={`${styles.containerSecondaryBody} ${styles.default}`}>
                                     {productDetails.map(productDetail => {
-                                        if (productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 0){
+                                        if (currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 0){
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
@@ -250,25 +268,25 @@ const ProductPage = (props: Props) => {
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <ul className={styles.containerSecondaryWindowUl}>
-                                                            {Object.entries(productDetail.body).map(([key, value], index) => (
+                                                            {product.presentation && Object.entries(product.presentation).map(([key, value], index) => (
                                                                 <li key={index} className={styles.containerSecondaryWindowUlLi}><img className={styles.containerSecondaryWindowImg} src={value} alt="" /></li>
                                                             ))}
                                                         </ul>
                                                     </div>
                                                 </div>
                                             )
-                                        }else if(productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 1){
+                                        }else if(currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 1){
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
-                                                        <p className={styles.containerSecondaryWindowBodyText}>{String(productDetail.body)}</p>
+                                                        <p className={styles.containerSecondaryWindowBodyText}>{product.description}</p>
                                                     </div>
                                                 </div>
                                             )
-                                        }else if(productCurrentDetail === productDetail.id && productDetail.body && productDetail.id === 2){
+                                        }else if(currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 2){
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
@@ -277,10 +295,10 @@ const ProductPage = (props: Props) => {
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <table className={styles.containerSecondaryWindowBodyTable}>
                                                             <tbody className={styles.containerSecondaryWindowBodyTableBody}>
-                                                                {Array.isArray(productDetail.body) && productDetail.body.map(techInfo => (
-                                                                    <tr className={styles.containerSecondaryWindowBodyTableBodyTr} key={techInfo.id}>
-                                                                        <th className={styles.containerSecondaryWindowBodyTableHeadTrTh}>{techInfo.name}</th>
-                                                                        <td className={styles.containerSecondaryWindowBodyTableBodyTrTd}>{techInfo.description}</td>
+                                                                {product.technical_informations.map(item => (
+                                                                    <tr className={styles.containerSecondaryWindowBodyTableBodyTr} key={item.id}>
+                                                                        <th className={styles.containerSecondaryWindowBodyTableHeadTrTh}>{item.name}</th>
+                                                                        <td className={styles.containerSecondaryWindowBodyTableBodyTrTd}>{item.description}</td>
                                                                     </tr>
                                                                 ))}
                                                             </tbody>
@@ -288,18 +306,46 @@ const ProductPage = (props: Props) => {
                                                     </div>
                                                 </div>
                                             )
-                                        }else if(productCurrentDetail === productDetail.id && productDetail.id === 3){
+                                        }else if(currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 3){
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${product.rating.count})`}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
-                                                        {productDetail.body ? (
-                                                            <p className={styles.containerSecondaryWindowBodyText}>{String(productDetail.body)}</p>
-                                                        ):(
-                                                            <span>Nenhuma avaliação</span>
-                                                        )}
+                                                        <div className={styles.containerSecondaryWindowBodyComments}>
+                                                            <div className={styles.containerSecondaryWindowBodyCommentsHeader}>
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
+                                                                    <StarRating size='20pt' rate={product.rating.average} />
+                                                                    <span>{product.rating.average} de 5</span>
+                                                                </div>
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
+                                                                    <span>{product.rating.count} avaliações</span>
+                                                                </div>
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.containerSecondaryWindowBodyCommentsBody}>
+                                                                {comments ? (
+                                                                    comments.map(commentT => (
+                                                                        <div className={styles.containerSecondaryWindowBodyCommentsBodyComment} key={commentT.id}>
+                                                                            <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeader} >
+                                                                                <img className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeaderImage} src="https://images-na.ssl-images-amazon.com/images/S/amazon-avatars-global/default._CR0,0,1024,1024_SX48_.png" alt="" />
+                                                                            </div>
+                                                                            <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBody} >
+                                                                                <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentTitle}>{`${commentT.owner.first_name} ${commentT.owner.last_name}`}</span>
+                                                                                <StarRating rate={commentT.rating} />
+                                                                                <p className={styles.containerSecondaryWindowBodyCommentsBodyCommentDescription}>{commentT.comment}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                ):(
+                                                                    <span>Nenhuma avaliação</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             )
