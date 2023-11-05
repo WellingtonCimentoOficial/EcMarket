@@ -1,0 +1,17 @@
+.wrapper {
+    position: relative;
+    width: 100%;
+}
+.container {
+    width: 100%;
+    background-color: var(--text-color-two);
+}
+.container2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.default {
+    border-radius: 10px;
+}
