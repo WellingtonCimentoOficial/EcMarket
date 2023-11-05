@@ -13,11 +13,12 @@ import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
 import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySelect'
 import { FaShippingFast } from 'react-icons/fa';
 import { PiHeartLight } from 'react-icons/pi';
-import { Presentation, TechnicalInformation } from '../../types/ProductType'
 import { Category } from '../../types/CategoryType'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
 import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/SimpleProductCard'
 import { Comment } from '../../types/CommentType'
+import { useDateDifferenceCalculator } from '../../hooks/useDateDifferenceCalculator'
+import BarPagination from '../../components/Paginations/BarPagination/BarPagination'
 
 
 type Props = {}
@@ -27,6 +28,7 @@ const ProductPage = (props: Props) => {
     const { setIsLoading } = useContext(LoadingContext)
     const { updateTitle } = usePageTitleChanger()
     const { CurrencyFormatter } = useCurrencyFormatter()
+    const { dateDifferenceFormat } = useDateDifferenceCalculator()
 
     const [product, setProduct] = useState<Product | null>(null)
     const [currentImage, setCurrentImage] = useState<string>('')
@@ -44,6 +46,10 @@ const ProductPage = (props: Props) => {
     const [currentProductDetailId, setCurrentProductDetailId] = useState<number>()
 
     const [comments, setComments] = useState<Comment[]>([])
+
+    const [currentPage, setCurrentPage] = useState<number>(0)
+    const [totalPageCount, setTotalPageCount] = useState<number>(0)
+    const itemsPerPage = 10
 
     useEffect(() => {
         const get_product = async () => {
@@ -66,18 +72,21 @@ const ProductPage = (props: Props) => {
 
     useEffect(() => {
         const get_comments = async () => {
+            setIsLoading(true)
             try {
-                const response = await axios.get(`/comments/product/${productId}`)
-                const data: Comment[] = await response.data.results
+                const offset = currentPage * itemsPerPage
+                const response = await axios.get(`/comments/product/${productId}?limit=${itemsPerPage}&offset=${offset}`)
                 if(response.status === 200){
-                    setComments(data)
+                    setComments(response.data.results)
+                    setTotalPageCount(response.data.total_page_count)
                 }
             } catch (error) {
                 setComments([])
             }
+            setIsLoading(false)
         }
         get_comments()
-    }, [productId, setComments])
+    }, [productId, currentPage, itemsPerPage, setComments, setIsLoading])
 
     useEffect(() => {
         if(product && comments){
@@ -111,7 +120,7 @@ const ProductPage = (props: Props) => {
     }, [product, comments, setProductDetails])
 
     useEffect(() => {
-        if(productDetails){
+        if(productDetails && !currentProductDetailId){
             const firstItemId = productDetails.find(item => item.show)?.id
             setCurrentProductDetailId(firstItemId)
         }
@@ -327,22 +336,34 @@ const ProductPage = (props: Props) => {
                                                                 </div>
                                                             </div>
                                                             <div className={styles.containerSecondaryWindowBodyCommentsBody}>
-                                                                {comments ? (
-                                                                    comments.map(commentT => (
-                                                                        <div className={styles.containerSecondaryWindowBodyCommentsBodyComment} key={commentT.id}>
-                                                                            <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeader} >
-                                                                                <img className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeaderImage} src="https://images-na.ssl-images-amazon.com/images/S/amazon-avatars-global/default._CR0,0,1024,1024_SX48_.png" alt="" />
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsBodyBody}>
+                                                                    {comments.length > 0 ? (
+                                                                        comments.map(commentT => (
+                                                                            <div className={styles.containerSecondaryWindowBodyCommentsBodyComment} key={commentT.id}>
+                                                                                <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeader} >
+                                                                                    <img className={styles.containerSecondaryWindowBodyCommentsBodyCommentHeaderImage} src="https://images-na.ssl-images-amazon.com/images/S/amazon-avatars-global/default._CR0,0,1024,1024_SX48_.png" alt="" />
+                                                                                </div>
+                                                                                <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBody} >
+                                                                                    <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBodyT}>
+                                                                                        <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentTitle}>{`${commentT.owner.first_name} ${commentT.owner.last_name}`}</span>
+                                                                                        <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentDate}>há {dateDifferenceFormat(commentT.created_at).value} {dateDifferenceFormat(commentT.created_at).noun}</span>
+                                                                                    </div>
+                                                                                    <StarRating rate={commentT.rating} />
+                                                                                    <p className={styles.containerSecondaryWindowBodyCommentsBodyCommentDescription}>{commentT.comment}</p>
+                                                                                </div>
                                                                             </div>
-                                                                            <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBody} >
-                                                                                <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentTitle}>{`${commentT.owner.first_name} ${commentT.owner.last_name}`}</span>
-                                                                                <StarRating rate={commentT.rating} />
-                                                                                <p className={styles.containerSecondaryWindowBodyCommentsBodyCommentDescription}>{commentT.comment}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))
-                                                                ):(
-                                                                    <span>Nenhuma avaliação</span>
-                                                                )}
+                                                                        ))
+                                                                    ):(
+                                                                        <span>Nenhuma avaliação</span>
+                                                                    )}
+                                                                </div>
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsBodyFooter}>
+                                                                    <BarPagination 
+                                                                        totalPageCount={totalPageCount}
+                                                                        currentPage={currentPage}
+                                                                        onChange={setCurrentPage}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </div>
 
