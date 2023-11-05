@@ -328,7 +328,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
-
+}
+.containerSecondaryWindowBodyCommentsHeaderItemRatingText {
+    font-weight: 400;
+}
+.containerSecondaryWindowBodyCommentsHeaderItemRatingTextD {
+    font-size: 18pt;
+    font-weight: 500;
+}
+.containerSecondaryWindowBodyCommentsHeaderItemTwo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 .containerSecondaryWindowBodyCommentsBody {
     width: 100%;

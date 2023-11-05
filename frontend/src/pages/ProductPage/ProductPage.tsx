@@ -19,7 +19,7 @@ import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/S
 import { Comment } from '../../types/CommentType'
 import { useDateDifferenceCalculator } from '../../hooks/useDateDifferenceCalculator'
 import BarPagination from '../../components/Paginations/BarPagination/BarPagination'
-
+import SimpleProgressBar from '../../components/ProgressBars/SimpleProgressBar/SimpleProgressBar'
 
 type Props = {}
 
@@ -124,7 +124,7 @@ const ProductPage = (props: Props) => {
             const firstItemId = productDetails.find(item => item.show)?.id
             setCurrentProductDetailId(firstItemId)
         }
-    }, [productDetails])
+    }, [productDetails, currentProductDetailId])
 
     useEffect(() => {
         const get_categories = async () => {
@@ -326,13 +326,24 @@ const ProductPage = (props: Props) => {
                                                             <div className={styles.containerSecondaryWindowBodyCommentsHeader}>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
                                                                     <StarRating size='20pt' rate={product.rating.average} />
-                                                                    <span>{product.rating.average} de 5</span>
+                                                                    <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemRatingText}>
+                                                                        <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemRatingTextD}>{Math.floor(product.rating.average * 10) / 10}</span> de 5
+                                                                    </span>
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
-                                                                    <span>{product.rating.count} avaliações</span>
+                                                                    <span>Total de {product.rating.count} avaliações</span>
                                                                 </div>
-                                                                <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
-                                                                    
+                                                                <div className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwo}>
+                                                                    {Array.from(Array(5)).map((_, index) => (
+                                                                        <div key={index}>
+                                                                            <SimpleProgressBar 
+                                                                                currentValue={500} 
+                                                                                totalValue={1000} 
+                                                                                height={15}
+                                                                                backgroundColor='var(--star-color)'
+                                                                            />
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
                                                             </div>
                                                             <div className={styles.containerSecondaryWindowBodyCommentsBody}>
@@ -346,7 +357,9 @@ const ProductPage = (props: Props) => {
                                                                                 <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBody} >
                                                                                     <div className={styles.containerSecondaryWindowBodyCommentsBodyCommentBodyT}>
                                                                                         <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentTitle}>{`${commentT.owner.first_name} ${commentT.owner.last_name}`}</span>
-                                                                                        <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentDate}>há {dateDifferenceFormat(commentT.created_at).value} {dateDifferenceFormat(commentT.created_at).noun}</span>
+                                                                                        <span className={styles.containerSecondaryWindowBodyCommentsBodyCommentDate}>
+                                                                                            há {dateDifferenceFormat(commentT.created_at).value} {dateDifferenceFormat(commentT.created_at).value > 1 ? dateDifferenceFormat(commentT.created_at).plural : dateDifferenceFormat(commentT.created_at).noun}
+                                                                                        </span>
                                                                                     </div>
                                                                                     <StarRating rate={commentT.rating} />
                                                                                     <p className={styles.containerSecondaryWindowBodyCommentsBodyCommentDescription}>{commentT.comment}</p>
