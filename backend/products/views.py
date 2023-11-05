@@ -4,27 +4,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.db.models import Q
-from rest_framework.pagination import LimitOffsetPagination
 from .utils import apply_product_filters, mount_product_filters
 from brands.models import ProductBrand
 from categories.models import CategoryProduct
+from utils.custom_pagination import CustomPagination
 
 # Create your views here.
-class ProductsPagination(LimitOffsetPagination):
-    PAGE_SIZE = 5
-    default_limit = 5
-    max_limit = 100
-
-    def get_paginated_response(self, data):
-        return Response({
-            'total_item_count': self.count,
-            'total_page_count': self.count // self.limit + (1 if self.count % self.limit else 0),
-            'next': self.get_next_link(),
-            'previous': self.get_previous_link(),
-            'results': data
-        })
-
-
 @api_view(['GET'])
 def get_products(request):
     try:
@@ -51,7 +36,7 @@ def get_products(request):
         )
         
         #making a pagination
-        paginator = ProductsPagination()
+        paginator = CustomPagination()
         paginated_products = paginator.paginate_queryset(products, request)
 
         serializer = ProductFatherMinimalSerializer(paginated_products, many=True, context={'request': request})
@@ -78,7 +63,7 @@ def get_products_name(request):
         products_formatted = [{'id': id, 'name': str(name)} for id, name in products]
 
         #making a pagination
-        paginator = ProductsPagination()
+        paginator = CustomPagination()
         paginated_comments = paginator.paginate_queryset(products_formatted, request)
 
         if len(products_formatted) > 0:

@@ -3,7 +3,6 @@ from stores.models import Store
 from stores.exceptions import StoreNotFoundError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import LimitOffsetPagination
 from .serializers import ProductCommentSerializer, StoreCommentSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,13 +10,9 @@ from .models import ProductComment, StoreComment
 from products.exceptions import ProductNotFoundError
 from .utils import validate_data
 from .exceptions import CommentNotFoundError
+from utils.custom_pagination import CustomPagination
 
 # Create your views here.
-class CommentPagination(LimitOffsetPagination):
-    PAGE_SIZE = 5
-    default_limit = 5
-    max_limit = 100
-
 @api_view(['GET'])
 def get_product_comments(request, pk):
     try:
@@ -25,7 +20,7 @@ def get_product_comments(request, pk):
         comments = product_father.comments.all() 
 
         #making a pagination
-        paginator = CommentPagination()
+        paginator = CustomPagination()
         paginated_comments = paginator.paginate_queryset(comments, request)
 
         serializer = ProductCommentSerializer(paginated_comments, many=True, context={'request': request})
@@ -127,7 +122,7 @@ def get_store_comments(request, pk):
         comments = store.comments.all() 
 
         #making a pagination
-        paginator = CommentPagination()
+        paginator = CustomPagination()
         paginated_comments = paginator.paginate_queryset(comments, request)
 
         serializer = StoreCommentSerializer(paginated_comments, many=True, context={'request': request})
