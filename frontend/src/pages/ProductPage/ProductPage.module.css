@@ -57,9 +57,10 @@
     flex-grow: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 .flexMainImagesThumbnailImg {
-    max-width: 100%;
+    max-width: 90%;
     max-height: 600px;
 }
 .containerMainInfo {
@@ -315,7 +316,7 @@
 
 .containerSecondaryWindowBodyComments {
     display: flex;
-    gap: 20px;
+    gap: 30px;
 }
 .containerSecondaryWindowBodyCommentsHeader {
     display: flex;
@@ -339,7 +340,15 @@
 .containerSecondaryWindowBodyCommentsHeaderItemTwo {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
+}
+.containerSecondaryWindowBodyCommentsHeaderItemTwoItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.containerSecondaryWindowBodyCommentsHeaderItemTwoItemText {
+    white-space: nowrap;
 }
 .containerSecondaryWindowBodyCommentsBody {
     width: 100%;
@@ -363,7 +372,9 @@
     object-fit: cover;
 }
 .containerSecondaryWindowBodyCommentsBodyCommentBody {
-
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 .containerSecondaryWindowBodyCommentsBodyCommentBodyT {
     display: flex;

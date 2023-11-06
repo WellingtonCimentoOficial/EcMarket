@@ -47,6 +47,20 @@ const ProductPage = (props: Props) => {
 
     const [comments, setComments] = useState<Comment[]>([])
 
+    type StarsRating = {
+        count: number,
+        average: number,
+        detail: [
+            {
+                id: number,
+                name: string,
+                quantity: number
+                percentage: number
+            }
+        ]
+    }
+    const [starsRating, setStarsRating] = useState<StarsRating | null>(null)
+
     const [currentPage, setCurrentPage] = useState<number>(0)
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const itemsPerPage = 10
@@ -69,6 +83,22 @@ const ProductPage = (props: Props) => {
         }
         get_product()
     }, [productId, setIsLoading, updateTitle])
+
+    useEffect(() => {
+        const get_rating_statistics = async () => {
+            setIsLoading(true)
+            try {
+                const response = await axios.get(`/comments/product/statistics/${productId}`)
+                if(response.status === 200){
+                    setStarsRating(response.data)
+                }
+            } catch (error) {
+                setStarsRating(null)
+            }
+            setIsLoading(false)
+        }
+        get_rating_statistics()
+    }, [productId, setStarsRating ,setIsLoading])
 
     useEffect(() => {
         const get_comments = async () => {
@@ -155,7 +185,7 @@ const ProductPage = (props: Props) => {
                             <div className={styles.containerMainImages}>
                                 <div className={styles.flexMainImagesThumbs}>
                                     {Object.values(product.children[0].images).filter(value => value !== null).map((img, index) => (
-                                        <div className={`${styles.flexMainImagesThumb} ${currentImage === img ? styles.flexMainImagesThumbActive : null}`} key={index} onClick={() => setCurrentImage(img || '')}>
+                                        <div className={`${styles.flexMainImagesThumb} ${currentImage === img ? styles.flexMainImagesThumbActive : null}`} key={index} onMouseOver={() => setCurrentImage(img || '')}>
                                             <img className={styles.flexMainImagesThumbImg} src={img || ''} alt="" />
                                         </div>
                                     ))}
@@ -259,7 +289,7 @@ const ProductPage = (props: Props) => {
                                             if(productDetail.show || productDetail.fixed){
                                                 return (
                                                     <li className={`${styles.containerSecondaryHeaderUlLi} ${productDetail.id === currentProductDetailId ? styles.containerSecondaryHeaderUlLiFocus : null}`} key={productDetail.id} onClick={() => setCurrentProductDetailId(productDetail.id)}>
-                                                        <span className={styles.containerSecondaryHeaderUlLiText}>{productDetail.id === 3 ? productDetail.name + ` (${product.rating.count})` : productDetail.name}</span>
+                                                        <span className={styles.containerSecondaryHeaderUlLiText}>{productDetail.id === 3 ? productDetail.name + ` (${starsRating?.count})` : productDetail.name}</span>
                                                     </li>
                                                 )
                                             }
@@ -319,29 +349,31 @@ const ProductPage = (props: Props) => {
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${product.rating.count})`}</h4>
+                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${starsRating?.count})`}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <div className={styles.containerSecondaryWindowBodyComments}>
                                                             <div className={styles.containerSecondaryWindowBodyCommentsHeader}>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
-                                                                    <StarRating size='20pt' rate={product.rating.average} />
+                                                                    <StarRating size='20pt' rate={starsRating?.average || 0} />
                                                                     <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemRatingText}>
-                                                                        <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemRatingTextD}>{Math.floor(product.rating.average * 10) / 10}</span> de 5
+                                                                        <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemRatingTextD}>{starsRating && Math.floor(starsRating.average * 10) / 10}</span> de 5
                                                                     </span>
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
-                                                                    <span>Total de {product.rating.count} avaliações</span>
+                                                                    <span>Total de {starsRating?.count} avaliações</span>
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwo}>
-                                                                    {Array.from(Array(5)).map((_, index) => (
-                                                                        <div key={index}>
+                                                                    {starsRating && starsRating.detail.map(star => (
+                                                                        <div key={star.id} className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwoItem}>
+                                                                            <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwoItemText}>{star.name} {parseInt(star.name) > 1 ? 'estrelas' : 'estrela'}</span>
                                                                             <SimpleProgressBar 
-                                                                                currentValue={500} 
-                                                                                totalValue={1000} 
-                                                                                height={15}
+                                                                                currentValue={star.quantity} 
+                                                                                totalValue={starsRating.count} 
+                                                                                height={10}
                                                                                 backgroundColor='var(--star-color)'
                                                                             />
+                                                                            <span className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwoItemText}>{Math.floor(star.percentage)}%</span>
                                                                         </div>
                                                                     ))}
                                                                 </div>
