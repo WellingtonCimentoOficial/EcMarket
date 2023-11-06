@@ -11,6 +11,7 @@ from products.exceptions import ProductNotFoundError
 from .utils import validate_data
 from .exceptions import CommentNotFoundError
 from utils.custom_pagination import CustomPagination
+from django.db.models import Avg
 
 # Create your views here.
 @api_view(['GET'])
@@ -28,6 +29,45 @@ def get_product_comments(request, pk):
         return paginator.get_paginated_response(serializer.data)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+@api_view(['GET'])    
+def get_product_rating_statistics(request, pk):
+    try:
+        #getting all coments from a product with id=pk
+        comments = ProductComment.objects.filter(product=pk)
+
+        #getting comments quantity
+        total_comments = comments.count()
+
+        #calculating average ratings
+        average = comments.aggregate(Avg('rating'))['rating__avg']
+
+        detail = []
+
+        # looping from 1 to 5
+        for n in range(1, 6):
+            # filtering comments with rating between two values
+            rating_count = comments.filter(rating__gte=n, rating__lt=n + 1).count()
+
+            # appending this data to the list detail
+            detail.append({
+                'id': n,
+                'name': str(n),
+                'quantity': rating_count,
+                'percentage': round((rating_count / total_comments) * 100, 2) if total_comments > 0 else 0 # returns 0 if the divisor is equal to zero, because division by zero is impossible
+            })
+
+        data = {
+            'count': total_comments,
+            'average': average if average else 0,
+            'detail': detail
+        }
+        return Response(data)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -59,7 +99,7 @@ def add_product_comment(request):
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -92,7 +132,7 @@ def update_product_comment(request, pk):
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -115,6 +155,7 @@ def delete_product_comment(request, pk):
             return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 def get_store_comments(request, pk):
     try:
@@ -130,7 +171,7 @@ def get_store_comments(request, pk):
         return paginator.get_paginated_response(serializer.data)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_store_comment(request):
