@@ -18,7 +18,7 @@ from django.db.models import Avg
 def get_product_comments(request, pk):
     try:
         product_father = ProductFather.objects.get(id=pk)
-        comments = product_father.comments.all() 
+        comments = product_father.comments.all().order_by('-id')
 
         #making a pagination
         paginator = CustomPagination()
