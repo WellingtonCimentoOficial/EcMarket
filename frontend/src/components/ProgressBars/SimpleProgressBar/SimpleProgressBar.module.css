@@ -6,6 +6,23 @@
     width: 100%;
     background-color: var(--text-color-two);
 }
+.container3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: transparent;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.label {
+    text-align: center;
+    background-color: transparent;
+    max-height: 100%;
+    line-height: 100%;
+}
 .container2 {
     position: absolute;
     top: 0;
