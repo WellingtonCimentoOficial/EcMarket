@@ -8,10 +8,10 @@ import os
 # Create your models here.
 class ProductFather(models.Model):
     name = models.CharField(max_length=255)
-    shipping_weight = models.DecimalField(max_digits=7, decimal_places=2, null=True)
-    shipping_width = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    shipping_height = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    shipping_length = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    weight = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+    width = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    height = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    length = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     store = models.ForeignKey('stores.Store', on_delete=models.CASCADE)
     description = models.TextField()
     categories = models.ManyToManyField('categories.CategoryProduct')

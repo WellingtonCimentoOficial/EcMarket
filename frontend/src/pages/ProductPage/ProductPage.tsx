@@ -6,22 +6,43 @@ import { Product } from '../../types/ProductType'
 import { LoadingContext } from '../../contexts/LoadingContext'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
-import StarRating from '../../components/Ratings/StarRating/StarRating'
+import StarRating from '../../components/UI/Ratings/StarRating/StarRating'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
-import BtnA01 from '../../components/Buttons/BtnA01/BtnA01'
-import BtnB02 from '../../components/Buttons/BtnB02/BtnB02'
-import QuantitySelect from '../../components/Selects/QuantitySelect/QuantitySelect'
+import BtnA01 from '../../components/UI/Buttons/BtnA01/BtnA01'
+import BtnB02 from '../../components/UI/Buttons/BtnB02/BtnB02'
+import QuantitySelect from '../../components/UI/Selects/QuantitySelect/QuantitySelect'
 import { FaShippingFast } from 'react-icons/fa';
 import { PiHeartLight } from 'react-icons/pi';
 import { Category } from '../../types/CategoryType'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
-import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/SimpleProductCard'
+import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 import { Comment } from '../../types/CommentType'
 import { useDateDifferenceCalculator } from '../../hooks/useDateDifferenceCalculator'
-import BarPagination from '../../components/Paginations/BarPagination/BarPagination'
-import SimpleProgressBar from '../../components/ProgressBars/SimpleProgressBar/SimpleProgressBar'
+import BarPagination from '../../components/UI/Paginations/BarPagination/BarPagination'
+import SimpleProgressBar from '../../components/UI/ProgressBars/SimpleProgressBar/SimpleProgressBar'
+import { Delivery } from '../../types/DeliveryType'
 
 type Props = {}
+
+type ProductDetailsType = {
+    id: number
+    name: string
+    show: boolean
+    fixed: boolean
+}
+
+type StarsRating = {
+    count: number,
+    average: number,
+    detail: [
+        {
+            id: number,
+            name: string,
+            quantity: number
+            percentage: number
+        }
+    ]
+}
 
 const ProductPage = (props: Props) => {
     const { productId } = useParams()
@@ -33,32 +54,15 @@ const ProductPage = (props: Props) => {
     const [product, setProduct] = useState<Product | null>(null)
     const [currentImage, setCurrentImage] = useState<string>('')
 
-    const [categoriesData, setCategoriesData] = useState<Category[]>([])
+    const [deliveryInfo, setDeliveryInfo] = useState<Delivery | null>(null)
 
-    type ProductDetailsType = {
-        id: number
-        name: string
-        show: boolean
-        fixed: boolean
-    }
+    const [categoriesData, setCategoriesData] = useState<Category[]>([])
 
     const [productDetails, setProductDetails] = useState<ProductDetailsType[]>([])
     const [currentProductDetailId, setCurrentProductDetailId] = useState<number>()
 
     const [comments, setComments] = useState<Comment[]>([])
 
-    type StarsRating = {
-        count: number,
-        average: number,
-        detail: [
-            {
-                id: number,
-                name: string,
-                quantity: number
-                percentage: number
-            }
-        ]
-    }
     const [starsRating, setStarsRating] = useState<StarsRating | null>(null)
 
     const [currentPage, setCurrentPage] = useState<number>(0)

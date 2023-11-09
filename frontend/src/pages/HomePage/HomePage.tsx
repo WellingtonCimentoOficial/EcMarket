@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react'
 import styles from "./HomePage.module.css"
-import NiceCarousel from '../../components/Carousels/NiceCarousel/NiceCarousel'
+import NiceCarousel from '../../components/UI/Carousels/NiceCarousel/NiceCarousel'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
-import SimpleProductCard from '../../components/ProductCards/SimpleProductCard/SimpleProductCard'
+import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 import { Category } from '../../types/CategoryType'
 import { axios } from '../../services/api'
-import MacBanner from '../../components/Banners/MacBanner/MacBanner'
-import BoxBanner from '../../components/Banners/BoxBanner/BoxBanner'
-import BoxAccordion from '../../components/Accordions/BoxAccordion/BoxAccordion'
-import LuminexBanner from '../../components/Banners/LuminexBanner/LuminexBanner'
+import MacBanner from '../../components/UI/Banners/MacBanner/MacBanner'
+import BoxBanner from '../../components/UI/Banners/BoxBanner/BoxBanner'
+import BoxAccordion from '../../components/UI/Accordions/BoxAccordion/BoxAccordion'
+import LuminexBanner from '../../components/UI/Banners/LuminexBanner/LuminexBanner'
 import { LoadingContext } from '../../contexts/LoadingContext'
 
 const HomePage = (): JSX.Element => {

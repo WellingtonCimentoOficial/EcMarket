@@ -6,6 +6,8 @@ from .serializers import AddressSerializer, DeliveryAddressSerializer
 from rest_framework import status
 from .utils import validate_address
 from .exceptions import AddressNotFoundError, DeliveryAddressNotFoundError
+from utils.shipping_info import Correios
+import os
 
 # Create your views here.
 @api_view(['GET'])
@@ -197,4 +199,35 @@ def delete_delivery_address(request, pk):
     except Exception as e:
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def get_cep_info(request, zip_code):
+    try:
+        # initializing the correios class
+        correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
+
+        # checking if zip code is valid
+        if not correios.validate_zip_code(zip_code):
+            return Response({'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # getting a correios token
+        token = correios.get_token()
+
+        # getting a zip code informations
+        zip_code_info = correios.get_zip_code_info(token=token, destination_zip_code=zip_code)
+
+        # checking if token and zip_code_info are valid and then returning a response
+        if token and zip_code_info:
+            data = {
+                'cep': zip_code_info.get('cep'),
+                'uf': zip_code_info.get('uf'),
+                'city': zip_code_info.get('localidade'),
+                'neighborhood': zip_code_info.get('bairro'),
+                'address': zip_code_info.get('logradouro'),
+            }
+            return Response(data)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

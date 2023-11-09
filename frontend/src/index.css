@@ -23,3 +23,6 @@ body {
 a {
   color: var(--primary-color);
 }
+input {
+  outline: 0;
+}

@@ -1,0 +1,30 @@
+.wrapper {
+    background-color: transparent;
+}
+.BtnB01 {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 2px solid var(--primary-color);
+    font-size: 12pt;
+    cursor: pointer;
+    transition: 0.3s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+}
+.BtnB01:hover {
+    background-color: var(--primary-color-focus);
+    border-color: var(--primary-color-focus);
+}
+.BtnB01:disabled {
+    pointer-events: none;
+    opacity: 50%;
+}
+.AutoWidth {
+    width: 100%;
+}

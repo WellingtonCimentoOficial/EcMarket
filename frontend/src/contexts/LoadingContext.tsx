@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
-import SprintLoader from "../components/Loaders/SprintLoader/SprintLoader";
+import SprintLoader from "../components/UI/Loaders/SprintLoader/SprintLoader";
+import ShadowFullScreen from "../components/UI/FullScreens/ShadowFullScreen/ShadowFullScreen";
 
 type LoadingContextType = {
     isLoading: boolean
@@ -22,7 +23,11 @@ export const LoadingContextProvider = ({ children }: LoadingContextProviderProps
 
     return (
         <LoadingContext.Provider value={{isLoading, setIsLoading}}>
-            {isLoading && <SprintLoader />}
+            {isLoading && 
+                <ShadowFullScreen>
+                    <SprintLoader />
+                </ShadowFullScreen>
+            }
             {children}
         </LoadingContext.Provider>
     )

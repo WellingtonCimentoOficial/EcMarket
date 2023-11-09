@@ -103,10 +103,10 @@ class ProductTechnicalInformationSerializer(serializers.ModelSerializer):
         exclude = ['product']
 
 class ProductFatherDetailSerializer(serializers.ModelSerializer):
-    shipping_weight = serializers.DecimalField(max_digits=7, decimal_places=2, coerce_to_string=False)
-    shipping_width = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
-    shipping_height = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
-    shipping_length = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    weight = serializers.DecimalField(max_digits=7, decimal_places=2, coerce_to_string=False)
+    width = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    height = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    length = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     children = ProductChildDetailSerializer(many=True, read_only=True)
     presentation = serializers.SerializerMethodField()
     technical_informations = serializers.SerializerMethodField()
@@ -165,10 +165,10 @@ class ProductFatherMinimalSerializer(serializers.ModelSerializer):
         exclude = [
             'categories',
             'store',
-            'shipping_weight',
-            'shipping_width',
-            'shipping_height',
-            'shipping_length',
+            'weight',
+            'width',
+            'height',
+            'length',
             'created_at',
             'updated_at'
         ]

@@ -1,0 +1,74 @@
+.wrapper {
+    user-select: none;
+}
+.container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
+}
+.header {
+    background-color: transparent;
+    padding: 20px;
+    border-bottom: 1px solid var(--text-color-two);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.subHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.title {
+    font-weight: 600;
+    font-size: 15pt;
+}
+.subTitle {
+    font-size: 11pt;
+}
+.closeBtn {
+    cursor: pointer;
+}
+.closeIcon {
+    transform: rotate(45deg);
+    font-size: 18pt;
+    color: var(--primary-color);
+}
+.body {
+    padding: 20px;
+}
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.inputItem {
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    gap: 10px;
+}
+.input {
+    background-color: transparent;
+    width: 100%;
+    max-height: 43px;
+    min-height: 43px;
+    font-size: 12pt;
+    border: 2px solid var(--text-color-two);
+    border-radius: 5px;
+    letter-spacing: 5px;
+    padding: 0px 15px;
+    transition: 0.3s;
+}
+input:focus {
+    border-color: var(--primary-color);
+}
+.btnSubmit {
+    height: 100%;
+    width: 150px;
+}
+.disabled {
+    opacity: 50%;
+    pointer-events: none;
+}
