@@ -2,14 +2,25 @@ from django.db.models import Avg, Q
 from django.db.models.functions import Coalesce
 from .exceptions import ProductFilterError
 from uuid import uuid4
+import re
 
 def apply_product_filters(product_instance, search, rating, random, relevance, categories, brands, min_price, max_price):
 
     # verifing if search param exists and if his value is true 
     if search is not None:
-        products = product_instance.objects.filter(Q(name__icontains=search)).all()
+        keywords = re.sub(r'[^A-Za-z0-9\s]+', '', search).split()
+        if len(keywords) >= 2:
+            query = Q(name__icontains=keywords[0])
+
+            for keyword in keywords[1:]:
+                query &= Q(name__icontains=keyword)
+
+            products = product_instance.objects.filter(query).all()
+        else:
+            products = product_instance.objects.filter(Q(name__icontains=search)).all()
     else:
         products = product_instance.objects.all()
+
 
     # filtering by categories
     if categories is not None and categories != "":

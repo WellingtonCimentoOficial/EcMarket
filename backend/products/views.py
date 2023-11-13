@@ -59,7 +59,17 @@ def get_products_name(request):
         search = request.query_params.get('search')
 
         if search is not None:
-            products = ProductFather.objects.filter(Q(name__icontains=search)).order_by('?').values_list('id', 'name')
+            keywords = re.sub(r'[^A-Za-z0-9\s]+', '', search).split()
+            
+            if len(keywords) >= 2:
+                query = Q(name__icontains=keywords[0])
+
+                for keyword in keywords[1:]:
+                    query &= Q(name__icontains=keyword)
+
+                products = ProductFather.objects.filter(query).order_by('?').values_list('id', 'name')
+            else:
+                products = ProductFather.objects.filter(Q(name__icontains=search)).order_by('?').values_list('id', 'name')
         else:
             products = ProductFather.objects.values_list('name', 'id')
 
@@ -73,7 +83,8 @@ def get_products_name(request):
             return paginator.get_paginated_response(paginated_comments)
         
         return Response(status=status.HTTP_404_NOT_FOUND)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])

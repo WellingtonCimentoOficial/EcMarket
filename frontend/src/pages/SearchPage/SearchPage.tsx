@@ -170,15 +170,15 @@ const SearchPage = () => {
                 const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
                 const dynamicFilters = filters?.map(filter => filter.param && `&${filter.param}=${Object.entries(checkBoxValues[filter.id] ? checkBoxValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`).join('')
                 
-                const path = `/products/
-                ?search=${queryParam}
-                &limit=${itemsPerPage?.value}
-                &offset=${offset}
-                &rating=${ratingFilter}
-                &relevance=${relevanceFilter.value}
-                &minPrice=${priceFilter[0]}
-                &maxPrice=${priceFilter[1]}
-                ${dynamicFilters}`.replaceAll(' ', '')
+                const path = `/products/` +
+                `?search=${queryParam}` +
+                `&limit=${itemsPerPage?.value}` +
+                `&offset=${offset}` +
+                `&rating=${ratingFilter}` +
+                `&relevance=${relevanceFilter.value}` +
+                `&minPrice=${priceFilter[0]}` +
+                `&maxPrice=${priceFilter[1]}` +
+                `${dynamicFilters}`
 
                 if(dynamicFilters){
                     const response = await axios.get(path)
