@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Address, DeliveryAddress
+from .models import UserAddress, UserDeliveryAddress
 from .serializers import AddressSerializer, DeliveryAddressSerializer
 from rest_framework import status
 from .utils import validate_address
@@ -14,7 +14,7 @@ import os
 @permission_classes([IsAuthenticated])
 def get_address(request):
     try:
-        address = Address.objects.get(user=request.user)
+        address = UserAddress.objects.get(user=request.user)
         serializer = AddressSerializer(address, context={'request': request})
         return Response(serializer.data)
     except:
@@ -37,7 +37,7 @@ def add_address(request):
         validate_address(street, number, district, city, state, uf, zip_code)
         
         # creating a address in database
-        address = Address.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
+        address = UserAddress.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
 
         # serializing the data 
         serializer = AddressSerializer(address, context={'request': request})
@@ -98,7 +98,7 @@ def update_address(request):
 @permission_classes([IsAuthenticated])
 def get_delivery_addresses(request):
     try:
-        delivery_addresses = DeliveryAddress.objects.filter(user=request.user)
+        delivery_addresses = UserDeliveryAddress.objects.filter(user=request.user)
         serializer = DeliveryAddressSerializer(delivery_addresses, many=True, context={'request': request})
         return Response(serializer.data)
     except:
@@ -121,7 +121,7 @@ def add_delivery_address(request):
         validate_address(street, number, district, city, state, uf, zip_code)
         
         # creating a address in database
-        address = DeliveryAddress.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
+        address = UserDeliveryAddress.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
 
         # serializing the data 
         serializer = DeliveryAddressSerializer(address, context={'request': request})
@@ -221,7 +221,7 @@ def get_cep_info(request, zip_code):
         # checking if token and zip_code_info are valid and then returning a response
         if token and zip_code_info:
             data = {
-                'cep': zip_code_info.get('cep'),
+                'zip_code': zip_code_info.get('cep'),
                 'uf': zip_code_info.get('uf'),
                 'city': zip_code_info.get('localidade'),
                 'neighborhood': zip_code_info.get('bairro'),

@@ -37,7 +37,8 @@ def get_categories(request):
         serializer = CategoryProductSerializer(paginated_categories, many=True, context={'request': request})
 
         return paginator.get_paginated_response(serializer.data)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import ProductFather, ProductChild, ProductPresentation, ProductTechnicalInformation
 from django.db.models import Avg, Count
 from stores.serializers import StoreSerializer
+from transactions.models import Transaction
 
 class ProductChildDetailSerializer(serializers.ModelSerializer):
     default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
@@ -112,6 +113,7 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     technical_informations = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     store = StoreSerializer()
+    sales = serializers.SerializerMethodField()
 
     def get_rating(self, obj):
         average_rating = obj.comments.aggregate(Avg('rating'))['rating__avg']
@@ -141,6 +143,15 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
             return None
         except:
             return None
+        
+    def get_sales(self, obj):
+        try:
+            transactions = Transaction.objects.filter(status=1, products__contains=[{'id': obj.id}])
+            sales_data = {'count': transactions.count()}
+            return sales_data
+        except:
+            sales_data = {'count': 0}
+            return sales_data
 
     class Meta:
         model = ProductFather

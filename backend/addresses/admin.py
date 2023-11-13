@@ -1,12 +1,16 @@
 from django.contrib import admin
-from .models import Address, DeliveryAddress
+from .models import UserAddress, UserDeliveryAddress, StoreAddress
 
 # Register your models here.
-class AddressAdmin(admin.ModelAdmin):
+class UserAddressAdmin(admin.ModelAdmin):
     list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
     
-class DeliveryAddressAdmin(admin.ModelAdmin):
+class UserDeliveryAddressAdmin(admin.ModelAdmin):
     list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
 
-admin.site.register(Address, AddressAdmin)
-admin.site.register(DeliveryAddress, DeliveryAddressAdmin)
+class StoreAddressAdmin(admin.ModelAdmin):
+    list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
+
+admin.site.register(UserAddress, UserAddressAdmin)
+admin.site.register(UserDeliveryAddress, UserDeliveryAddressAdmin)
+admin.site.register(StoreAddress, StoreAddressAdmin)

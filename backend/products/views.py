@@ -8,8 +8,9 @@ from .utils import apply_product_filters, mount_product_filters
 from brands.models import ProductBrand
 from categories.models import CategoryProduct
 from utils.custom_pagination import CustomPagination
-import os
 from utils.shipping_info import Correios
+import os
+import re
 
 # Create your views here.
 @api_view(['GET'])
@@ -98,14 +99,13 @@ def get_product_filters(request):
 
 
 @api_view(['GET'])
-def get_product_delivery(request, pk):
+def get_product_delivery(request, pk, zip_code):
     try:
         # filtering for a product that has the same id as pk
         product = ProductFather.objects.filter(id=pk).first()
 
         # getting a params sended by frontend
-        source_zip_code = request.POST.get('source_zip_code')
-        destination_zip_code = request.POST.get('destination_zip_code')
+        destination_zip_code = zip_code
 
         # initializing the correios class
         correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
@@ -114,8 +114,15 @@ def get_product_delivery(request, pk):
         if not product:
             return Response({'error': 'The product is invalid'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # checking if zip codes are valid
-        if not correios.validate_zip_code(source_zip_code) or not correios.validate_zip_code(destination_zip_code):
+        # getting the store's zip code and removing all characters that are not numbers
+        source_zip_code = re.sub(r'\D', '', product.store.address.zip_code)
+
+        # checking if store zip code is valid
+        if not correios.validate_zip_code(source_zip_code):
+            return Response({'error': 'The source zip code is invalid'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # checking if destination zip code is valid
+        if not correios.validate_zip_code(destination_zip_code):
             return Response({'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
         # getting a correios token

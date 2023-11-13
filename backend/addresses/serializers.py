@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Address, DeliveryAddress
+from .models import UserAddress, UserDeliveryAddress
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Address
+        model = UserAddress
         exclude = ['user']
 
 class DeliveryAddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DeliveryAddress
+        model = UserDeliveryAddress
         exclude = ['user']
