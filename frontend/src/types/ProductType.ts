@@ -45,6 +45,10 @@ export type Children = {
     quantity: number
 }
 
+export type Sales = {
+    count: number
+}
+
 export interface Product {
     id: number
     name: string
@@ -54,4 +58,5 @@ export interface Product {
     presentation: Presentation | null
     store: Store
     technical_informations: TechnicalInformation[]
+    sales: Sales
 }

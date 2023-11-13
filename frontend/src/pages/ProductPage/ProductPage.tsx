@@ -1,26 +1,42 @@
-import React, { useEffect, useState, useContext } from 'react'
-import styles from "./ProductPage.module.css"
-import { axios } from '../../services/api'
-import { useParams } from 'react-router-dom'
-import { Product } from '../../types/ProductType'
-import { LoadingContext } from '../../contexts/LoadingContext'
-import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
+// HOOKS
+import React, { useEffect, useState, useContext, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
-import StarRating from '../../components/UI/Ratings/StarRating/StarRating'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
+import { useDateTimeFormatter } from '../../hooks/useDateTimeFormatter'
+import { useSlug } from '../../hooks/useSlug'
+
+// STYLES
+import styles from "./ProductPage.module.css"
+
+// UTILS
+import { axios } from '../../services/api'
+
+// CONTEXTS
+import { LoadingContext } from '../../contexts/LoadingContext'
+import { ZipCodeContext } from '../../contexts/ZipCodeContext'
+
+// COMPONENTS
+import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
+import StarRating from '../../components/UI/Ratings/StarRating/StarRating'
+import BarPagination from '../../components/UI/Paginations/BarPagination/BarPagination'
+import SimpleProgressBar from '../../components/UI/ProgressBars/SimpleProgressBar/SimpleProgressBar'
 import BtnA01 from '../../components/UI/Buttons/BtnA01/BtnA01'
 import BtnB02 from '../../components/UI/Buttons/BtnB02/BtnB02'
 import QuantitySelect from '../../components/UI/Selects/QuantitySelect/QuantitySelect'
-import { FaShippingFast } from 'react-icons/fa';
-import { PiHeartLight } from 'react-icons/pi';
-import { Category } from '../../types/CategoryType'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
 import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
-import { Comment } from '../../types/CommentType'
-import { useDateDifferenceCalculator } from '../../hooks/useDateDifferenceCalculator'
-import BarPagination from '../../components/UI/Paginations/BarPagination/BarPagination'
-import SimpleProgressBar from '../../components/UI/ProgressBars/SimpleProgressBar/SimpleProgressBar'
+
+// ICONS
+import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck } from 'react-icons/pi';
+import { FaShippingFast } from 'react-icons/fa';
+
+// TYPES
 import { Delivery } from '../../types/DeliveryType'
+import { Category } from '../../types/CategoryType'
+import { Product } from '../../types/ProductType'
+import { Comment } from '../../types/CommentType'
 
 type Props = {}
 
@@ -31,7 +47,7 @@ type ProductDetailsType = {
     fixed: boolean
 }
 
-type StarsRating = {
+type StarsRatingType = {
     count: number,
     average: number,
     detail: [
@@ -44,83 +60,119 @@ type StarsRating = {
     ]
 }
 
+type SectionNameType = "rating" | "description"
+
 const ProductPage = (props: Props) => {
-    const { productId } = useParams()
+    const { productId, productName } = useParams()
     const { setIsLoading } = useContext(LoadingContext)
     const { updateTitle } = usePageTitleChanger()
     const { CurrencyFormatter } = useCurrencyFormatter()
-    const { dateDifferenceFormat } = useDateDifferenceCalculator()
+    const { dateDifferenceFormat, getNameDay, getNameMonth } = useDateTimeFormatter()
+    const { setShow, zipCode } = useContext(ZipCodeContext)
+    const { createSlug } = useSlug()
 
     const [product, setProduct] = useState<Product | null>(null)
     const [currentImage, setCurrentImage] = useState<string>('')
-
     const [deliveryInfo, setDeliveryInfo] = useState<Delivery | null>(null)
-
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
-
     const [productDetails, setProductDetails] = useState<ProductDetailsType[]>([])
     const [currentProductDetailId, setCurrentProductDetailId] = useState<number>()
-
     const [comments, setComments] = useState<Comment[]>([])
-
-    const [starsRating, setStarsRating] = useState<StarsRating | null>(null)
-
+    const [starsRating, setStarsRating] = useState<StarsRatingType | null>(null)
     const [currentPage, setCurrentPage] = useState<number>(0)
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
+    const [shouldScroll, setShouldScroll] = useState<boolean>(false)
     const itemsPerPage = 10
 
-    useEffect(() => {
-        const get_product = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get(`/products/${productId}`)
-                const data: Product = await response.data
-                if(response.status === 200){
-                    setProduct(data)
-                    setCurrentImage(data.children[0].images.principal_image)
-                    updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
-                }
-            } catch (error) {
-                setProduct(null)
-            }
-            setIsLoading(false)
-        }
-        get_product()
-    }, [productId, setIsLoading, updateTitle])
+    const sectionRatingRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        const get_rating_statistics = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get(`/comments/product/statistics/${productId}`)
-                if(response.status === 200){
-                    setStarsRating(response.data)
-                }
-            } catch (error) {
-                setStarsRating(null)
+    const location = useLocation()
+
+    const navigate = useNavigate()
+
+
+    const get_product = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get(`/products/${productId}`)
+            const data: Product = await response.data
+            if(response.status === 200){
+                setProduct(data)
+                setCurrentImage(data.children[0].images.principal_image)
+                updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
+                navigate(location.pathname.replace(String(productName), createSlug(data.name)), { replace: true })
             }
-            setIsLoading(false)
+        } catch (error) {
+            setProduct(null)
         }
-        get_rating_statistics()
+        setIsLoading(false)
+    }, [productId, location.pathname, productName, createSlug, navigate, setIsLoading, updateTitle])
+    
+    const get_rating_statistics = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get(`/comments/product/statistics/${productId}`)
+            if(response.status === 200){
+                setStarsRating(response.data)
+            }
+        } catch (error) {
+            setStarsRating(null)
+        }
+        setIsLoading(false)
     }, [productId, setStarsRating ,setIsLoading])
 
-    useEffect(() => {
-        const get_comments = async () => {
-            setIsLoading(true)
-            try {
-                const offset = currentPage * itemsPerPage
-                const response = await axios.get(`/comments/product/${productId}?limit=${itemsPerPage}&offset=${offset}`)
-                if(response.status === 200){
-                    setComments(response.data.results)
-                    setTotalPageCount(response.data.total_page_count)
-                }
-            } catch (error) {
-                setComments([])
+    const get_comments = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const offset = currentPage * itemsPerPage
+            const response = await axios.get(`/comments/product/${productId}?limit=${itemsPerPage}&offset=${offset}`)
+            if(response.status === 200){
+                setComments(response.data.results)
+                setTotalPageCount(response.data.total_page_count)
             }
-            setIsLoading(false)
+        } catch (error) {
+            setComments([])
         }
-        get_comments()
-    }, [productId, currentPage, itemsPerPage, setComments, setIsLoading])
+        setIsLoading(false)
+    },[productId, currentPage, itemsPerPage, setComments, setIsLoading])
+
+    const get_categories = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
+            if(response.status === 200){
+                setCategoriesData(response.data.results)
+            }
+            
+        } catch (error) {
+            setCategoriesData([])
+        }
+        setIsLoading(false)
+    }, [setIsLoading])
+
+    const get_delivery_info = useCallback(async () => {
+        try {
+            const response = await axios.get(`/products/delivery/${productId}/${zipCode?.zip_code}`)
+            if(response.status === 200){
+                setDeliveryInfo(response.data)
+            }
+        } catch (error) {
+            setDeliveryInfo(null)
+        }
+    }, [productId, zipCode, setDeliveryInfo])
+
+    const scrollToSection = (sectionName: SectionNameType) => {
+        if(sectionName === 'rating'){
+            setCurrentProductDetailId(productDetails.find(detail => detail.id === 3)?.id)
+            setShouldScroll(true)
+        }
+    }
+
+    useEffect(() => {get_product()}, [get_product])
+    useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
+    useEffect(() => {get_comments()}, [get_comments])
+    useEffect(() => {get_categories()}, [get_categories])
+    useEffect(() => {zipCode ? get_delivery_info() : setDeliveryInfo(null)}, [zipCode, get_delivery_info, setDeliveryInfo])
 
     useEffect(() => {
         if(product && comments){
@@ -161,21 +213,14 @@ const ProductPage = (props: Props) => {
     }, [productDetails, currentProductDetailId])
 
     useEffect(() => {
-        const get_categories = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
-                if(response.status === 200){
-                    setCategoriesData(response.data.results)
-                }
-                
-            } catch (error) {
-                setCategoriesData([])
-            }
-            setIsLoading(false)
+        if(sectionRatingRef.current && shouldScroll){
+            sectionRatingRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            })
+            setShouldScroll(false)
         }
-        get_categories()
-    }, [setIsLoading])
+    }, [sectionRatingRef, shouldScroll])
  
     return (
         product && (
@@ -214,17 +259,33 @@ const ProductPage = (props: Props) => {
                                         <span className={styles.containerMainInfoHeaderTitleText}>{product?.name}</span>
                                     </div>
                                     <div className={styles.containerMainInfoHeaderRating}>
-                                        <div className={styles.containerMainInfoHeaderRatingSubOne}>
-                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText}>{product?.rating.average}</span>
+                                        <div className={styles.containerMainInfoHeaderRatingSubOne} >
+                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText} onClick={() => scrollToSection('rating')}>
+                                                {product?.rating.average.toFixed(1)}
+                                            </span>
                                             <StarRating rate={product?.rating.average} />
                                         </div>
                                         <div className={styles.containerMainInfoHeaderRatingSubOne}>
-                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText}>{product?.rating.count}</span>
+                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText} onClick={() => scrollToSection('rating')}>
+                                                {
+                                                    // simplifying an example number 5300 into 5.3
+                                                    product?.rating.count >= 1000 ? `${(product.rating.count / 1000).toFixed(1).replace('.', ',')} mil` : 
+                                                    product?.rating.count >= 1000000 ? `${(product.rating.count / 1000000).toFixed(1).replace('.', ',')} milhões` :
+                                                    product?.rating.count
+                                                }
+                                            </span>
                                             <span className={styles.containerMainInfoHeaderRatingSubOneText}>Avaliações</span>
                                         </div>
                                         <div className={styles.containerMainInfoHeaderRatingSubOne}>
-                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText}>{product?.rating.count}</span>
-                                            <span className={styles.containerMainInfoHeaderRatingSubOneText}>Avaliações</span>
+                                            <span className={styles.containerMainInfoHeaderRatingSubOneSText} onClick={() => scrollToSection('rating')}>
+                                                {
+                                                    // simplifying an example number 5300 into 5.3
+                                                    product?.sales.count >= 1000 ? `${(product.sales.count / 1000).toFixed(1).replace('.', ',')} mil` : 
+                                                    product?.sales.count >= 1000000 ? `${(product.sales.count / 1000000).toFixed(1).replace('.', ',')} milhões` :
+                                                    product?.sales.count
+                                                }
+                                            </span>
+                                            <span className={styles.containerMainInfoHeaderRatingSubOneText}>Vendidos</span>
                                         </div>
                                     </div>
                                 </div>
@@ -261,12 +322,50 @@ const ProductPage = (props: Props) => {
                                     <div className={styles.containerMainInfoBodyShipping}>
                                         <div className={styles.containerMainInfoBodyShippingHeader}>
                                             <FaShippingFast className={styles.containerMainInfoBodyShippingIcon} />
-                                            <span>Chegará grátis</span>
                                         </div>
                                         <div className={styles.containerMainInfoBodyShippingBody}>
-                                            <span>segunda feira</span>
+                                            {(() => {
+                                                if(deliveryInfo){
+                                                    const date = new Date(deliveryInfo.max_date)
+
+                                                    return (
+                                                        <>
+                                                            <span className={styles.containerMainInfoBodyShippingBodyTitle}>Prazo de entrega</span>
+                                                            <div>
+                                                                <span className={styles.containerMainInfoBodyShippingBodyText}>Receba até {getNameDay(date.getDay())}, {date.getDate()} de {getNameMonth(date)} por </span>
+                                                                <span className={styles.containerMainInfoBodyShippingBodyPrice}>{CurrencyFormatter(deliveryInfo.price)}</span>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                }
+                                                return (
+                                                    <span>
+                                                        Para obter o calculo do frete <span className={styles.containerMainInfoBodyShippingBodyTextColor} onClick={() => setShow(true)}>Clique aqui</span>
+                                                    </span>
+                                                )
+                                            })()}
                                         </div>
 
+                                    </div>
+                                    <div className={styles.containerMainInfoBodyAdditionalPositives}>
+                                        <div className={styles.containerMainInfoBodyAdditionalPositiveItem}>
+                                            <div className={styles.containerMainInfoBodyAdditionalPositiveLeft}>
+                                                <PiArrowBendDownLeft className={styles.containerMainInfoBodyAdditionalPositiveLeftIcon} />
+                                            </div>
+                                            <div className={styles.containerMainInfoBodyAdditionalPositiveRight}>
+                                                <span className={styles.containerMainInfoBodyAdditionalPositiveRightTitle}>Devolução grátis</span>
+                                                <span className={styles.containerMainInfoBodyAdditionalPositiveRightText}>Você tem 7 dias a partir da data de recebimento.</span>
+                                            </div>
+                                        </div>
+                                        <div className={styles.containerMainInfoBodyAdditionalPositiveItem}>
+                                            <div className={styles.containerMainInfoBodyAdditionalPositiveLeft}>
+                                                <PiShieldCheck className={styles.containerMainInfoBodyAdditionalPositiveLeftIcon} />
+                                            </div>
+                                            <div className={styles.containerMainInfoBodyAdditionalPositiveRight}>
+                                                <span className={styles.containerMainInfoBodyAdditionalPositiveRightTitle}>Compra Garantida</span>
+                                                <span className={styles.containerMainInfoBodyAdditionalPositiveRightText}>receba o produto que está esperando ou devolvemos o dinheiro.</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className={styles.containerMainInfoBodyStock}>
                                         <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
@@ -293,7 +392,19 @@ const ProductPage = (props: Props) => {
                                             if(productDetail.show || productDetail.fixed){
                                                 return (
                                                     <li className={`${styles.containerSecondaryHeaderUlLi} ${productDetail.id === currentProductDetailId ? styles.containerSecondaryHeaderUlLiFocus : null}`} key={productDetail.id} onClick={() => setCurrentProductDetailId(productDetail.id)}>
-                                                        <span className={styles.containerSecondaryHeaderUlLiText}>{productDetail.id === 3 ? productDetail.name + ` (${starsRating?.count})` : productDetail.name}</span>
+                                                        <span className={styles.containerSecondaryHeaderUlLiText}>
+                                                            {
+                                                                productDetail.id === 3 ? (
+                                                                    // simplifying an example number 5300 into 5.3
+                                                                    productDetail.name + ` (${
+                                                                        starsRating && starsRating.count >= 1000 ? `${(starsRating.count / 1000).toFixed(1).replace('.', ',')} mil` : 
+                                                                        starsRating && starsRating.count >= 1000000 ? `${(starsRating.count / 1000000).toFixed(1).replace('.', ',')} milhões` :
+                                                                        starsRating?.count
+                                                                        
+                                                                    })` 
+                                                                ) : productDetail.name
+                                                            }
+                                                        </span>
                                                     </li>
                                                 )
                                             }
@@ -351,9 +462,9 @@ const ProductPage = (props: Props) => {
                                             )
                                         }else if(currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 3){
                                             return (
-                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
+                                                <div ref={sectionRatingRef} className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${starsRating?.count})`}</h4>
+                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${starsRating?.count.toLocaleString('pt-BR')})`}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <div className={styles.containerSecondaryWindowBodyComments}>
@@ -365,7 +476,7 @@ const ProductPage = (props: Props) => {
                                                                     </span>
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItem}>
-                                                                    <span>Total de {starsRating?.count} avaliações</span>
+                                                                    <span>Total de {starsRating?.count.toLocaleString('pt-BR')} avaliações</span>
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsHeaderItemTwo}>
                                                                     {starsRating && starsRating.detail.map(star => (

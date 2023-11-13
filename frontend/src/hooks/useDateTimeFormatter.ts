@@ -14,7 +14,17 @@ type dateDifferenceFormatReturnType = {
     plural: string
 }
 
-export const useDateDifferenceCalculator = () => {
+export const useDateTimeFormatter = () => {
+    const getNameDay = (dayNumber: number): string => {
+        const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+        return days[dayNumber]
+    }
+
+    const getNameMonth = (date: Date): string => {
+        const monthName = date.toLocaleString('pt-BR', { month: 'long' })
+        return monthName
+    }
+
     const dateDifferenceCalculator = (stringIso8601: string): dateDifferenceCalculatorReturnType => {
         const currentDate = new Date()
         const differenceInMilliseconds = currentDate.getTime() - new Date(stringIso8601).getTime()
@@ -57,5 +67,10 @@ export const useDateDifferenceCalculator = () => {
 
     }
 
-    return {dateDifferenceCalculator, dateDifferenceFormat}
+    return {
+        getNameDay,
+        getNameMonth,
+        dateDifferenceCalculator, 
+        dateDifferenceFormat
+    }
 }

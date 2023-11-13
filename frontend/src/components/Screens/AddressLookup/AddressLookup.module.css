@@ -1,3 +1,19 @@
+@keyframes slide {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 10%;
+    }
+}
+@keyframes slideInverse {
+    from {
+        width: 10%;
+    }
+    to {
+        width: 0%;
+    }
+}
 .wrapper {
     user-select: none;
 }
@@ -37,6 +53,9 @@
 }
 .body {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 .form {
     display: flex;
@@ -57,12 +76,15 @@
     font-size: 12pt;
     border: 2px solid var(--text-color-two);
     border-radius: 5px;
-    letter-spacing: 5px;
+    letter-spacing: 3px;
     padding: 0px 15px;
     transition: 0.3s;
 }
-input:focus {
+.input:focus {
     border-color: var(--primary-color);
+}
+.inputError {
+    color: red;
 }
 .btnSubmit {
     height: 100%;
@@ -71,4 +93,76 @@ input:focus {
 .disabled {
     opacity: 50%;
     pointer-events: none;
+}
+.bodyContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.bodyContainerHeader {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.bodyContainerHeaderTitle {
+    white-space: nowrap;
+}
+.line {
+    width: 100%;
+    height: 1px;
+    background-color: var(--text-color-two);
+}
+.bodyItem {
+    display: flex;
+    gap: 15px;
+    border: 2px solid var(--primary-color);
+    padding: 10px;
+    border-radius: 10px;
+    user-select: none;
+    position: relative;
+    background-color: var(--primary-color);
+    color: white;
+}
+.bodyItemSubOne {
+    background-color: white;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+}
+.bodyItemSubOneIcon {
+    font-size: 23pt;
+    color: var(--primary-color);
+}
+.bodyItemSubTwo {
+    display: flex;
+    flex-direction: column;
+}
+.bodyItemSubThree {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0px 5px 5px 0px;
+    cursor: pointer;
+}
+.bodyItemSubThreeShow {
+    animation-name: slide;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+.bodyItemSubThreeHide {
+    animation-name: slideInverse;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+.bodyItemSubThreeIcon {
+    font-size: 18pt;
+    color: white;
 }

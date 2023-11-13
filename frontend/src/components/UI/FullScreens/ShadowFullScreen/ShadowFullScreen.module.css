@@ -1,14 +1,41 @@
+@keyframes blur {
+    from {
+        backdrop-filter: blur(0px);
+        background-color: transparent;
+    }
+    to {
+        backdrop-filter: blur(1px);
+        background-color: rgba(0, 0, 0, 0.808);
+    }
+}
+
+@keyframes show {
+    from {
+        transform: scale(1, 0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
 .wrapper {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.808);
     z-index: 9999999999999999999;
     pointer-events: auto;
-    backdrop-filter: blur(1px);
     display: flex;
     align-items: center;
     justify-content: center;
+    animation-name: blur;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+.container {
+    transform-origin: top;
+    animation-name: show;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
 }

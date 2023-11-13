@@ -1,17 +1,22 @@
-import React, { useState, useContext, ChangeEventHandler, FormEvent } from 'react'
+import React, { useState, useContext, FormEvent, useRef } from 'react'
 import styles from "./AddressLookup.module.css"
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01'
 import { PiPlusBold } from 'react-icons/pi';
 import { ZipCodeContext } from '../../../contexts/ZipCodeContext';
 import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import { axios } from '../../../services/api';
+import { PiMapPinLine, PiTrash } from 'react-icons/pi';
 
 type Props = {}
 
 const AddressLookup = (props: Props) => {
     const [zipCodeText, setZipCodeText] = useState<string>("")
-    const { setShow, setZipCode } = useContext(ZipCodeContext)
+    const [zipCodeisValid, setZipCodeisValid] = useState<boolean>(true)
+    const { setShow, setZipCode, zipCode, removeZipCode } = useContext(ZipCodeContext)
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [currentMouseOverId, setCurrentMouseOverId] = useState<number | null>(null)
+
+    const inputRef = useRef<HTMLInputElement>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replaceAll(/\D/g, "")
@@ -22,8 +27,11 @@ const AddressLookup = (props: Props) => {
 
         if(value.length === 8){
             setZipCodeText(value.slice(0, 5) + '-' + value.slice(5))
+            setZipCodeisValid(true)
+            inputRef.current?.blur()
         }else{
             setZipCodeText(value)
+            setZipCodeisValid(false)
         }
     }
 
@@ -33,8 +41,11 @@ const AddressLookup = (props: Props) => {
             const response = await axios.get(`/addresses/cep/${zipCodeText.replaceAll(/\D/g, "")}`)
             if(response.status === 200){
                 setZipCode(response.data)
+                localStorage.setItem('zip_code', response.data.zip_code)
                 setShow(false)
+                return
             }
+            setZipCodeisValid(false)
         } catch (error) {
             setZipCode(null)
         }
@@ -44,7 +55,7 @@ const AddressLookup = (props: Props) => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
 
-        if(zipCodeText.replaceAll(/\D/g, "").length === 8){
+        if(!isLoading && zipCodeText.replaceAll(/\D/g, "").length === 8){
             get_address()
         }
     }
@@ -66,7 +77,8 @@ const AddressLookup = (props: Props) => {
                         <label htmlFor="zip_code">Código postal CEP</label>
                         <div className={styles.inputItem}>
                             <input 
-                                className={styles.input} 
+                                ref={inputRef}
+                                className={`${styles.input} ${!zipCodeisValid ? styles.inputError : null}`} 
                                 type="text" 
                                 name="zip_code" 
                                 id="zip_code" 
@@ -86,6 +98,33 @@ const AddressLookup = (props: Props) => {
                             </BtnB01>
                         </div>
                     </form>
+                    {zipCode && (
+                        <>
+                            <div className={styles.bodyContainer}>
+                                <div className={styles.bodyContainerHeader}>
+                                    <div className={styles.line}></div>
+                                    <span className={styles.bodyContainerHeaderTitle}>Endereços cadastrados</span>
+                                    <div className={styles.line}></div>
+                                </div>
+                                {Array.from(Array(1)).map((_, index) => (
+                                    <div key={index} className={styles.bodyItem} onMouseOver={() => setCurrentMouseOverId(index)} onMouseLeave={() => setCurrentMouseOverId(null)}>
+                                        <div className={styles.bodyItemSubOne}>
+                                            <PiMapPinLine className={styles.bodyItemSubOneIcon} />
+                                        </div>
+                                        <div className={styles.bodyItemSubTwo}>
+                                            <span>{zipCode.address} - {zipCode.neighborhood}, {zipCode.city} - {zipCode.uf}</span>
+                                            <span>{zipCode.zip_code.slice(0, 5)} - {zipCode.zip_code.slice(5)}</span>
+                                        </div>
+                                        <div 
+                                            className={`${styles.bodyItemSubThree} ${currentMouseOverId === index ? styles.bodyItemSubThreeShow : styles.bodyItemSubThreeHide}`}
+                                            onClick={removeZipCode}>
+                                            <PiTrash className={styles.bodyItemSubThreeIcon} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

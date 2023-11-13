@@ -70,7 +70,12 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
             <div className={styles.container}>
                 <FullLogo />
-                <div className={styles.containerLocation} onMouseEnter={() => setLocationIsFocused(true)} onMouseLeave={() => setLocationIsFocused(false)}>
+                <div 
+                    className={styles.containerLocation} 
+                    onMouseEnter={() => setLocationIsFocused(true)} 
+                    onMouseLeave={() => setLocationIsFocused(false)}
+                    onClick={() => setShow(oldValue => !oldValue)}
+                >
                     <div className={styles.flexLocationIcon} >
                         {locationIsFocused ? (
                             <PiMapPinFill className={styles.locationIcon} />
@@ -78,9 +83,17 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                             <PiMapPinLight className={styles.locationIcon} />
                         )}
                     </div>
-                    <div className={styles.flexLocationText} onClick={() => setShow(oldValue => !oldValue)}>
-                        <span>{zipCode?.cep.slice(0, 5) + '-' + zipCode?.cep.slice(5)}</span>
-                        <span>{zipCode?.city}, {zipCode?.uf}</span>
+                    <div className={styles.flexLocationText}>
+                        {zipCode ? (
+                            <>
+                                <span>{zipCode.zip_code.slice(0, 5) + '-' + zipCode.zip_code.slice(5)}</span>
+                                <span>{zipCode.city}, {zipCode.uf}</span>
+                            </>
+                        ):(
+                            <>
+                                <span>Selecionar endereço</span>
+                            </>
+                        )}
                     </div>
                 </div>
                 <div className={styles.containerSearch}>

@@ -111,10 +111,11 @@
     padding-left: 0
 }
 .containerMainInfoHeaderRatingSubOneSText {
-    margin-right: 10px;
+    margin-right: 5px;
     font-weight: 600;
     color: var(--primary-color);
     text-decoration: underline;
+    cursor: pointer;
 }
 .containerMainInfoHeaderRatingSubOneText {
     color: var(--text-color-one-blur);
@@ -187,20 +188,63 @@
 .containerMainInfoBodyShipping {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
 }
 .containerMainInfoBodyShippingHeader {
     display: flex;
     align-items: center;
     gap: 10px;
     font-weight: 600;
-    color: var(--primary-color);
 }
 .containerMainInfoBodyShippingIcon {
     font-size: 25px;
 }
 .containerMainInfoBodyShippingBody {
-    
+    display: flex;
+    flex-direction: column;
+}
+.containerMainInfoBodyShippingBodyTitle {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+.containerMainInfoBodyShippingBodyText {
+}
+.containerMainInfoBodyShippingBodyPrice {
+    font-weight: 500;
+}
+.containerMainInfoBodyShippingBodyTextColor {
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+.containerMainInfoBodyAdditionalPositives {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid var(--text-color-two);
+    border-radius: 10px;
+    padding: 15px;
+}
+.containerMainInfoBodyAdditionalPositiveItem {
+    display: flex;
+    gap: 10px;
+}
+.containerMainInfoBodyAdditionalPositiveLeft {
+
+}
+.containerMainInfoBodyAdditionalPositiveLeftIcon {
+    font-size: 18pt;
+}
+.containerMainInfoBodyAdditionalPositiveRight {
+    display: flex;
+    flex-direction: column;
+}
+.containerMainInfoBodyAdditionalPositiveRightTitle {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+.containerMainInfoBodyAdditionalPositiveRightText {
+
 }
 .containerMainInfoBodyStock {
     display: flex;

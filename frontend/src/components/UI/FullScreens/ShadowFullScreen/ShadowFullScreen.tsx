@@ -16,7 +16,9 @@ const ShadowFullScreen: React.FC<Props> = ({children}) => {
 
     return (
         <div className={styles.wrapper}>
-            {children}
+            <div className={styles.container}>
+                {children}
+            </div>
         </div>
     )
 }
