@@ -82,6 +82,7 @@ const ProductPage = (props: Props) => {
     const [currentPage, setCurrentPage] = useState<number>(0)
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const [shouldScroll, setShouldScroll] = useState<boolean>(false)
+    const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const itemsPerPage = 10
 
     const sectionRatingRef = useRef<HTMLDivElement>(null)
@@ -125,7 +126,7 @@ const ProductPage = (props: Props) => {
         setIsLoading(true)
         try {
             const offset = currentPage * itemsPerPage
-            const response = await axios.get(`/comments/product/${productId}?limit=${itemsPerPage}&offset=${offset}`)
+            const response = await axios.get(`/comments/product/${productId}?rating=${starRatingFilter}&limit=${itemsPerPage}&offset=${offset}`)
             if(response.status === 200){
                 setComments(response.data.results)
                 setTotalPageCount(response.data.total_page_count)
@@ -134,7 +135,7 @@ const ProductPage = (props: Props) => {
             setComments([])
         }
         setIsLoading(false)
-    },[productId, currentPage, itemsPerPage, setComments, setIsLoading])
+    },[productId, currentPage, itemsPerPage, starRatingFilter, setComments, setIsLoading])
 
     const get_categories = useCallback(async () => {
         setIsLoading(true)
@@ -418,7 +419,7 @@ const ProductPage = (props: Props) => {
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
+                                                        <h4 className={styles.containerSecondaryWindowHeaderTitleText}>{productDetail.name}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <ul className={styles.containerSecondaryWindowUl}>
@@ -433,7 +434,7 @@ const ProductPage = (props: Props) => {
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
+                                                        <h4 className={styles.containerSecondaryWindowHeaderTitleText}>{productDetail.name}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <p className={styles.containerSecondaryWindowBodyText}>{product.description}</p>
@@ -444,7 +445,7 @@ const ProductPage = (props: Props) => {
                                             return (
                                                 <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name}</h4>
+                                                        <h4 className={styles.containerSecondaryWindowHeaderTitleText}>{productDetail.name}</h4>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <table className={styles.containerSecondaryWindowBodyTable}>
@@ -464,7 +465,32 @@ const ProductPage = (props: Props) => {
                                             return (
                                                 <div ref={sectionRatingRef} className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
-                                                        <h4 className={styles.containerSecondaryWindowHeaderTitle}>{productDetail.name + ` (${starsRating?.count.toLocaleString('pt-BR')})`}</h4>
+                                                        <div className={styles.containerSecondaryWindowHeaderTitle}>
+                                                            <h4 className={styles.containerSecondaryWindowHeaderTitleText}>{productDetail.name + ` (${starsRating?.count.toLocaleString('pt-BR')})`}</h4>
+                                                        </div>
+                                                        <div className={styles.containerSecondaryWindowHeaderFilters}>
+                                                            <div 
+                                                                className={
+                                                                    `${styles.containerSecondaryWindowHeaderFiltersFilter} 
+                                                                    ${!starRatingFilter ? styles.containerSecondaryWindowHeaderFiltersFilterSelected : null}`
+                                                                }
+                                                                onClick={() => setStarRatingFilter(null)}
+                                                            >
+                                                                <span className={styles.containerSecondaryWindowHeaderFiltersFilterText}>Tudo</span>
+                                                            </div>
+                                                            {starsRating && starsRating.detail.map(star => (
+                                                                <div 
+                                                                    key={star.id} 
+                                                                    className={`
+                                                                        ${styles.containerSecondaryWindowHeaderFiltersFilter} 
+                                                                        ${starRatingFilter === star.id ? styles.containerSecondaryWindowHeaderFiltersFilterSelected : null}
+                                                                    `} 
+                                                                    onClick={() => setStarRatingFilter(star.id)}
+                                                                >
+                                                                    <span className={styles.containerSecondaryWindowHeaderFiltersFilterText}>{star.name} {parseInt(star.name) > 1 ? 'estrelas' : 'estrela'} {`(${star.quantity.toLocaleString('pt-BR')})`}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.containerSecondaryWindowBody}>
                                                         <div className={styles.containerSecondaryWindowBodyComments}>
@@ -514,7 +540,9 @@ const ProductPage = (props: Props) => {
                                                                             </div>
                                                                         ))
                                                                     ):(
-                                                                        <span>Nenhuma avaliação</span>
+                                                                        <div className={styles.containerSecondaryWindowBodyCommentsBodyNoComments}>
+                                                                            <span>Nenhuma avaliação</span>
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsBodyFooter}>

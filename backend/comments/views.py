@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import ProductComment, StoreComment
 from products.exceptions import ProductNotFoundError
-from .utils import validate_data
+from .utils import validate_data, apply_filters
 from .exceptions import CommentNotFoundError
 from utils.custom_pagination import CustomPagination
 from django.db.models import Avg
@@ -17,8 +17,14 @@ from django.db.models import Avg
 @api_view(['GET'])
 def get_product_comments(request, pk):
     try:
+        # getting the rating param
+        rating = request.query_params.get('rating')
+
+        # filtering for the product father that has the id equal to pk
         product_father = ProductFather.objects.get(id=pk)
-        comments = product_father.comments.all().order_by('-id')
+
+        # applying the filters
+        comments = apply_filters(productfather_instance=product_father, rating=rating)
 
         #making a pagination
         paginator = CustomPagination()

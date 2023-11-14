@@ -18,7 +18,7 @@ class InvalidCommentRatingError(APIException):
         self.detail = detail or self.default_detail
 
 class CommentNotFoundError(APIException):
-    status_code = 400
+    status_code = 404
     default_code = 'comment_not_found'
     default_detail = 'Comment not found'
 

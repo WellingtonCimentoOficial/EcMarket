@@ -29,7 +29,7 @@ const SimpleProductCard: React.FC<Props> = ({ data, showDiscountPercentage = fal
                         {showRating && 
                             <div className={styles.containerRating}>
                                 <StarRating rate={data.rating.average} />
-                                <span className={styles.ratingText}>{`(${data.rating.count})`}</span>
+                                <span className={styles.ratingText}>{`(${data.rating.count.toLocaleString('pt-BR')})`}</span>
                             </div>
                         }
                     </div>

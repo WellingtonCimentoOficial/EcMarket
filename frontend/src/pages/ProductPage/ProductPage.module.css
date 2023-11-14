@@ -308,10 +308,39 @@
 .containerSecondaryWindowHeader {
     background-color: transparent;
     padding: 20px 0px;
+    display: flex;
+    align-items: center;
 }
 .containerSecondaryWindowHeaderTitle {
+    min-width: 25%;
+}
+.containerSecondaryWindowHeaderTitleText {
     font-size: 17pt;
     font-weight: 500;
+}
+.containerSecondaryWindowHeaderFilters {
+    display: flex;
+    gap: 10px;
+    background-color: transparent;
+    width: 100%;
+}
+.containerSecondaryWindowHeaderFiltersFilter {
+    min-width: 130px;
+    border: 2px solid var(--text-color-two);
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+    flex: 1;
+}
+.containerSecondaryWindowHeaderFiltersFilterSelected {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.containerSecondaryWindowHeaderFiltersFilterText {
+    text-align: center;
 }
 .containerSecondaryWindowBody {
 
@@ -433,6 +462,10 @@
     font-size: 11pt;
 }
 .containerSecondaryWindowBodyCommentsBodyCommentDescription {
+}
+.containerSecondaryWindowBodyCommentsBodyNoComments {
+    display: flex;
+    justify-content: center;
 }
 .containerSecondaryWindowBodyCommentsBodyFooter {
     background-color: transparent;
