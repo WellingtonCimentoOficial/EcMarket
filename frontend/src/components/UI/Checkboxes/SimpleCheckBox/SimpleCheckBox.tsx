@@ -3,7 +3,7 @@ import styles from "./SimpleCheckBox.module.css"
 
 type Props = {
     value: boolean
-    onChange: (value: boolean) => void
+    onChange?: (value: boolean) => void
 }
 
 const SimpleCheckBox = ({ value, onChange }: Props) => {
@@ -13,7 +13,7 @@ const SimpleCheckBox = ({ value, onChange }: Props) => {
                 className={styles.checkbox} 
                 type="checkbox" 
                 checked={value}
-                onChange={() => onChange(!value)}
+                onChange={() => onChange && onChange(!value)}
             />
             <span className={styles.checkmark}>{value ? '\u2713' : ''}</span>
         </label>

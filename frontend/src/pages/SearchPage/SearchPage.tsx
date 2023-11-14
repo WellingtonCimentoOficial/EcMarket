@@ -103,7 +103,8 @@ const SearchPage = () => {
         return initialValues
     }, [filters, searchParams])
 
-    const handleFilter = useCallback((filter: Filter, item: FilterData) => {
+    const handleFilter = useCallback((filter: Filter, item: FilterData, e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault()
         setCheckBoxValues((prevState) => {
             const updatedValues = {
                 ...prevState,
@@ -153,6 +154,43 @@ const SearchPage = () => {
     const handleLimit = useCallback(() => {
         addParam('limit', String(itemsPerPage.value))
     }, [itemsPerPage, addParam])
+
+    const get_products = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
+            const dynamicFilters = filters?.map(filter => filter.param && `&${filter.param}=${Object.entries(checkBoxValues[filter.id] ? checkBoxValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`).join('')
+            
+            const path = `/products/` +
+            `?search=${queryParam}` +
+            `&limit=${itemsPerPage?.value}` +
+            `&offset=${offset}` +
+            `&rating=${ratingFilter}` +
+            `&relevance=${relevanceFilter.value}` +
+            `&minPrice=${priceFilter[0]}` +
+            `&maxPrice=${priceFilter[1]}` +
+            `${dynamicFilters}`
+
+            if(dynamicFilters){
+                const response = await axios.get(path)
+                if(response.status === 200){
+                    setProducts(response.data.results)
+                    setTotalPageCount(response.data.total_page_count)
+                    setTotalProductCount(response.data.total_item_count)
+                }
+            }
+        } catch (error) {
+            setTotalPageCount(0)
+            setTotalProductCount(1)
+            setProducts([])
+        }
+        setIsLoading(false)
+    }, [
+        itemsPerPage, currentPage, queryParam, 
+        ratingFilter, relevanceFilter, filters, 
+        checkBoxValues, priceFilter, setIsLoading, 
+        setProducts, setTotalPageCount, setTotalProductCount
+    ])
     
     useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
     useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
@@ -162,46 +200,7 @@ const SearchPage = () => {
     useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating]) // calls a function whenever ratingFilter updates
     useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance]) // calls a function whenever relevanceFilter updates
     useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle]) // update page title whenever queryParam and totalProductCount update
-
-    useEffect(() => {
-        const get_products = async () => {
-            setIsLoading(true)
-            try {
-                const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
-                const dynamicFilters = filters?.map(filter => filter.param && `&${filter.param}=${Object.entries(checkBoxValues[filter.id] ? checkBoxValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`).join('')
-                
-                const path = `/products/` +
-                `?search=${queryParam}` +
-                `&limit=${itemsPerPage?.value}` +
-                `&offset=${offset}` +
-                `&rating=${ratingFilter}` +
-                `&relevance=${relevanceFilter.value}` +
-                `&minPrice=${priceFilter[0]}` +
-                `&maxPrice=${priceFilter[1]}` +
-                `${dynamicFilters}`
-
-                if(dynamicFilters){
-                    const response = await axios.get(path)
-                    if(response.status === 200){
-                        setProducts(response.data.results)
-                        setTotalPageCount(response.data.total_page_count)
-                        setTotalProductCount(response.data.total_item_count)
-                    }
-                }
-            } catch (error) {
-                setTotalPageCount(0)
-                setTotalProductCount(1)
-                setProducts([])
-            }
-            setIsLoading(false)
-        }
-        get_products()
-    }, [
-        itemsPerPage, currentPage, queryParam, 
-        ratingFilter, relevanceFilter, filters, 
-        checkBoxValues, priceFilter, setIsLoading, 
-        setProducts, setTotalPageCount, setTotalProductCount
-    ])
+    useEffect(() => {get_products()}, [get_products]) // calls a function whenever the page is loaded
 
     useEffect(() => {
         const get_categories = async () => {
@@ -260,8 +259,8 @@ const SearchPage = () => {
                                             <div className={`${styles.flexFilterBody} ${styles.flexFilterBodyScroll}`}>
                                                 {filter.data.map((item) => {
                                                     return (
-                                                        <div className={styles.flexFilterItem} key={item.id} onClick={() => handleFilter(filter, item)}>
-                                                            <SimpleCheckBox value={checkBoxValues[filter.id]?.[item.id] || false} onChange={() => {}} />
+                                                        <div className={styles.flexFilterItem} key={item.id} onClick={(e) => handleFilter(filter, item, e)}>
+                                                            <SimpleCheckBox value={checkBoxValues[filter.id]?.[item.id] || false} />
                                                             <span className={styles.flexFilterDescription}>{`${item.name} (${item.count})`}</span>
                                                         </div>
                                                     )
