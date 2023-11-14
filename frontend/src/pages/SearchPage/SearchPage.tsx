@@ -192,6 +192,32 @@ const SearchPage = () => {
         setProducts, setTotalPageCount, setTotalProductCount
     ])
     
+    const get_categories = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/categories/?limit=1&min_product_count=10&max_product_count=20&random=true')
+            if(response.status === 200){
+                setCategoriesData(response.data.results)
+            }
+        } catch (error) {
+            setCategoriesData([])
+        }
+        setIsLoading(false)
+    }, [setIsLoading, setCategoriesData])
+
+    const get_filters = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const response = await axios.get('/products/filters/')
+            if(response.status === 200){
+                setFilters(response.data)
+            }
+        } catch (error) {
+            setFilters([])
+        }
+        setIsLoading(false)
+    }, [setIsLoading, setFilters])
+
     useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
     useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
     useEffect(() => handleLimit(), [handleLimit]) // calls a function whenever the page is loaded
@@ -201,38 +227,8 @@ const SearchPage = () => {
     useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance]) // calls a function whenever relevanceFilter updates
     useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle]) // update page title whenever queryParam and totalProductCount update
     useEffect(() => {get_products()}, [get_products]) // calls a function whenever the page is loaded
-
-    useEffect(() => {
-        const get_categories = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get('/categories/?limit=1&min_product_count=10&max_product_count=20&random=true')
-                if(response.status === 200){
-                    setCategoriesData(response.data.results)
-                }
-            } catch (error) {
-                setCategoriesData([])
-            }
-            setIsLoading(false)
-        }
-        get_categories()
-    }, [setIsLoading, setCategoriesData])
-
-    useEffect(() => {
-        const get_filters = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get('/products/filters/')
-                if(response.status === 200){
-                    setFilters(response.data)
-                }
-            } catch (error) {
-                setFilters([])
-            }
-            setIsLoading(false)
-        }
-        get_filters()
-    }, [setIsLoading, setFilters])
+    useEffect(() => {get_categories()}, [get_categories]) // calls a function whenever the page is loaded
+    useEffect(() => {get_filters()}, [get_filters]) // calls a function whenever the page is loaded
 
     return (
         <WidthLayout width={90}>
