@@ -29,7 +29,7 @@ import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderA
 import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 
 // ICONS
-import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck } from 'react-icons/pi';
+import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck, PiSealCheckBold } from 'react-icons/pi';
 import { FaShippingFast } from 'react-icons/fa';
 
 // TYPES
@@ -85,7 +85,7 @@ const ProductPage = (props: Props) => {
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const itemsPerPage = 10
 
-    const sectionRatingRef = useRef<HTMLDivElement>(null)
+    const sectionToScrollRef = useRef<HTMLDivElement>(null)
 
     const location = useLocation()
 
@@ -214,14 +214,14 @@ const ProductPage = (props: Props) => {
     }, [productDetails, currentProductDetailId])
 
     useEffect(() => {
-        if(sectionRatingRef.current && shouldScroll){
-            sectionRatingRef.current.scrollIntoView({
+        if(sectionToScrollRef.current && shouldScroll){
+            sectionToScrollRef.current.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             })
             setShouldScroll(false)
         }
-    }, [sectionRatingRef, shouldScroll])
+    }, [sectionToScrollRef, shouldScroll])
  
     return (
         product && (
@@ -246,7 +246,6 @@ const ProductPage = (props: Props) => {
                                         src={currentImage} 
                                         alt="" />
                                 </div>
-                                
                             </div>
                             <div className={styles.containerMainInfo}>
                                 <div className={styles.containerMainInfoHeader}>
@@ -373,7 +372,7 @@ const ProductPage = (props: Props) => {
                                         <QuantitySelect min={1} max={product.children[0].quantity || 1} />
                                         <span className={styles.containerMainInfoBodyStockText}>restam {product?.children[0].quantity} disponíveis</span>
                                     </div>
-                                    <div className={styles.containerMainInfoBodyActions}>
+                                    <div ref={sectionToScrollRef} className={styles.containerMainInfoBodyActions}>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
                                             <BtnB02 autoWidth>Adicionar aos favoritos</BtnB02>
                                             <BtnB02 autoWidth>Adicionar ao carrinho</BtnB02>
@@ -463,7 +462,7 @@ const ProductPage = (props: Props) => {
                                             )
                                         }else if(currentProductDetailId === productDetail.id && (productDetail.show || productDetail.fixed) && productDetail.id === 3){
                                             return (
-                                                <div ref={sectionRatingRef} className={styles.containerSecondaryWindow} key={productDetail.id}>
+                                                <div className={styles.containerSecondaryWindow} key={productDetail.id}>
                                                     <div className={styles.containerSecondaryWindowHeader}>
                                                         <div className={styles.containerSecondaryWindowHeaderTitle}>
                                                             <h4 className={styles.containerSecondaryWindowHeaderTitleText}>{productDetail.name + ` (${starsRating?.count.toLocaleString('pt-BR')})`}</h4>
@@ -474,7 +473,7 @@ const ProductPage = (props: Props) => {
                                                                     `${styles.containerSecondaryWindowHeaderFiltersFilter} 
                                                                     ${!starRatingFilter ? styles.containerSecondaryWindowHeaderFiltersFilterSelected : null}`
                                                                 }
-                                                                onClick={() => setStarRatingFilter(null)}
+                                                                onClick={() => {setStarRatingFilter(null);scrollToSection('rating')}}
                                                             >
                                                                 <span className={styles.containerSecondaryWindowHeaderFiltersFilterText}>Tudo</span>
                                                             </div>
@@ -485,7 +484,7 @@ const ProductPage = (props: Props) => {
                                                                         ${styles.containerSecondaryWindowHeaderFiltersFilter} 
                                                                         ${starRatingFilter === star.id ? styles.containerSecondaryWindowHeaderFiltersFilterSelected : null}
                                                                     `} 
-                                                                    onClick={() => setStarRatingFilter(star.id)}
+                                                                    onClick={() => {setStarRatingFilter(star.id);scrollToSection('rating')}}
                                                                 >
                                                                     <span className={styles.containerSecondaryWindowHeaderFiltersFilterText}>{star.name} {parseInt(star.name) > 1 ? 'estrelas' : 'estrela'} {`(${star.quantity.toLocaleString('pt-BR')})`}</span>
                                                                 </div>
@@ -546,11 +545,13 @@ const ProductPage = (props: Props) => {
                                                                     )}
                                                                 </div>
                                                                 <div className={styles.containerSecondaryWindowBodyCommentsBodyFooter}>
-                                                                    <BarPagination 
-                                                                        totalPageCount={totalPageCount}
-                                                                        currentPage={currentPage}
-                                                                        onChange={setCurrentPage}
-                                                                    />
+                                                                    <div onClick={() => scrollToSection('rating')}>
+                                                                        <BarPagination 
+                                                                            totalPageCount={totalPageCount}
+                                                                            currentPage={currentPage}
+                                                                            onChange={setCurrentPage}
+                                                                        />
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>

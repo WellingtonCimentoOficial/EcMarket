@@ -91,6 +91,7 @@ const AddressLookup = (props: Props) => {
                                 placeholder='00000-000'
                             />
                             <BtnB01 
+                                autoHeight
                                 className={styles.btnSubmit} 
                                 disabled={isLoading ? true : false}
                             >

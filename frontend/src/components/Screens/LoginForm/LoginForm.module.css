@@ -1,0 +1,126 @@
+.wrapper {
+    background-color: transparent;
+}
+.container {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    /* box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1); */
+}
+.containerHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.containerHeaderTitle {
+    font-size: 18pt;
+}
+.containerHeaderDescription {
+    max-width: 500px;
+    color: var(--text-color-one-blur);
+}
+.containerBody {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.containerBodySocialAccounts {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.containerBodySocialAccountsButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid var(--text-color-two);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+}
+.containerBodySocialAccountsButtonIcon {
+    width: 35px;
+    height: 35px;
+}
+.containerBodySocialAccountsButtonText {
+    font-weight: 500;
+}
+.separator {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.separatorBar {
+    height: 1px;
+    width: 100%;
+    background-color: var(--text-color-two);
+}
+.separatorText {
+
+}
+.containerBodyForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.containerBodyFormInputContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between
+}
+.containerBodyFormInputContainerIcon {
+    position: absolute;
+    top: 0;
+    background-color: transparent;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.containerBodyFormInputContainerIconLeft {
+    left: 13px;
+}
+.containerBodyFormInputContainerIconRight {
+    right: 13px;
+}
+.containerBodyFormInputContainerIconIcon {
+    font-size: 18pt;
+}
+.containerBodyFormInputContainerIconIconF {
+    cursor: pointer;
+}
+.containerBodyFormInputContainerLabel {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    margin-left: 51.5px;
+    font-size: 10pt;
+    font-weight: 600;
+}
+.containerBodyFormInputContainerInput {
+    width: 100%;
+    padding: 30px 50px 10px 50px;
+    border-radius: 8px;
+    font-size: 12pt;
+    background-color: rgba(0, 0, 0, 0.068);
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+.containerBodyFormInputContainerInput:focus {
+    border-color: var(--primary-color);
+    background-color: transparent;
+}
+.containerBodyFormInputContainerRemember {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.containerFooter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}

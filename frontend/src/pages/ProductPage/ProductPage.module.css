@@ -304,12 +304,16 @@
     box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
 }
 .containerSecondaryWindow {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 .containerSecondaryWindowHeader {
     background-color: transparent;
     padding: 20px 0px;
     display: flex;
     align-items: center;
+    border-bottom: 1px solid var(--text-color-two);
 }
 .containerSecondaryWindowHeaderTitle {
     min-width: 25%;

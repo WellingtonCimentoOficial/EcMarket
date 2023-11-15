@@ -5,7 +5,7 @@
   --text-color-one: #201E1F;
   --text-color-one-blur: #201e1fb9;
   --text-color-two: rgba(0, 0, 0, 0.150);
-  --text-color-two-focus: rgba(0, 0, 0, 0.300);
+  --text-color-two-blur: rgba(0, 0, 0, 0.300);
   --background-color: #f5f5f5;
   --star-color: rgb(255, 187, 0);
 }

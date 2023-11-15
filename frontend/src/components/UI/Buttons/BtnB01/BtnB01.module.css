@@ -4,7 +4,7 @@
 .BtnB01 {
     background-color: var(--primary-color);
     color: white;
-    padding: 5px 10px;
+    padding: 10px 30px;
     border-radius: 5px;
     border: 2px solid var(--primary-color);
     font-size: 12pt;
@@ -27,4 +27,11 @@
 }
 .AutoWidth {
     width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+}
+.AutoHeight {
+    min-height: 100%;
+    padding-top: 0;
+    padding-bottom: 0;
 }
