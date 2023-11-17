@@ -1,4 +1,3 @@
-import React from 'react'
 import { useSearchParams } from 'react-router-dom';
 
 type ArgsAddParam = (key: string, value: string) => void

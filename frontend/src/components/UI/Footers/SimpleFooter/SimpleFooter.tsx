@@ -4,10 +4,12 @@ import styles from "./SimpleFooter.module.css"
 type Props = {}
 
 const SimpleFooter = (props: Props) => {
+    const currentYear = new Date().getFullYear()
+
     return (
         <footer className={styles.wrapper}>
             <div className={styles.container}>
-                <span>Copyright © 1995-2023 eBay Inc. Todos os direitos reservados. Contrato do Usuário, Privacidade, Termos de Uso de Pagamentos, Cookies e AdChoice</span>
+                <span>Copyright © 2023-{currentYear} {process.env.REACT_APP_PROJECT_NAME}. Todos os direitos reservados. <a href="/">Termos de uso</a>, <a href="/">Privacidade</a>, <a href="/">Política de cookies</a>.</span>
             </div>
         </footer>
     )

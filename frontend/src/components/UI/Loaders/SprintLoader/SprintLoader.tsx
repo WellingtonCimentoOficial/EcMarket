@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styles from "./SprintLoader.module.css"
 
 type Props = {
@@ -6,14 +6,6 @@ type Props = {
 }
 
 const SprintLoader = ({className}: Props) => {
-
-    useEffect(() => {
-        document.body.style.overflow = 'hidden'
-        return () => {
-            document.body.style.overflow = 'visible'
-        }
-    }, [])
-
     return (
         <section className={className}>
             <div className={styles.container}>

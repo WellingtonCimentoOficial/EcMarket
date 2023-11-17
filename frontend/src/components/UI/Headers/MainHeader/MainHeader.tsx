@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import styles from "./MainHeader.module.css"
 import { BsSearch } from 'react-icons/bs';
 import { 
@@ -13,6 +13,8 @@ import FullLogo from '../../Logos/FullLogo/FullLogo';
 import { axios } from '../../../../services/api';
 import { CategoryName } from '../../../../types/CategoryType';
 import { ZipCodeContext } from '../../../../contexts/ZipCodeContext';
+import { AuthContext } from '../../../../contexts/AuthContext';
+import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
 
 type Props = {
     shadow?: boolean
@@ -24,9 +26,14 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
+    const [cartNumberOfItems, setCartNumberOfItems] = useState<number>(0)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
+
+    const { tokens } = useContext(AuthContext)
+
+    const axiosPrivate = useAxiosPrivate()
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault()
@@ -45,18 +52,25 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         }
     }
 
-    useEffect(() => {
-        const get_categories_name = async () => {
-            try {
-                const response = await axios.get(`/products/name/?search=${searchText}`)
-                if(searchText && response.status === 200){
-                    setSuggestions(response.data.results)
-                }
-            } catch (error) {
-                setSuggestions([])
+    const get_categories_name = useCallback(async () => {
+        try {
+            const response = await axios.get(`/products/name/?search=${searchText}`)
+            if(searchText && response.status === 200){
+                setSuggestions(response.data.results)
             }
+        } catch (error) {
+            setSuggestions([])
         }
+    }, [searchText])
 
+    const get_cart = useCallback(async () => {
+        const response = await axiosPrivate.get('/cart/')
+        if(response.status === 200){
+            setCartNumberOfItems(response.data.products.length)
+        }
+    }, [])
+
+    useEffect(() => {
         const timeout = setTimeout(() => {
             get_categories_name()
         }, 300)
@@ -64,7 +78,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         return () => {
             clearTimeout(timeout)
         }
-    }, [searchText])
+    }, [get_categories_name])
+
+    useEffect(() => {
+        if(tokens.refresh){
+            get_cart()
+        }
+    }, [tokens.refresh, get_cart])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
@@ -124,19 +144,19 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                 </div>
                 <div className={styles.containerUtils}>
                     <div className={styles.flexUtil}>
-                        <a href="/profile" className={styles.utilIconContainer} >
+                        <a href="/accounts/profile" className={styles.utilIconContainer} >
                             <PiUserLight className={styles.utilIcon} />
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/favorites" className={styles.utilIconContainer} >
+                        <a href="/accounts/favorites" className={styles.utilIconContainer} >
                             <PiHeartLight className={styles.utilIcon} />
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/favorites" className={styles.utilIconContainer} >
+                        <a href="/accounts/favorites" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
-                            <div className={styles.tagNumberContainer}>3</div>
+                            {cartNumberOfItems > 0 && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
                         </a>
                     </div>
                 </div>

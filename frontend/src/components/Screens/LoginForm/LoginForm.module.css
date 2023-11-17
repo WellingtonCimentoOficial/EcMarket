@@ -119,6 +119,13 @@
     align-items: center;
     gap: 10px;
 }
+.containerBodyFormInputContainerRememberInput {
+    background-color: rgba(0, 0, 0, 0.068);
+    border-color: transparent;
+}
+.containerBodyFormInputContainerRememberSubmit {
+    height: 50px;
+}
 .containerFooter {
     display: flex;
     align-items: center;

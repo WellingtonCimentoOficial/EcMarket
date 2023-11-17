@@ -1,12 +1,86 @@
-import React, { useState } from 'react'
+import React, { FormEvent, useState, useRef, MutableRefObject, useContext } from 'react'
+import { Helmet } from 'react-helmet'
 import styles from './LoginForm.module.css'
 import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
+import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
+import { axios } from '../../../services/api';
+import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../../contexts/AuthContext';
 
-type Props = {}
+declare global {
+    interface Window {
+        grecaptcha: ReCAPTCHA;
+    }
+}
 
-const LoginForm = (props: Props) => {
+interface ReCAPTCHA {
+    ready: (callback: () => void) => void;
+    execute: (siteKey: string, options: { action: string }) => Promise<string>;
+}
+
+const LoginForm = () => {
+    const [rememberMe, setRememberMe] = useState<boolean>(false)
+    const [email, setEmail] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
     const [showPassword, setShowPassword] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const inputEmailRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
+    const inputPasswordRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
+
+    const navigate = useNavigate()
+
+    const { setTokens, storeToken } = useContext(AuthContext)
+
+    // checks if email has a valid format
+    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
+
+    // checks if there is at least one uppercase letter, lowercase letter, number and special character
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$/;
+
+    const post_data = async (CaptchaToken: string) => {
+        setIsLoading(true)
+        try {
+            const response: {data: {refresh: string, access: string}, status: number} = await axios.post('/users/sign-in/token/', {
+                email,
+                password,
+                "g-recaptcha-response": CaptchaToken
+            })
+            if(response.status === 200){
+                setTokens(response.data)
+                rememberMe && storeToken(response.data.refresh)
+                navigate('/')
+            }
+        } catch (error) {
+            inputEmailRef.current?.focus()
+            inputPasswordRef.current?.focus()
+        }
+        setIsLoading(false)
+    }
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        const newEmailRegex = new RegExp(emailRegex)
+        const newPasswordRegex = new RegExp(passwordRegex)
+        
+        if(newEmailRegex.test(email)){
+            if(password.length >= 8 && newPasswordRegex.test(password)){
+                setIsLoading(true)
+                window.grecaptcha.ready(function() {
+                    window.grecaptcha.execute('6LeKJCQnAAAAAPFOjyIvDJazV8ja7lEgR1VIv-He', {action: 'submit'}).then(function(token) {
+                        post_data(token)
+                    })
+                })
+            }else{
+                inputPasswordRef.current?.focus()
+            }
+        }else{
+            inputEmailRef.current?.focus()
+        }
+    }
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
@@ -37,18 +111,21 @@ const LoginForm = (props: Props) => {
                         <span className={styles.separatorText}>Ou</span>
                         <div className={styles.separatorBar}></div>
                     </div>
-                    <form className={styles.containerBodyForm}>
+                    <form className={styles.containerBodyForm} onSubmit={handleSubmit}>
                         <div className={styles.containerBodyFormInputContainer}>
                             <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
                                 <PiEnvelope className={styles.containerBodyFormInputContainerIconIcon} />
                             </div>
                             <span className={styles.containerBodyFormInputContainerLabel}>E-mail</span>
                             <input 
+                                ref={inputEmailRef}
                                 className={styles.containerBodyFormInputContainerInput} 
                                 type="email" 
                                 name="email" 
                                 id="email" 
                                 placeholder='Digite seu e-mail'
+                                value={email}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                             />
                         </div>
                         <div className={styles.containerBodyFormInputContainer}>
@@ -57,11 +134,15 @@ const LoginForm = (props: Props) => {
                             </div>
                             <span className={styles.containerBodyFormInputContainerLabel}>Password</span>
                             <input 
+                                ref={inputPasswordRef}
                                 className={styles.containerBodyFormInputContainerInput} 
                                 type={showPassword ? 'text' : 'password'} 
                                 name="password" 
                                 id="password" 
                                 placeholder='**********'
+                                minLength={8}
+                                value={password}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                             />
                             <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
                                 {showPassword ? (
@@ -79,21 +160,30 @@ const LoginForm = (props: Props) => {
                         </div>
                         <div className={styles.containerBodyFormInputContainer}>
                             <div className={styles.containerBodyFormInputContainerRemember}>
-                                <input type="checkbox" name="remember-me" id="remember-me" />
+                                <SimpleCheckBox 
+                                    className={styles.containerBodyFormInputContainerRememberInput} 
+                                    name='remember-me' 
+                                    id='remember-me' 
+                                    value={rememberMe} 
+                                    onChange={setRememberMe} 
+                                />
                                 <label htmlFor="remember-me">Lembrar de min</label>
                             </div>
-                            <a href="">Esqueceu sua senha?</a>
+                            <a href="/accounts/password/reset">Esqueceu sua senha?</a>
                         </div>
                         <div className={styles.containerBodyFormInputContainer}>
-                            <BtnB01 autoWidth>Login</BtnB01>
+                            <BtnB01 autoWidth className={styles.containerBodyFormInputContainerRememberSubmit}>{isLoading ? <SprintLoader /> : 'Login'}</BtnB01>
                         </div>
                     </form>
                 </div>
                 <div className={styles.containerFooter}>
                     <span>Não tem uma conta?</span>
-                    <a href="">Cadastre-se</a>
+                    <a href="/accounts/sign-up">Cadastre-se</a>
                 </div>
             </div>
+            <Helmet>
+                <script src="https://www.google.com/recaptcha/api.js?render=6LeKJCQnAAAAAPFOjyIvDJazV8ja7lEgR1VIv-He"></script>
+            </Helmet>
         </div>
     )
 }

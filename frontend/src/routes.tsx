@@ -5,6 +5,8 @@ import SearchPage from './pages/SearchPage/SearchPage'
 import ProductPage from './pages/ProductPage/ProductPage'
 import SecondaryLayout from './layouts/SecondaryLayout/SecondaryLayout'
 import LoginPage from './pages/LoginPage/LoginPage'
+import FavoritesPage from './pages/FavoritesPage/FavoritesPage'
+import PrivateRoutes from './components/Controllers/PrivateRoutes'
 
 const Routes = (): JSX.Element => {
     return (
@@ -14,6 +16,9 @@ const Routes = (): JSX.Element => {
                     <Route index element={<HomePage />} />
                     <Route path='search' element={<SearchPage />} />
                     <Route path=':productName/p/:productId' element={<ProductPage />} />
+                    <Route element={<PrivateRoutes />}>
+                        <Route path='/accounts/favorites' element={<FavoritesPage />} />
+                    </Route>
                 </Route>
                 <Route path='/' element={<SecondaryLayout />}>
                     <Route path='/accounts/sign-in' element={<LoginPage />} />

@@ -29,7 +29,7 @@ import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderA
 import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 
 // ICONS
-import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck, PiSealCheckBold } from 'react-icons/pi';
+import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck } from 'react-icons/pi';
 import { FaShippingFast } from 'react-icons/fa';
 
 // TYPES
