@@ -1,5 +1,10 @@
 from utils.payment_gateway import Gateway
-from transactions.exceptions import InternalError
+from .exceptions import UserAlreadyExists, InvalidGoogleToken, InternalError
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.contrib.auth.hashers import make_password
+import requests
+import os
 
 def create_user_payload_to_payment_gateway(user_instance, update_user=False):
     try:
@@ -62,3 +67,47 @@ def get_or_create_user_in_payment_gateway(user_instance):
                 user_instance.save()
 
             return results[0]
+
+def get_or_create_user_in_google(user_info):
+    userid = user_info['sub']
+    User = get_user_model()
+    user = User.objects.filter(google_user_id=userid).first()
+    user_by_email = User.objects.filter(email=user_info['email']).first()
+
+    if not user:
+        if not user_by_email:
+            new_user = User.objects.create(
+                google_user_id=userid,
+                email=user_info['email'],
+                first_name=user_info['given_name'],
+                last_name=user_info['family_name'],
+                password=make_password(userid)
+            )
+
+            group = Group.objects.get_or_create(name='customer')[0]
+            group.user_set.add(new_user)
+
+            return new_user
+        raise UserAlreadyExists()
+    return user
+
+def validate_google_token(token):
+    try:
+        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
+    except:
+        raise InternalError()
+    
+    if response.status_code == 200 or response.status_code == 201:
+        user_info = response.json()
+        if user_info['aud'] == os.getenv('GOOGLE_OAUTH_CLIENT_ID'):
+            return user_info
+        raise InvalidGoogleToken()
+    raise InvalidGoogleToken()
+
+def google_user_id_exists(email):
+    User = get_user_model()
+    user = User.objects.filter(email=email).first()
+    if user is not None and user.google_user_id is not None:
+        return True
+    return False
+

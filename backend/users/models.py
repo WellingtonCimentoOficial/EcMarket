@@ -5,6 +5,8 @@ from addresses.exceptions import AddressNotFoundError
 
 class User(AbstractUser):
     username = None
+    google_user_id = models.CharField(max_length=255, null=True, unique=True)
+    apple_user_id = models.CharField(max_length=255, null=True, unique=True)
     gateway_user_id = models.CharField(max_length=150, null=True)
     first_name = models.CharField(max_length=150, null=False, blank=False)
     last_name = models.CharField(max_length=150, null=False, blank=False)

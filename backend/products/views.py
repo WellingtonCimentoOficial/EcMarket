@@ -83,8 +83,7 @@ def get_products_name(request):
             return paginator.get_paginated_response(paginated_comments)
         
         return Response(status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        print(e)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])

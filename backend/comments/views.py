@@ -70,8 +70,7 @@ def get_product_rating_statistics(request, pk):
             'detail': detail
         }
         return Response(data)
-    except Exception as e:
-        print(e)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
