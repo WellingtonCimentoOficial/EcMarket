@@ -17,7 +17,7 @@
     font-size: 18pt;
 }
 .containerHeaderDescription {
-    max-width: 500px;
+    max-width: 400px;
     color: var(--text-color-one-blur);
 }
 .containerBody {
@@ -40,6 +40,7 @@
     border-radius: 5px;
     cursor: pointer;
     background-color: white;
+    user-select: none;
 }
 .containerBodySocialAccountsButtonIcon {
     width: 35px;
@@ -114,6 +115,9 @@
     border-color: var(--primary-color);
     background-color: transparent;
 }
+.containerBodyFormInputContainerInputError {
+    border-color: var(--primary-color);
+}
 .containerBodyFormInputContainerRemember {
     display: flex;
     align-items: center;
@@ -123,6 +127,9 @@
     background-color: rgba(0, 0, 0, 0.068);
     border-color: transparent;
 }
+.containerBodyFormInputContainerRememberInputLabel {
+    cursor: pointer;
+}
 .containerBodyFormInputContainerRememberSubmit {
     height: 50px;
 }
@@ -130,4 +137,27 @@
     display: flex;
     align-items: center;
     gap: 5px;
+}
+.containerError {
+    border: 1px solid red;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+}
+.containerErrorHeader {
+
+}
+.containerErrorHeaderIcon {
+    font-size: 23pt;
+    color: red;
+}
+.containerErrorBodyTitle {
+    max-width: 400px;
+    color: red;
+    font-weight: 500;
+}
+.containerErrorBodyText {
+    display: block;
+    max-width: 400px;
 }

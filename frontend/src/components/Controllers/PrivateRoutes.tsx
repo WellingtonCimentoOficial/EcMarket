@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from 'react'
-import { Outlet, Navigate, useNavigate } from 'react-router-dom'
+import { useContext, useEffect } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 
 const PrivateRoutes = () => {
@@ -12,7 +12,7 @@ const PrivateRoutes = () => {
         if(!refreshToken && !tokens.refresh){
             navigate('/accounts/sign-in')
         }
-    }, [tokens.refresh])
+    }, [tokens.refresh, navigate, getClientToken])
 
     return <Outlet />
 }

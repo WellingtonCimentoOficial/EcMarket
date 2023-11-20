@@ -3,7 +3,7 @@ import LoginForm from '../../components/Screens/LoginForm/LoginForm'
 import styles from "./LoginPage.module.css"
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { AuthContext } from '../../contexts/AuthContext'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 type Props = {}
 
@@ -11,13 +11,14 @@ const LoginPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
     const { tokens } = useContext(AuthContext)
 
+    const navigate = useNavigate()
+
     useEffect(() => {
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Login`)
-    }, [updateTitle])
-
-    // if(tokens.refresh){
-    //     return <Navigate to='/' />
-    // }
+        if(tokens.refresh){
+            navigate('/')
+        }
+    }, [tokens.refresh, updateTitle, navigate])
 
     return (
         <div className={styles.wrapper}>

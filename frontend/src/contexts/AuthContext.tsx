@@ -38,6 +38,13 @@ export const AuthContext = createContext<AuthContextType>(initialValue)
 export const AuthContextProvider = ({children}: Props) => {
     const [tokens, setTokens] = useState<TokensType>(initialValue.tokens)
 
+    const logout = useCallback(() => {
+        setTokens(prev => {
+            return {...prev, access: null, refresh: null}
+        })
+        localStorage.removeItem('token')
+    }, [])
+
     const refreshTokens = useCallback(async (refreshToken: string) => {
         try {
             const response = await axios.post('/users/sign-in/token/refresh/', {
@@ -48,7 +55,6 @@ export const AuthContextProvider = ({children}: Props) => {
                 }
             })
             if(response.status === 200){
-                console.log(response.data)
                 setTokens(prev => {
                     return {...prev, refresh: response.data.refresh}
                 })
@@ -61,7 +67,7 @@ export const AuthContextProvider = ({children}: Props) => {
         } catch (error) {
             return null
         }
-    }, [])
+    }, [logout])
 
     const getClientToken = useCallback(() => {
         const token = localStorage.getItem('token')
@@ -72,12 +78,6 @@ export const AuthContextProvider = ({children}: Props) => {
         localStorage.setItem('token', token)
     }
 
-    const logout = () => {
-        setTokens(prev => {
-            return {...prev, access: null, refresh: null}
-        })
-        localStorage.removeItem('token')
-    }
 
     useEffect(() => {
         // (async () => {
@@ -85,7 +85,6 @@ export const AuthContextProvider = ({children}: Props) => {
         //     const refreshToken = getClientToken()
         //     refreshToken && await refreshTokens(refreshToken)
         // })()
-        console.log('dentro do use effect')
         const refreshToken = getClientToken()
         setTokens(prev => {
             return {...prev, refresh: refreshToken}
