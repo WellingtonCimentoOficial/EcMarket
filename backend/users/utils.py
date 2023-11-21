@@ -3,8 +3,14 @@ from .exceptions import UserAlreadyExists, InvalidGoogleToken, InternalError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.hashers import make_password
+from .exceptions import (
+    InvalidPasswordFormat, InvalidEmailFormat, 
+    InvalidFirstNameFormat, InvalidLastNameFormat, 
+    EmailAlreadyUsed, TermsNotAccepted
+)
 import requests
 import os
+import re
 
 def create_user_payload_to_payment_gateway(user_instance, update_user=False):
     try:
@@ -111,3 +117,41 @@ def google_user_id_exists(email):
         return True
     return False
 
+def validate_data_format(first_name=None, last_name=None, email=None, password=None, terms=None):
+    name_regex = re.compile("^[a-zA-Z\s]+$")
+    email_regex = re.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+    password_regex = re.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$")
+
+    if first_name is not None:
+        if not name_regex.match(first_name):
+            raise InvalidFirstNameFormat
+        
+    if last_name is not None:
+        if not name_regex.match(last_name):
+            raise InvalidLastNameFormat
+
+    if email is not None:
+        if not email_regex.match(email):
+            raise InvalidEmailFormat
+
+    if password is not None:
+        if not password_regex.match(password) or len(password) < 8:
+            raise InvalidPasswordFormat
+
+    if terms is not None:
+        if not terms:
+            raise TermsNotAccepted
+
+    return True
+
+def create_user(first_name=None, last_name=None, email=None, password=None):
+    User = get_user_model()
+
+    if User.objects.filter(email=email).first() is not None:
+        raise EmailAlreadyUsed
+    
+    new_user = User.objects.create(first_name=first_name, last_name=last_name, email=email, password=make_password(password))
+    group = Group.objects.get_or_create(name='customer')[0]
+    group.user_set.add(new_user)
+
+    return new_user

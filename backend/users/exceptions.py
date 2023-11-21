@@ -20,3 +20,33 @@ class InternalError(APIException):
     status_code = 500
     default_code = 'internal_error'
     default_detail = 'An internal error occurred'
+
+class InvalidFirstNameFormat(APIException):
+    status_code = 400
+    default_code = 'Invalid_first_name_format'
+    default_detail = 'Invalid first name format'
+
+class InvalidLastNameFormat(APIException):
+    status_code = 400
+    default_code = 'Invalid_last_name_format'
+    default_detail = 'Invalid last name format'
+
+class InvalidEmailFormat(APIException):
+    status_code = 400
+    default_code = 'Invalid_email_format'
+    default_detail = 'Invalid email format'
+
+class InvalidPasswordFormat(APIException):
+    status_code = 400
+    default_code = 'Invalid_password_format'
+    default_detail = 'Invalid password format'
+
+class EmailAlreadyUsed(APIException):
+    status_code = 400
+    default_code = 'email_already_used'
+    default_detail = 'The email is already being used'
+
+class TermsNotAccepted(APIException):
+    status_code = 400
+    default_code = 'terms_not_accepted'
+    default_detail = 'Terms of use and privacy I do not accept'
