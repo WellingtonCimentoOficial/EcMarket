@@ -30,6 +30,25 @@
     flex-direction: column;
     gap: 15px;
 }
+.containerBodySocialAccountsButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid var(--text-color-two);
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    user-select: none;
+}
+.containerBodySocialAccountsButtonIcon {
+    width: 35px;
+    height: 35px;
+}
+.containerBodySocialAccountsButtonText {
+    font-weight: 500;
+}
 .separator {
     display: flex;
     align-items: center;
@@ -52,7 +71,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between
+    justify-content: space-between;
 }
 .containerBodyFormInputContainerIcon {
     position: absolute;
@@ -103,6 +122,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    border: 2px solid transparent;
+    border-radius: 5px;
 }
 .containerBodyFormInputContainerRememberInput {
     background-color: rgba(0, 0, 0, 0.068);
@@ -141,13 +162,12 @@
 .containerErrorBodyText {
     display: block;
 }
-.loading {
-    opacity: 50%;
-    pointer-events: none;
-}
 .messageSuccess {
     color: green;
 }
 .messageFailure {
     color: red;
+}
+.InvalidAcceptTerms {
+    border-color: var(--primary-color);
 }

@@ -50,3 +50,33 @@ class TermsNotAccepted(APIException):
     status_code = 400
     default_code = 'terms_not_accepted'
     default_detail = 'Terms of use and privacy I do not accept'
+
+class ErrorCreatingVerificationCode(APIException):
+    status_code = 400
+    default_code = 'error_creating_verification_code'
+    default_detail = 'Error creating verificationCcode'
+
+class InvalidVerificationCodeFormat(APIException):
+    status_code = 400
+    default_code = 'invalid_verifiction_code_format'
+    default_detail = 'The verification code format is invalid'
+
+class InvalidVerificationCode(APIException):
+    status_code = 400
+    default_code = 'invalid_verification_code'
+    default_detail = 'The verification code is invalid'
+
+class ExpiredVerificationCode(APIException):
+    status_code = 400
+    default_code = 'expired_verification_code'
+    default_detail = 'The verification code is expired'
+
+class AccountAlreadyVerified(APIException):
+    status_code = 400
+    default_code = 'account_already_verified'
+    default_detail = 'The account has already been verified'
+
+class VerificationCodeNotFound(APIException):
+    status_code = 400
+    default_code = 'verification_code_not_found'
+    default_detail = 'Verification code not found'

@@ -10,7 +10,7 @@ const handleSubmit = async (e) => {
                 "password": document.getElementById("password").value,
                 "g-recaptcha-response": token
             }
-            const response = await fetch(`${URL_BASE}/users/sign-in/token/`, {
+            const response = await fetch(`${URL_BASE}/accounts/sign-in/token/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -47,7 +47,7 @@ export const AuthContextProvider = ({children}: Props) => {
 
     const refreshTokens = useCallback(async (refreshToken: string) => {
         try {
-            const response = await axios.post('/users/sign-in/token/refresh/', {
+            const response = await axios.post('/accounts/sign-in/token/refresh/', {
                 'refresh': refreshToken
             }, {
                 validateStatus: function(status) {

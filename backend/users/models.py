@@ -11,6 +11,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, null=False, blank=False)
     last_name = models.CharField(max_length=150, null=False, blank=False)
     email = models.EmailField(unique=True)
+    is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -27,3 +28,12 @@ class User(AbstractUser):
         if hasattr(self, 'address'):
             return True
         raise AddressNotFoundError()
+    
+class VerificationCode(models.Model):
+    code = models.UUIDField(unique=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='verification_code')
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
+        return str(self.code)

@@ -6,8 +6,14 @@ from django.contrib.auth.hashers import make_password
 from .exceptions import (
     InvalidPasswordFormat, InvalidEmailFormat, 
     InvalidFirstNameFormat, InvalidLastNameFormat, 
-    EmailAlreadyUsed, TermsNotAccepted
+    EmailAlreadyUsed, TermsNotAccepted, ErrorCreatingVerificationCode,
+    InvalidVerificationCodeFormat, ExpiredVerificationCode, AccountAlreadyVerified,
+    InvalidVerificationCode, VerificationCodeNotFound
 )
+from users.models import VerificationCode
+from uuid import uuid4
+from datetime import timedelta
+from django.utils import timezone
 import requests
 import os
 import re
@@ -124,23 +130,23 @@ def validate_data_format(first_name=None, last_name=None, email=None, password=N
 
     if first_name is not None:
         if not name_regex.match(first_name):
-            raise InvalidFirstNameFormat
+            raise InvalidFirstNameFormat()
         
     if last_name is not None:
         if not name_regex.match(last_name):
-            raise InvalidLastNameFormat
+            raise InvalidLastNameFormat()
 
     if email is not None:
         if not email_regex.match(email):
-            raise InvalidEmailFormat
+            raise InvalidEmailFormat()
 
     if password is not None:
         if not password_regex.match(password) or len(password) < 8:
-            raise InvalidPasswordFormat
+            raise InvalidPasswordFormat()
 
     if terms is not None:
         if not terms:
-            raise TermsNotAccepted
+            raise TermsNotAccepted()
 
     return True
 
@@ -148,10 +154,52 @@ def create_user(first_name=None, last_name=None, email=None, password=None):
     User = get_user_model()
 
     if User.objects.filter(email=email).first() is not None:
-        raise EmailAlreadyUsed
+        raise EmailAlreadyUsed()
     
     new_user = User.objects.create(first_name=first_name, last_name=last_name, email=email, password=make_password(password))
     group = Group.objects.get_or_create(name='customer')[0]
     group.user_set.add(new_user)
 
     return new_user
+
+def create_new_verification_code(user):
+    try:
+        code = uuid4()
+        if hasattr(user, 'verification_code'):
+            user.verification_code.code = code
+            user.verification_code.save()
+        else:
+            verification_code = VerificationCode()
+            verification_code.code = code
+            verification_code.user = user
+            verification_code.save()
+    except:
+        raise ErrorCreatingVerificationCode()
+
+
+def verify_user_account(code):
+    if code == '':
+        raise InvalidVerificationCode()
+
+    try:
+        code_instance = VerificationCode.objects.filter(code=code).first()
+    except:
+        raise InvalidVerificationCodeFormat()
+    
+    if code_instance is not None:
+        user = code_instance.user
+        if not user.is_verified:
+
+            current_time = timezone.now()
+
+            difference = current_time - code_instance.updated_at
+            if difference <= timedelta(minutes=10):
+                try:
+                    user.is_verified = True
+                    user.save()
+                    return True
+                except:
+                    raise InternalError()
+            raise ExpiredVerificationCode()
+        raise AccountAlreadyVerified()
+    raise VerificationCodeNotFound()

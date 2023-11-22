@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, VerificationCode
 
 
 class UserAdmin(BaseUserAdmin):
@@ -8,6 +8,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('email', 'password')}),
         ('Personal Info', {'fields': ('first_name', 'last_name')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Verification', {'fields': ('is_verified',)}),
         ('Important Dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
@@ -24,4 +25,8 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ("email", "first_name", "last_name", "email")
     ordering = ("email",)
 
+class VerificationCodeAdmin(admin.ModelAdmin):
+    list_display = ("user", "code", "created_at", "updated_at")
+
 admin.site.register(User, UserAdmin)
+admin.site.register(VerificationCode, VerificationCodeAdmin)

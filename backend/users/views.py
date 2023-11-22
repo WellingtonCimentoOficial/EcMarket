@@ -12,9 +12,12 @@ from utils.recaptcha import ReCaptcha, InvalidReCaptchaToken
 from rest_framework import status
 from .utils import (
     get_or_create_user_in_google, validate_google_token, 
-    google_user_id_exists, validate_data_format, create_user
+    google_user_id_exists, validate_data_format, create_user,
+    verify_user_account
 )
 from . import exceptions
+from datetime import datetime, timedelta
+from users.models import VerificationCode
 
 # Create your views here.
 class TokenObtainPairView(TokenObtainPairViewOriginal):
@@ -113,3 +116,23 @@ def reset_password(request):
 @api_view(['POST'])
 def search_account(request):
     ...
+
+@api_view(['POST'])
+def verify_account(request):
+    try:
+        code = request.data.get('code')
+        verify_user_account(code=code)
+        
+        return Response(status=status.HTTP_200_OK)
+    except exceptions.InvalidVerificationCodeFormat:
+        return Response({'cod': 13, 'error': 'Invalid verification code format'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.ExpiredVerificationCode:
+        return Response({'cod': 12, 'error': 'Expired Verification code'}, status=status.HTTP_401_UNAUTHORIZED)
+    except exceptions.AccountAlreadyVerified:
+        return Response({'cod': 14, 'error': 'Your account has already been verified'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.InvalidVerificationCode:
+        return Response({'cod': 15, 'error': 'Invalid verification code'}, status=status.HTTP_401_UNAUTHORIZED)
+    except exceptions.VerificationCodeNotFound:
+        return Response({'cod': 16, 'error': 'Verification code not found'}, status=status.HTTP_404_NOT_FOUND)
+    except exceptions.InternalError:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

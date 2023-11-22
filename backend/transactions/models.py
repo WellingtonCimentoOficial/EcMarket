@@ -22,8 +22,8 @@ class Transaction(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES)
     products = models.JSONField(null=True)
     gateway_response = models.JSONField(null=True)
-    created_at = models.DateTimeField(null=True)
-    updated_at = models.DateField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
 
     def __str__(self):
         return f'{self.user.email} - {self.transaction_id}'
