@@ -9,6 +9,7 @@ import FavoritesPage from './pages/FavoritesPage/FavoritesPage'
 import PrivateRoutes from './components/Controllers/PrivateRoutes'
 import RegisterPage from './pages/RegisterPage/RegisterPage'
 import VerifyAccountPage from './pages/VerifyAccountPage/VerifyAccountPage'
+import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage'
 
 const Routes = (): JSX.Element => {
     return (
@@ -26,6 +27,7 @@ const Routes = (): JSX.Element => {
                     <Route path='/accounts/sign-in' element={<LoginPage />} />
                     <Route path='/accounts/sign-up' element={<RegisterPage />} />
                     <Route path='/accounts/verify' element={<VerifyAccountPage />} />
+                    <Route path='/accounts/reset/password' element={<ResetPasswordPage />} />
                 </Route>
             </RoutesRouter>
         </BrowserRouter>

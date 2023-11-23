@@ -25,43 +25,6 @@
     flex-direction: column;
     gap: 25px;
 }
-.containerBodySocialAccounts {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.containerBodySocialAccountsButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border: 1px solid var(--text-color-two);
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: white;
-    user-select: none;
-}
-.containerBodySocialAccountsButtonIcon {
-    width: 35px;
-    height: 35px;
-}
-.containerBodySocialAccountsButtonText {
-    font-weight: 500;
-}
-.separator {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.separatorBar {
-    height: 1px;
-    width: 100%;
-    background-color: var(--text-color-two);
-}
-.separatorText {
-
-}
 .containerBodyForm {
     display: flex;
     flex-direction: column;
@@ -118,30 +81,39 @@
 .containerBodyFormInputContainerInputError {
     border-color: var(--primary-color);
 }
-.containerBodyFormInputContainerRemember {
+.containerBodyFormCodeInputs {
     display: flex;
     align-items: center;
     gap: 10px;
-    border: 2px solid transparent;
-    border-radius: 5px;
 }
-.containerBodyFormInputContainerRememberInput {
+.containerBodyFormCodeInputsInput {
+    width: calc(100% / 5);
+    padding: 8px 0px;
+    border-radius: 8px;
+    font-size: 20pt;
     background-color: rgba(0, 0, 0, 0.068);
-    border-color: transparent;
+    border: 2px solid transparent;
+    transition: 0.3s;
+    -moz-appearance: textfield; 
+    text-align: center;
 }
-.containerBodyFormInputContainerRememberInputLabel {
-    cursor: pointer;
+.containerBodyFormCodeInputsInput::-webkit-inner-spin-button, 
+.containerBodyFormCodeInputsInput::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
 }
-.containerBodyFormInputContainerRememberSubmit {
-    height: 50px;
-}
-.containerBodyFormInputContainerForgetPassword {
-    align-self: flex-end;
+.containerBodyFormCodeInputsInputError {
+    border-color: var(--primary-color);
 }
 .containerFooter {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+.containerFooterResend {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--primary-color);
 }
 .containerError {
     border: 1px solid transparent;
@@ -167,9 +139,6 @@
 }
 .messageFailure {
     color: red;
-}
-.InvalidAcceptTerms {
-    border-color: var(--primary-color);
 }
 .loading {
     opacity: 50%;

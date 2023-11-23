@@ -158,7 +158,7 @@ AUTH_USER_MODEL = 'users.User'
 
 #Cors configurations
 CORS_ALLOWED_ORIGINS = [
-    "https://0a8c-2804-3234-2001-dec-8910-44d-505f-415b.ngrok-free.app", # change to mercado pago
+    os.getenv('DOMAIN_URL'), # change to mercado pago
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "http://127.0.0.1:5500",
@@ -224,10 +224,11 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+# EMAILS CONFIGURATIONS
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 8025
-EMAIL_HOST_PASSWORD = ''
-EMAIL_HOST_USER = ''
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = False
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_USE_TLS = True if os.getenv('EMAIL_USE_TLS') == '1' else False
+EMAIL_USE_SSL = True if os.getenv('EMAIL_USE_SSL') == '1' else False

@@ -31,13 +31,10 @@
     padding: 0px 10px;
     font-size: 12pt;
     text-align: center;
+    -moz-appearance: textfield; 
 }
 .flexInputInput::-webkit-inner-spin-button, 
 .flexInputInput::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
     margin: 0; 
-}
-
-.flexInputInput { 
-    -moz-appearance: textfield; 
 }

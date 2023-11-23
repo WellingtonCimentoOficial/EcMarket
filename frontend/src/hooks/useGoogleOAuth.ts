@@ -33,19 +33,19 @@ export const useGoogleOAuth = ({ oAuthButtonsRef, setMessage, setIsLoading }: Pr
             }
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
-                if(error.response?.status === 401 && error.response.data.cod === 1){
+                if(error.response?.data.cod === 1){
                     setMessage({
                         title: 'Autenticação Inválida',
                         text: 'Esse método de autenticação não está disponível para sua conta.',
                         isError: true
                     })
-                }else if(error.response?.status === 401 && error.response.data.cod === 2){
+                }else if(error.response?.data.cod === 2){
                     setMessage({
                         title: 'Token Inválido',
                         text: 'Token do google oauth inválido',
                         isError: true
                     })
-                }else if(error.response?.status === 500 && error.response.data.cod === 3){
+                }else if(error.response?.data.cod === 3){
                     setMessage({
                         title: 'Ocorreu um erro',
                         text: 'Não foi possível validar o Google Oauth Token',

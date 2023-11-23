@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useCallback } from "react";
 import { axios } from "../services/api";
+import * as OriginalAxios from 'axios'
 
 type Props = {
     children: React.ReactNode
@@ -49,10 +50,6 @@ export const AuthContextProvider = ({children}: Props) => {
         try {
             const response = await axios.post('/accounts/sign-in/token/refresh/', {
                 'refresh': refreshToken
-            }, {
-                validateStatus: function(status) {
-                    return status === 200 || status === 401
-                }
             })
             if(response.status === 200){
                 setTokens(prev => {
@@ -60,12 +57,14 @@ export const AuthContextProvider = ({children}: Props) => {
                 })
                 storeToken(response.data.refresh)
                 return response.data
-            }else if(response.status === 401){
-                logout()
-                return null
             }
         } catch (error) {
-            return null
+            if(OriginalAxios.isAxiosError(error)){
+                if(error.response?.status === 401){
+                    logout()
+                }
+                return null
+            }
         }
     }, [logout])
 

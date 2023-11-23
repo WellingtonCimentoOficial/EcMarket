@@ -80,3 +80,28 @@ class VerificationCodeNotFound(APIException):
     status_code = 400
     default_code = 'verification_code_not_found'
     default_detail = 'Verification code not found'
+    
+class ErrorCreatingPasswordResetCode(APIException):
+    status_code = 500
+    default_code = 'error_creating_password_reset_code'
+    default_detail = 'Error creating password reset code'
+
+class InvalidPasswordResetCodeFormat(APIException):
+    status_code = 400
+    default_code = 'invalid_password_reset_code_format'
+    default_detail = 'Invalid password reset code format'
+    
+class ExpiredPasswordResetCode(APIException):
+    status_code = 401
+    default_code = 'expired_password_reset_code'
+    default_detail = 'The password reset code is expired'
+
+class UserNotFound(APIException):
+    status_code = 404
+    default_code = 'user_not_found'
+    default_detail = 'The user was not found'
+
+class InvalidAuthenticationMethod(APIException):
+    status_code = 400
+    default_code = 'invalid_authentication_method'
+    default_detail = 'The authentication method is invalid'

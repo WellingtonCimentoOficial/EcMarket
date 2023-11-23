@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from .utils import get_or_create_user_in_payment_gateway, create_new_verification_code
 from django.core.mail import EmailMessage
 from django.conf import settings
-from users.models import VerificationCode
+from users.models import VerificationCode, PasswordResetCode
 import os
 
 User = get_user_model()
@@ -43,3 +43,13 @@ def send_account_verification_code(sender, instance, created, **kwargs):
             [instance.user.email],
         )
         email.send(fail_silently=True)
+
+@receiver(post_save, sender=PasswordResetCode)
+def send_password_reset_code(sender, instance, created, **kwargs):
+    email = EmailMessage(
+        "Trocar de senha",
+        f"Para fazer a troca de senha da sua conta, utilize as informações abaixo.\nCÓDIGO: {instance.code}\nLembrando que o link tem um prazo de validade de 10 minutos.",
+        settings.EMAIL_HOST_USER,
+        [instance.user.email],
+    )
+    email.send(fail_silently=True)

@@ -8,15 +8,17 @@ from .exceptions import (
     InvalidFirstNameFormat, InvalidLastNameFormat, 
     EmailAlreadyUsed, TermsNotAccepted, ErrorCreatingVerificationCode,
     InvalidVerificationCodeFormat, ExpiredVerificationCode, AccountAlreadyVerified,
-    InvalidVerificationCode, VerificationCodeNotFound
+    InvalidVerificationCode, VerificationCodeNotFound, ErrorCreatingPasswordResetCode,
+    InvalidPasswordResetCodeFormat
 )
-from users.models import VerificationCode
+from users.models import VerificationCode, PasswordResetCode
 from uuid import uuid4
 from datetime import timedelta
 from django.utils import timezone
 import requests
 import os
 import re
+import random
 
 def create_user_payload_to_payment_gateway(user_instance, update_user=False):
     try:
@@ -123,10 +125,18 @@ def google_user_id_exists(email):
         return True
     return False
 
-def validate_data_format(first_name=None, last_name=None, email=None, password=None, terms=None):
+def apple_user_id_exists(email):
+    User = get_user_model()
+    user = User.objects.filter(email=email).first()
+    if user is not None and user.apple_user_id is not None:
+        return True
+    return False
+
+def validate_data_format(first_name=None, last_name=None, email=None, password=None, terms=None, password_reset_code=None):
     name_regex = re.compile("^[a-zA-Z\s]+$")
     email_regex = re.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
     password_regex = re.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$")
+    only_numbers_regex = re.compile("^[0-9]+$")
 
     if first_name is not None:
         if not name_regex.match(first_name):
@@ -148,6 +158,10 @@ def validate_data_format(first_name=None, last_name=None, email=None, password=N
         if not terms:
             raise TermsNotAccepted()
 
+    if password_reset_code is not None:
+        if not only_numbers_regex.match(password_reset_code):
+            raise InvalidPasswordResetCodeFormat()
+
     return True
 
 def create_user(first_name=None, last_name=None, email=None, password=None):
@@ -166,13 +180,12 @@ def create_new_verification_code(user):
     try:
         code = uuid4()
         if hasattr(user, 'verification_code'):
-            user.verification_code.code = code
-            user.verification_code.save()
-        else:
-            verification_code = VerificationCode()
-            verification_code.code = code
-            verification_code.user = user
-            verification_code.save()
+            user.verification_code.delete()
+            
+        verification_code = VerificationCode()
+        verification_code.code = code
+        verification_code.user = user
+        verification_code.save()
     except:
         raise ErrorCreatingVerificationCode()
 
@@ -192,7 +205,7 @@ def verify_user_account(code):
 
             current_time = timezone.now()
 
-            difference = current_time - code_instance.updated_at
+            difference = current_time - code_instance.created_at
             if difference <= timedelta(minutes=10):
                 try:
                     user.is_verified = True
@@ -203,3 +216,18 @@ def verify_user_account(code):
             raise ExpiredVerificationCode()
         raise AccountAlreadyVerified()
     raise VerificationCodeNotFound()
+
+def create_new_password_reset_code(user):
+    try:
+        code = random.randint(10000, 99999)
+        if hasattr(user, 'password_reset_code'):
+            user.password_reset_code.delete()
+        
+        password_reset_code = PasswordResetCode()
+        password_reset_code.code = code
+        password_reset_code.user = user
+        password_reset_code.save()
+
+        return password_reset_code
+    except:
+        raise ErrorCreatingPasswordResetCode()

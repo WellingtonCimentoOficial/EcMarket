@@ -59,10 +59,18 @@ const LoginForm = () => {
             }
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
-                if(error.response?.status === 401 && error.response.data.cod === 4){
+                if(error.response?.data.cod === 4){
                     setMessage({
                         title: 'Autenticação Inválida',
                         text: 'Faça o login utilizando o método de autenticação do Google.',
+                        isError: true
+                    })
+                    setEmail('')
+                    setPassword('')
+                }else if(error.response?.data.cod === 27){
+                    setMessage({
+                        title: 'Autenticação Inválida',
+                        text: 'Faça o login utilizando o método de autenticação da Apple.',
                         isError: true
                     })
                     setEmail('')
@@ -225,7 +233,7 @@ const LoginForm = () => {
                                 />
                                 <label className={styles.containerBodyFormInputContainerRememberInputLabel} htmlFor="remember-me">Lembrar de min</label>
                             </div>
-                            <a className={styles.containerBodyFormInputContainerForgetPassword} href="/accounts/password/reset">Esqueceu sua senha?</a>
+                            <a className={styles.containerBodyFormInputContainerForgetPassword} href="/accounts/reset/password">Esqueceu sua senha?</a>
                         </div>
                         <div className={styles.containerBodyFormInputContainer}>
                             <BtnB01 
