@@ -236,7 +236,6 @@ const LoginForm = () => {
                         <div className={styles.containerBodyFormInputContainer}>
                             <BtnB01 
                                 autoWidth 
-                                className={styles.containerBodyFormInputContainerRememberSubmit} 
                                 disabled={isLoading ? true : false}>
                                 {isLoading ? <SprintLoader /> : 'Login'}
                             </BtnB01>

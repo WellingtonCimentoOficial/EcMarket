@@ -101,9 +101,104 @@
     align-items: center;
 }
 .flexUtil {
+    color: var(--text-color-one);
+    position: relative;
+}
+.flexUtil:hover .flexUtilHeader,
+.flexUtil:hover .utilIcon {
+    color: red;
 }
 .flexUtil:first-child {
     margin-left: 0px;
+}
+.flexUtilHeader {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color-one);
+}
+.flexUtilBody {
+    position: absolute;
+    right: -50%;
+    left: -50%;
+    padding-top: 10px;
+    transition: 0.5s;
+    transform: scale(1, 0);
+    transform-origin: top;
+}
+.flexUtil:hover .flexUtilBody {
+    transform: scale(1);
+}
+.flexUtilBodyContainer {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.flexUtilBodyContainerHeader {
+    display: flex;
+    gap: 10px;
+    user-select: none;
+    background-color: transparent;
+    padding: 10px 0px;
+}
+.flexUtilBodyContainerHeaderProfileIcon {
+    min-width: 35px;
+    height: 100%;
+    background-color: transparent;
+}
+.flexUtilBodyContainerHeaderRight {
+    display: flex;
+    flex-direction: column;
+}
+.flexUtilBodyContainerHeaderRightTitle {
+
+}
+.flexUtilBodyContainerHeaderRightTitleName {
+    font-weight: 500;
+}
+.flexUtilBodyContainerHeaderRightLogout {
+    font-size: 11pt;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+.flexUtilBodyContainerBody {
+    background-color: transparent;
+    border-top: 1px solid var(--text-color-two);
+    padding: 10px 0px;
+}
+.flexUtilBodyContainerBodyUl {
+    list-style: none;
+}
+.flexUtilBodyContainerBodyUlLi {
+    background-color: transparent;
+    display: flex;
+}
+.flexUtilBodyContainerBodyUlLiA {
+    width: 100%;
+    background-color: transparent;
+    padding: 5px 0px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: var(--text-color-one);
+    transition: 0.2s;
+}
+.flexUtilBodyContainerBodyUlLiA:hover {
+    color: var(--primary-color);
+}
+.flexUtilBodyContainerBodyUlLiAIcon {
+    min-width: 28px;
+    height: 100%;
+    background-color: transparent;
+}
+.flexUtilBodyContainerBodyUlLiAText {
+
+}
+.flexUtilBodyContainerFooter {
+    border-top: 1px solid var(--text-color-two);
 }
 .utilIconContainer {
     position: relative;
@@ -111,13 +206,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
+    text-decoration: none;
 }
 .utilIcon {
     font-size: 30px;
     color: var(--text-color-one);
-}
-.utilIconContainer:hover .utilIcon {
-    color: var(--primary-color);
 }
 .tagNumberContainer {
     position: absolute;
@@ -152,6 +246,19 @@
 .inputSearch, .containerSuggestions {
     border-radius: 3px;
 }
-.inputSearch, .iconSearch, .aSuggestions, .utilIconContainer, .utilIcon {
+.inputSearch, .iconSearch, .aSuggestions, .utilIconContainer, .utilIcon,
+.flexUtilHeaderSubTitle, .flexLocationTextSubTitle {
     transition: 0.3s;
+}
+
+.flexUtilHeaderTitle, .flexLocationTextTitle {
+    font-size: 10pt;
+}
+.flexUtilHeaderTitle, .flexLocationTextTitle,
+.flexUtilHeaderSubTitle{
+    white-space: nowrap;
+}
+.flexUtilHeaderSubTitle, .flexLocationTextSubTitle {
+    font-size: 11pt;
+    font-weight: 500;
 }

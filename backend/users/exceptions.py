@@ -105,3 +105,8 @@ class InvalidAuthenticationMethod(APIException):
     status_code = 400
     default_code = 'invalid_authentication_method'
     default_detail = 'The authentication method is invalid'
+
+class ErrorSamePasswords(APIException):
+    status_code = 400
+    default_code = 'error_same_passwords'
+    default_detail = 'The new password is the same as the current one'

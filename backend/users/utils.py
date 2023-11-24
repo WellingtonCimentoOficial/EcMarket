@@ -1,7 +1,6 @@
 from utils.payment_gateway import Gateway
 from .exceptions import UserAlreadyExists, InvalidGoogleToken, InternalError
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.contrib.auth.hashers import make_password
 from .exceptions import (
     InvalidPasswordFormat, InvalidEmailFormat, 
@@ -15,6 +14,8 @@ from users.models import VerificationCode, PasswordResetCode
 from uuid import uuid4
 from datetime import timedelta
 from django.utils import timezone
+from django.core.mail import EmailMessage
+from django.conf import settings
 import requests
 import os
 import re
@@ -97,13 +98,9 @@ def get_or_create_user_in_google(user_info):
                 last_name=user_info['family_name'],
                 password=make_password(userid)
             )
-
-            group = Group.objects.get_or_create(name='customer')[0]
-            group.user_set.add(new_user)
-
-            return new_user
+            return True, new_user
         raise UserAlreadyExists()
-    return user
+    return False, user
 
 def validate_google_token(token):
     try:
@@ -171,8 +168,6 @@ def create_user(first_name=None, last_name=None, email=None, password=None):
         raise EmailAlreadyUsed()
     
     new_user = User.objects.create(first_name=first_name, last_name=last_name, email=email, password=make_password(password))
-    group = Group.objects.get_or_create(name='customer')[0]
-    group.user_set.add(new_user)
 
     return new_user
 
@@ -210,7 +205,7 @@ def verify_user_account(code):
                 try:
                     user.is_verified = True
                     user.save()
-                    return True
+                    return user
                 except:
                     raise InternalError()
             raise ExpiredVerificationCode()
@@ -231,3 +226,39 @@ def create_new_password_reset_code(user):
         return password_reset_code
     except:
         raise ErrorCreatingPasswordResetCode()
+
+def send_password_changed_notification(user):
+    try:
+        email = EmailMessage(
+            "Alteração de senha",
+            f"Olá, sua senha foi alterada com sucesso, caso não seja você quem fez essa alteração, entre em contato conosco.",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+        )
+        email.send(fail_silently=True)
+    except:
+        pass
+
+def send_account_verified_notification(user):
+    try:
+        email = EmailMessage(
+            "Verificação de conta",
+            f"Olá, sua conta foi verificada com sucesso!\nAgora você pode aproveitar todos os beneficios.",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+        )
+        email.send(fail_silently=True)
+    except:
+        pass
+
+def send_welcome_notification(user):
+    try:
+        email = EmailMessage(
+            "Seja bem vindo(a)",
+            f"Olá, sua conta foi criada com sucesso!\nFicamos felizes de ter você por perto :)",
+            settings.EMAIL_HOST_USER,
+            [user.email],
+        )
+        email.send(fail_silently=True)
+    except:
+        pass

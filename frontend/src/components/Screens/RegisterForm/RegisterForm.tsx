@@ -394,7 +394,6 @@ const RegisterForm = () => {
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <BtnB01 
                                         autoWidth 
-                                        className={styles.containerBodyFormInputContainerRememberSubmit} 
                                         disabled={isLoading ? true : false}>
                                         {isLoading ? <SprintLoader /> : 'Cadastrar'}
                                     </BtnB01>

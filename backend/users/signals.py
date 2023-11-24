@@ -7,6 +7,7 @@ from .utils import get_or_create_user_in_payment_gateway, create_new_verificatio
 from django.core.mail import EmailMessage
 from django.conf import settings
 from users.models import VerificationCode, PasswordResetCode
+from django.contrib.auth.models import Group
 import os
 
 User = get_user_model()
@@ -32,6 +33,10 @@ def create_user_profile_and_related_objects(sender, instance, created, **kwargs)
 
         #creating a verification code
         create_new_verification_code(user=instance)
+        
+        # adding the user to the customers group
+        group = Group.objects.get_or_create(name='customer')[0]
+        group.user_set.add(instance)
 
 @receiver(post_save, sender=VerificationCode)
 def send_account_verification_code(sender, instance, created, **kwargs):

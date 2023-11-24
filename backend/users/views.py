@@ -15,10 +15,12 @@ from .utils import (
     get_or_create_user_in_google, validate_google_token, 
     google_user_id_exists, validate_data_format, create_user,
     verify_user_account, create_new_password_reset_code,
-    apple_user_id_exists
+    apple_user_id_exists, send_password_changed_notification,
+    send_account_verified_notification, send_welcome_notification
 )
 from . import exceptions
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 class TokenObtainPairView(TokenObtainPairViewOriginal):
@@ -37,8 +39,11 @@ class TokenObtainPairView(TokenObtainPairViewOriginal):
             return super().post(request, *args, **kwargs)
         except InvalidReCaptchaToken:
             return Response({"error": "Validation failure of reCAPTCHA"}, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            if hasattr(e, 'status_code'):
+                return Response(status=e.status_code)
+            else:
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
     def post(self, request):
@@ -46,8 +51,11 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
             token = request.data.get('token')
             
             user_info = validate_google_token(token=token)
-            user = get_or_create_user_in_google(user_info=user_info)
+            created, user = get_or_create_user_in_google(user_info=user_info)
             
+            if created:
+                send_welcome_notification(user)
+
             authenticated_user = authenticate(request, username=user.email, password=user_info['sub'], user=user)
 
             if authenticated_user:
@@ -78,10 +86,12 @@ class TokenRefreshView(TokenRefreshViewOriginal):
 
             if user is not None:
                 return super().post(request, *args, **kwargs)
+            raise exceptions.UserNotFound()
+        except exceptions.UserNotFound:
+            return Response({'cod': 35, 'error': 'The informed token user no longer exists'}, status=status.HTTP_401_UNAUTHORIZED)
+        except TokenError:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        except TokenError as e:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        except Exception as e:
+        except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
@@ -106,7 +116,9 @@ def add_user(request):
         recaptcha = ReCaptcha(token=recaptcha_token)
         recaptcha.validate_token()
 
-        create_user(first_name=first_name, last_name=last_name, email=email, password=password)
+        user = create_user(first_name=first_name, last_name=last_name, email=email, password=password)
+
+        send_welcome_notification(user)
 
         return Response(status=status.HTTP_201_CREATED)
     
@@ -217,11 +229,14 @@ def reset_password(request):
         if user is not None:
             if user.password_reset_code.code == code:
                 if not user.password_reset_code.is_expired():
-                    if not user.google_user_id and not user.apple_user_id:
-                        user.set_password(new_password)
-                        user.save()
-                        return Response(status=status.HTTP_200_OK)
-                    raise exceptions.InvalidAuthenticationMethod()
+                    if not check_password(new_password, user.password):
+                        if not user.google_user_id and not user.apple_user_id:
+                            user.set_password(new_password)
+                            user.save()
+                            send_password_changed_notification(user)
+                            return Response(status=status.HTTP_200_OK)
+                        raise exceptions.InvalidAuthenticationMethod()
+                    raise exceptions.ErrorSamePasswords()
                 raise exceptions.ExpiredPasswordResetCode()
             raise exceptions.InvalidPasswordResetCodeFormat()
         raise exceptions.UserNotFound()
@@ -237,6 +252,8 @@ def reset_password(request):
         return Response({'cod': 31, 'error': 'The authentication method is invalid'}, status=status.HTTP_401_UNAUTHORIZED)
     except exceptions.ExpiredPasswordResetCode:
         return Response({'cod': 33, 'error': 'The password reset code is expired'}, status=status.HTTP_401_UNAUTHORIZED)
+    except exceptions.ErrorSamePasswords:
+        return Response({'cod': 34, 'error': 'The new password cannot be the same as the current one'}, status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -247,10 +264,12 @@ def verify_account(request):
         code = request.data.get('code')
         recaptcha_token = request.data.get('g-recaptcha-response')
 
-        verify_user_account(code=code)
+        user = verify_user_account(code=code)
         
         recaptcha = ReCaptcha(token=recaptcha_token)
         recaptcha.validate_token()
+
+        send_account_verified_notification(user)
 
         return Response(status=status.HTTP_200_OK)
     except exceptions.InvalidVerificationCodeFormat:

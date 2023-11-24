@@ -132,9 +132,6 @@
 .containerBodyFormInputContainerRememberInputLabel {
     cursor: pointer;
 }
-.containerBodyFormInputContainerRememberSubmit {
-    height: 50px;
-}
 .containerBodyFormInputContainerForgetPassword {
     align-self: flex-end;
 }

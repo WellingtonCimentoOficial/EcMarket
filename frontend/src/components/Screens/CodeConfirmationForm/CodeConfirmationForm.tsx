@@ -579,7 +579,6 @@ const CodeConfirmationForm = (props: Props) => {
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <BtnB01 
                                         autoWidth 
-                                        className={styles.containerBodyFormInputContainerRememberSubmit} 
                                         disabled={isLoading ? true : false}>
                                         {isLoading ? <SprintLoader /> : stage === 3 ? 'Enviar' : 'Próximo'}
                                     </BtnB01>
