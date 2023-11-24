@@ -1,8 +1,13 @@
-import { useEffect, useState, useCallback } from "react"
+import { useCallback, useState } from "react"
+import { useIsScriptAlreadyAdded } from "./useIsScriptAlreadyAddes"
 
 export const useReCaptchaToken = () => {
     const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
-    const [scriptLoaded, setScriptLoaded] = useState<boolean>(false)
+    const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState<boolean>(false)
+
+    const { isScriptAlreadyAdded } = useIsScriptAlreadyAdded()
+
+    const scriptSrc = `https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`
 
     const getCaptchaToken = useCallback(async (func : (CaptchaToken : string) => void) => {
         window.grecaptcha.ready(function() {
@@ -12,16 +17,23 @@ export const useReCaptchaToken = () => {
         })
     }, [reCaptchaToken])
 
-    useEffect(() => {
-        if(reCaptchaToken){
-            const script = document.createElement('script')
-            script.src = `https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`
-            script.async = false
-            document.head.appendChild(script)
-    
-            script.onload = () => setScriptLoaded(true)
+    const initializeRecaptchaScript = useCallback(async () => {
+        if(!isScriptAlreadyAdded(scriptSrc)){
+            if(reCaptchaToken !== ''){
+                const script = document.createElement('script')
+                script.src = scriptSrc
+                script.async = false
+                document.head.appendChild(script)
+        
+                script.onload = () => {
+                    console.log("adicionado")
+                    setRecaptchaScriptLoaded(true)
+                }
+            }
+        }else{
+            setRecaptchaScriptLoaded(true)
         }
-    }, [reCaptchaToken])
+    }, [reCaptchaToken, isScriptAlreadyAdded , scriptSrc])
 
-    return { reCaptchaToken, scriptLoaded, getCaptchaToken }
+    return { reCaptchaToken, recaptchaScriptLoaded, initializeRecaptchaScript, getCaptchaToken }
 }

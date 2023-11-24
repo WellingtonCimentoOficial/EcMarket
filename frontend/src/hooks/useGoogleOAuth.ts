@@ -4,6 +4,7 @@ import { CredentialResponseType } from '../types/GoogleType'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import * as originalAxios from 'axios'
+import { useIsScriptAlreadyAdded } from './useIsScriptAlreadyAddes'
 
 type Props = {
     setMessage: React.Dispatch<React.SetStateAction<{title: string, text: string, isError: boolean} | null>>
@@ -18,6 +19,10 @@ export const useGoogleOAuth = ({ oAuthButtonsRef, setMessage, setIsLoading }: Pr
     const googleOAuthClientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID || ''
 
     const [scriptLoaded, setScriptLoaded] = useState<boolean>(false)
+
+    const { isScriptAlreadyAdded } = useIsScriptAlreadyAdded()
+
+    const scriptSrc = `https://accounts.google.com/gsi/client`
 
     const handleGoogleAuthentication = useCallback(async (googleResponse: CredentialResponseType) => {
         setIsLoading && setIsLoading(true)
@@ -77,13 +82,17 @@ export const useGoogleOAuth = ({ oAuthButtonsRef, setMessage, setIsLoading }: Pr
     }, [googleOAuthClientId, handleGoogleAuthentication, oAuthButtonsRef])
 
     const initializeGoogleAccounts = useCallback(async () => {
-        const script = document.createElement('script')
-        script.src = 'https://accounts.google.com/gsi/client'
-        script.async = true
-        document.head.appendChild(script)
-
-        script.onload = () => setScriptLoaded(true)
-    }, [])
+        if(!isScriptAlreadyAdded(scriptSrc)){
+            const script = document.createElement('script')
+            script.src = scriptSrc
+            script.async = true
+            document.head.appendChild(script)
+    
+            script.onload = () => setScriptLoaded(true)
+        }else{
+            setScriptLoaded(true)
+        }
+    }, [scriptSrc, isScriptAlreadyAdded])
 
     useEffect(() => {
         if(scriptLoaded){

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { axios } from '../../services/api'
 import * as originalAxios from 'axios'
@@ -6,6 +6,7 @@ import styles from './VerifyAccountPage.module.css'
 import { PiSealCheckFill, PiXCircleFill  } from "react-icons/pi";
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
+import { LoadingContext } from '../../contexts/LoadingContext'
 
 type Props = {}
 
@@ -17,7 +18,9 @@ const VerifyAccountPage = (props: Props) => {
 
     const { updateTitle } = usePageTitleChanger()
 
-    const { scriptLoaded, getCaptchaToken } = useReCaptchaToken()
+    const { getCaptchaToken, recaptchaScriptLoaded, initializeRecaptchaScript } = useReCaptchaToken()
+
+    const { isLoading, setIsLoading } = useContext(LoadingContext)
 
     const verify_account = useCallback(async (CaptchaToken: string) => {
         try {
@@ -87,39 +90,45 @@ const VerifyAccountPage = (props: Props) => {
     }, [updateTitle])
 
     useEffect(() => {
-        if(scriptLoaded){
+        setIsLoading(true)
+        if(recaptchaScriptLoaded){
             getCaptchaToken(verify_account)
+            setIsLoading(false)
         }
-    }, [verify_account, scriptLoaded, getCaptchaToken])
+    }, [recaptchaScriptLoaded, verify_account, getCaptchaToken ,setIsLoading])
+
+    useEffect(() => {
+        initializeRecaptchaScript()
+    }, [initializeRecaptchaScript])
 
     return (
-        <div className={styles.wrapper}>
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    {!message?.isError ?
-                        <PiSealCheckFill className={styles.headerIcon} /> :
-                        <PiXCircleFill className={styles.headerIcon} />
-                    }
-                    <h3 className={styles.headerTitle}>
-                        {message?.title}
-                    </h3>
+        <>
+            {!isLoading &&
+                <div className={styles.wrapper}>
+                    <div className={styles.container}>
+                        <div className={styles.header}>
+                            {!message?.isError ?
+                                <PiSealCheckFill className={styles.headerIcon} /> :
+                                <PiXCircleFill className={styles.headerIcon} />
+                            }
+                            <h3 className={styles.headerTitle}>
+                                {message?.title}
+                            </h3>
+                        </div>
+                        <div className={styles.body}>
+                            <p className={styles.headerDescription}>
+                                {message?.text + ' '}
+                                {isVerified ? 
+                                    <><a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                    :
+                                    <>Para fazer a solicitação de outro <a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                }
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div className={styles.body}>
-                    <p className={styles.headerDescription}>
-                        {message?.text + ' '}
-                        {isVerified ? 
-                            <>
-                                <a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. 
-                            </>
-                            :
-                            <>
-                                Para fazer a solicitação de outro <a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. 
-                            </>
-                        }
-                    </p>
-                </div>
-            </div>
-        </div>
+            }
+        </>
     )
 }
 

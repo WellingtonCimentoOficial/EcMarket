@@ -3,9 +3,9 @@ import styles from './CodeConfirmationForm.module.css'
 import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiCheck } from "react-icons/pi";
 import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
-import { Helmet } from 'react-helmet'
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
+import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 
 type Props = {}
 
@@ -53,7 +53,7 @@ const CodeConfirmationForm = (props: Props) => {
     const [leftTime, setLeftTime] = useState('00:00')
     const [codeExp, setCodeExp] = useState<string>('')
 
-    const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
+    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
 
     // checks if email has a valid format
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
@@ -235,6 +235,17 @@ const CodeConfirmationForm = (props: Props) => {
                         text: 'O código informado está expirado, tente solicitar outro.',
                         isError: true
                     })
+                }else if(error.response?.data.cod === 34){
+                    setMessage({
+                        title: 'Senha Inválida',
+                        text: 'A nova senha não pode ser igual a atual.',
+                        isError: true
+                    })
+                    setIsFirstRender(false)
+                    setPassword('')
+                    setConfirmPassword('')
+                    setPasswordIsValid(false)
+                    setConfirmPasswordIsValid(false)
                 }else{
                     setMessage({
                         title: 'Ocorreu um erro',
@@ -307,15 +318,7 @@ const CodeConfirmationForm = (props: Props) => {
             setConfirmPasswordIsValid(false)
         }
         setConfirmPassword(value)
-    }
-
-    const getCaptchaToken = async (func : (CaptchaToken : string) => void) => {
-        window.grecaptcha.ready(function() {
-            window.grecaptcha.execute(reCaptchaToken, {action: 'submit'}).then(function(token) {
-                func(token)
-            })
-        })
-    }   
+    } 
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -391,6 +394,10 @@ const CodeConfirmationForm = (props: Props) => {
             }
         }
     }, [codeExp, stopWatch])
+
+    useEffect(() => {
+        initializeRecaptchaScript()
+    }, [initializeRecaptchaScript])
 
     return (
         <div className={styles.wrapper}>
@@ -593,9 +600,6 @@ const CodeConfirmationForm = (props: Props) => {
                     </div>
                 }
             </div>
-            <Helmet>
-                <script src={`https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`}></script>
-            </Helmet>
         </div>
     )
 }

@@ -60,7 +60,7 @@ export const AuthContextProvider = ({children}: Props) => {
             }
         } catch (error) {
             if(OriginalAxios.isAxiosError(error)){
-                if(error.response?.status === 401){
+                if(error.response?.data.cod === 35 || error.response?.status === 401){
                     logout()
                 }
                 return null

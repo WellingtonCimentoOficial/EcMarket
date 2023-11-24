@@ -1,5 +1,4 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useContext, useEffect } from 'react'
-import { Helmet } from 'react-helmet'
 import styles from './LoginForm.module.css'
 import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiCheck } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
@@ -10,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
+import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 
 const LoginForm = () => {
     const [rememberMe, setRememberMe] = useState<boolean>(false)
@@ -29,7 +29,7 @@ const LoginForm = () => {
     
     const { setTokens, storeToken } = useContext(AuthContext)
     
-    const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
+    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
 
     const { initializeGoogleAccounts } = useGoogleOAuth({ 
         oAuthButtonsRef: oAuthButtonsRef, 
@@ -86,6 +86,7 @@ const LoginForm = () => {
                         text: 'Ocorreu um erro ao fazer a solicitação, tente novamente mais tarde.',
                         isError: true
                     })
+                    console.log(error.response?.status)
                 }
             }
         }
@@ -121,11 +122,7 @@ const LoginForm = () => {
         if(email.length > 0 && emailIsValid){
             if(password.length > 0 && passwordIsValid){
                 setIsLoading(true)
-                window.grecaptcha.ready(function() {
-                    window.grecaptcha.execute(reCaptchaToken, {action: 'submit'}).then(function(token) {
-                        post_data(token)
-                    })
-                })
+                getCaptchaToken(post_data)
             }else{
                 inputPasswordRef.current?.focus()
             }
@@ -136,7 +133,8 @@ const LoginForm = () => {
 
     useEffect(() => {
         initializeGoogleAccounts()
-    }, [initializeGoogleAccounts])
+        initializeRecaptchaScript()
+    }, [initializeGoogleAccounts, initializeRecaptchaScript])
 
     return (
         <div className={styles.wrapper}>
@@ -250,9 +248,6 @@ const LoginForm = () => {
                     <a href="/accounts/sign-up">Cadastre-se</a>
                 </div>
             </div>
-            <Helmet>
-                <script src={`https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`}></script>
-            </Helmet>
         </div>
     )
 }

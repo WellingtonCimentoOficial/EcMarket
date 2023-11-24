@@ -1,5 +1,4 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useEffect } from 'react'
-import { Helmet } from 'react-helmet'
 import styles from './RegisterForm.module.css'
 import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiUserBold, PiCheck } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
@@ -8,6 +7,7 @@ import { axios } from '../../../services/api';
 import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
+import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 
 const RegisterForm = () => {
     const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
@@ -42,9 +42,9 @@ const RegisterForm = () => {
         oAuthButtonsRef: oAuthButtonsRef,
         setMessage: setMessage
     })
-    
-    const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
 
+    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
+    
     // checks if name has a valid format
     const NameRegex = /^[a-zA-Z\s]+$/;
 
@@ -189,11 +189,7 @@ const RegisterForm = () => {
                         if(confirmPasswordIsValid) {
                             if(acceptTerms){
                                 setIsLoading(true)
-                                window.grecaptcha.ready(function() {
-                                    window.grecaptcha.execute(reCaptchaToken, {action: 'submit'}).then(function(token) {
-                                        post_data(token)
-                                    })
-                                })
+                                getCaptchaToken(post_data)
                             }else{
                                 // setMessage({
                                 //     title: 'Formulario incompleto',
@@ -222,7 +218,8 @@ const RegisterForm = () => {
 
     useEffect(() => {
         initializeGoogleAccounts()
-    }, [initializeGoogleAccounts])
+        initializeRecaptchaScript()
+    }, [initializeGoogleAccounts, initializeRecaptchaScript])
 
     return (
         <div className={styles.wrapper}>
@@ -411,9 +408,6 @@ const RegisterForm = () => {
                     <a href="/accounts/sign-in">Entrar</a>
                 </div>
             </div>
-            <Helmet>
-                <script src={`https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`}></script>
-            </Helmet>
         </div>
     )
 }
