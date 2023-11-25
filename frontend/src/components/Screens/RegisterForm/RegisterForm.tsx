@@ -411,7 +411,7 @@ const RegisterForm = () => {
                 </div>
                 <div className={`${styles.containerFooter} ${isLoading ? styles.loading : null}`}>
                     <span>Já tem uma conta?</span>
-                    <a href="/accounts/sign-in">Entrar</a>
+                    <a href="/account/sign-in">Entrar</a>
                 </div>
             </div>
         </div>

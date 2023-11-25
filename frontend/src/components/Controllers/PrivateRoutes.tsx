@@ -10,7 +10,7 @@ const PrivateRoutes = () => {
     useEffect(() => {
         const refreshToken = getClientToken()
         if(!refreshToken && !tokens.refresh){
-            navigate('/accounts/sign-in')
+            navigate('/account/sign-in')
         }
     }, [tokens.refresh, navigate, getClientToken])
 

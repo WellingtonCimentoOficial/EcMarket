@@ -43,7 +43,7 @@ def send_account_verification_code(sender, instance, created, **kwargs):
     if not instance.user.is_verified:
         email = EmailMessage(
             "Verificação de conta",
-            f"Para fazer a verificação da sua conta, clique no link: {os.getenv('DOMAIN_URL')}/accounts/verify?code={instance.code}\nLembrando que o link tem um prazo de validade de 10 minutos.",
+            f"Para fazer a verificação da sua conta, clique no link: {os.getenv('DOMAIN_URL')}/account/verify?code={instance.code}\nLembrando que o link tem um prazo de validade de 10 minutos.",
             settings.EMAIL_HOST_USER,
             [instance.user.email],
         )

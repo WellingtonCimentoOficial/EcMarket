@@ -111,3 +111,6 @@
 .bodyNavUlLiBodyNavUlLiNavLink:hover {
     color: var(--primary-color);
 }
+.bodyNavUlLiBodyNavUlLiNavLinkActive {
+    color: var(--primary-color);
+}

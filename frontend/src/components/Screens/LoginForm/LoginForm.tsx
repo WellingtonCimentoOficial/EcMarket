@@ -250,7 +250,7 @@ const LoginForm = () => {
                 </div>
                 <div className={`${styles.containerFooter} ${isLoading ? styles.loading : null}`}>
                     <span>Não tem uma conta?</span>
-                    <a href="/accounts/sign-up">Cadastre-se</a>
+                    <a href="/account/sign-up">Cadastre-se</a>
                 </div>
             </div>
         </div>

@@ -119,9 +119,9 @@ const VerifyAccountPage = (props: Props) => {
                             <p className={styles.headerDescription}>
                                 {message?.text + ' '}
                                 {isVerified ? 
-                                    <><a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                    <><a href="/account/sign-in">Clique aqui</a> para fazer login na sua conta. </>
                                     :
-                                    <>Para fazer a solicitação de outro <a href="/accounts/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                    <>Para fazer a solicitação de outro <a href="/account/sign-in">Clique aqui</a> para fazer login na sua conta. </>
                                 }
                             </p>
                         </div>

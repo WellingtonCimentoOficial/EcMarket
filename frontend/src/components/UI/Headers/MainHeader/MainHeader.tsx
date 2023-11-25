@@ -64,27 +64,27 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
             {
                 icon: <PiUserLight />,
                 name: 'Minha conta',
-                href: '/accounts/profile'
+                href: '/account/profile'
             },
             {
                 icon: <PiClipboardTextLight  />,
                 name: 'Meus pedidos',
-                href: '/accounts/profile/orders'
+                href: '/account/profile/orders'
             },
             {
                 icon: <PiHeartLight />,
                 name: 'Lista de desejos',
-                href: '/accounts/profile/wishlist'
+                href: '/account/profile/wishlist'
             },
             {
                 icon: <PiShoppingCartLight />,
                 name: 'Carrinho de compras',
-                href: '/accounts/profile/cart'
+                href: '/account/profile/cart'
             },
             {
                 icon: <PiCardholderLight  />,
                 name: 'Meus cartões',
-                href: '/accounts/profile/cards'
+                href: '/account/profile/cards'
             },
         ],
         footer: [
@@ -253,7 +253,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                                             </div>
                                         </>
                                     ):(
-                                        <BtnA01 href='/accounts/sign-in' autoWidth>Fazer login</BtnA01>
+                                        <BtnA01 href='/account/sign-in' autoWidth>Fazer login</BtnA01>
                                     )}
                                 </div>
                                 <div className={styles.flexUtilBodyContainerBody}>
@@ -288,12 +288,12 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         </div>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/accounts/profile/wishlist" className={styles.utilIconContainer} >
+                        <a href="/account/profile/wishlist" className={styles.utilIconContainer} >
                             <PiHeartLight className={styles.utilIcon} />
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/accounts/profile/cart" className={styles.utilIconContainer} >
+                        <a href="/account/profile/cart" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
                             {tokens.refresh && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
                         </a>

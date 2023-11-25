@@ -21,10 +21,10 @@ const Routes = (): JSX.Element => {
                     <Route path='search' element={<SearchPage />} />
                     <Route path=':productName/p/:productId' element={<ProductPage />} />
                     <Route element={<PrivateRoutes />}>
-                        <Route path='/accounts/profile/wishlist' element={<FavoritesPage />} />
+                        <Route path='/account/profile/wishlist' element={<FavoritesPage />} />
                     </Route>
                 </Route>
-                <Route path='/accounts/*'>
+                <Route path='/account/*'>
                     <Route element={<SecondaryLayout />}>
                         <Route path='sign-in' element={<LoginPage />} />
                         <Route path='sign-up' element={<RegisterPage />} />

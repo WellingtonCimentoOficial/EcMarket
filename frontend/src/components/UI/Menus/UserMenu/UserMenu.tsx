@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import styles from './UserMenu.module.css'
-import { PiUserLight, PiCaretDownLight, PiShoppingCartLight, PiCardholderLight, PiCaretUpLight, PiCaretUp, PiCaretDown } from 'react-icons/pi';
+import { PiUserLight, PiCaretDownLight, PiShoppingCartLight, PiCardholderLight, PiCaretUpLight } from 'react-icons/pi';
 import { NavLink } from 'react-router-dom';
 import WidthLayout from '../../../../layouts/WidthLayout/WidthLayout';
 import { AuthContext } from '../../../../contexts/AuthContext';
@@ -47,11 +47,11 @@ const UserMenu = (props: Props) => {
                 data: [
                     {
                         title: 'Dados pessoais',
-                        href: '/'
+                        href: '/account/profile'
                     },
                     {
                         title: 'Seus endereços',
-                        href: '/'
+                        href: '/account/addresses'
                     },
                 ]
             },
@@ -62,11 +62,11 @@ const UserMenu = (props: Props) => {
                 data: [
                     {
                         title: 'Pedidos',
-                        href: '/'
+                        href: '/account/orders'
                     },
                     {
                         title: 'Avaliações',
-                        href: '/'
+                        href: '/account/ratings'
                     },
                 ]
             },
@@ -77,11 +77,11 @@ const UserMenu = (props: Props) => {
                 data: [
                     {
                         title: 'Cartões',
-                        href: '/'
+                        href: '/account/cards'
                     },
                     {
                         title: 'Transações',
-                        href: '/'
+                        href: '/account/transactions'
                     },
                 ]
             },
@@ -154,7 +154,12 @@ const UserMenu = (props: Props) => {
                                                 <ul className={styles.bodyNavUlLiBodyNavUl}>
                                                     {item.data.map((item, index) => (
                                                         <li className={styles.bodyNavUlLiBodyNavUlLi} key={index}>
-                                                            <NavLink to={item.href} className={styles.bodyNavUlLiBodyNavUlLiNavLink}>{item.title}</NavLink>
+                                                            <NavLink 
+                                                                to={item.href} 
+                                                                className={({ isActive }) => isActive ? `${styles.bodyNavUlLiBodyNavUlLiNavLink} ${styles.bodyNavUlLiBodyNavUlLiNavLinkActive}` : `${styles.bodyNavUlLiBodyNavUlLiNavLink}`}
+                                                            >
+                                                                {item.title}
+                                                            </NavLink>
                                                         </li>
                                                     ))}
                                                 </ul>
