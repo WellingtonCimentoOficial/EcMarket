@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { axios } from '../services/api'
-import { CredentialResponseType } from '../types/GoogleType'
+import { CredentialResponseType, GoogleButtonType } from '../types/GoogleType'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import * as originalAxios from 'axios'
@@ -10,9 +10,10 @@ type Props = {
     setMessage: React.Dispatch<React.SetStateAction<{title: string, text: string, isError: boolean} | null>>
     oAuthButtonsRef: React.MutableRefObject<{ google: HTMLDivElement | null; apple: HTMLDivElement | null; }>
     setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>
+    config: GoogleButtonType
 }
  
-export const useGoogleOAuth = ({ oAuthButtonsRef, setMessage, setIsLoading }: Props) => {
+export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoading }: Props) => {
     const navigate = useNavigate()
     const { storeToken, setTokens } = useContext(AuthContext)
 
@@ -72,14 +73,23 @@ export const useGoogleOAuth = ({ oAuthButtonsRef, setMessage, setIsLoading }: Pr
         if(oAuthButtonsRef.current.google){
             window.google?.accounts?.id.renderButton(
                 oAuthButtonsRef.current.google, {
-                    type: 'standard',
-                    size: 'large',
-                    logo_alignment: 'center',
-                    width: '400'
+                    type: config.type,
+                    theme: config.theme,
+                    size: config.size,
+                    text: config.text,
+                    shape: config.shape,
+                    logo_alignment: config.logo_alignment,
+                    width: config.width,
+                    locale: config.locale,
+                    click_listener: config.click_listener
                 }
             )
         }
-    }, [googleOAuthClientId, handleGoogleAuthentication, oAuthButtonsRef])
+    }, [
+        googleOAuthClientId, handleGoogleAuthentication, oAuthButtonsRef,
+        config.type, config.theme, config.size, config.text, config.shape,
+        config.logo_alignment, config.width, config.locale, config.click_listener
+    ])
 
     const initializeGoogleAccounts = useCallback(async () => {
         if(!isScriptAlreadyAdded(scriptSrc)){

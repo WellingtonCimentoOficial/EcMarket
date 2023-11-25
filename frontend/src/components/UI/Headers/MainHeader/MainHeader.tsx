@@ -64,27 +64,27 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
             {
                 icon: <PiUserLight />,
                 name: 'Minha conta',
-                href: '/'
+                href: '/accounts/profile'
             },
             {
                 icon: <PiClipboardTextLight  />,
                 name: 'Meus pedidos',
-                href: '/'
+                href: '/accounts/profile/orders'
             },
             {
                 icon: <PiHeartLight />,
                 name: 'Lista de desejos',
-                href: '/'
+                href: '/accounts/profile/wishlist'
             },
             {
                 icon: <PiShoppingCartLight />,
                 name: 'Carrinho de compras',
-                href: '/'
+                href: '/accounts/profile/cart'
             },
             {
                 icon: <PiCardholderLight  />,
                 name: 'Meus cartões',
-                href: '/'
+                href: '/accounts/profile/cards'
             },
         ],
         footer: [
@@ -288,14 +288,14 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         </div>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/accounts/favorites" className={styles.utilIconContainer} >
+                        <a href="/accounts/profile/wishlist" className={styles.utilIconContainer} >
                             <PiHeartLight className={styles.utilIcon} />
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/accounts/favorites" className={styles.utilIconContainer} >
+                        <a href="/accounts/profile/cart" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
-                            <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>
+                            {tokens.refresh && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
                         </a>
                     </div>
                 </div>

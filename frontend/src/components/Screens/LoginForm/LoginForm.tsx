@@ -34,7 +34,14 @@ const LoginForm = () => {
     const { initializeGoogleAccounts } = useGoogleOAuth({ 
         oAuthButtonsRef: oAuthButtonsRef, 
         setMessage: setMessage,
-        setIsLoading: setIsLoading
+        setIsLoading: setIsLoading,
+        config: {
+            type: 'standard',
+            size: 'large',
+            logo_alignment: 'center',
+            width: '400',
+            text: 'signin_with'
+        }
     })
 
     // checks if email has a valid format

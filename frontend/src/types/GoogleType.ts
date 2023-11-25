@@ -1,4 +1,4 @@
-type GoogleButtonType = {
+export type GoogleButtonType = {
     type: 'standard' | 'icon',
     theme?: 'outline' | 'filled_blue' | 'filled_black',
     size?: 'large' | 'medium' | 'small',

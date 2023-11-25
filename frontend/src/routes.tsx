@@ -10,6 +10,7 @@ import PrivateRoutes from './components/Controllers/PrivateRoutes'
 import RegisterPage from './pages/RegisterPage/RegisterPage'
 import VerifyAccountPage from './pages/VerifyAccountPage/VerifyAccountPage'
 import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
 
 const Routes = (): JSX.Element => {
     return (
@@ -20,14 +21,26 @@ const Routes = (): JSX.Element => {
                     <Route path='search' element={<SearchPage />} />
                     <Route path=':productName/p/:productId' element={<ProductPage />} />
                     <Route element={<PrivateRoutes />}>
-                        <Route path='/accounts/favorites' element={<FavoritesPage />} />
+                        <Route path='/accounts/profile/wishlist' element={<FavoritesPage />} />
                     </Route>
                 </Route>
-                <Route path='/accounts' element={<SecondaryLayout />}>
-                    <Route path='/accounts/sign-in' element={<LoginPage />} />
-                    <Route path='/accounts/sign-up' element={<RegisterPage />} />
-                    <Route path='/accounts/verify' element={<VerifyAccountPage />} />
-                    <Route path='/accounts/reset/password' element={<ResetPasswordPage />} />
+                <Route path='/accounts/*'>
+                    <Route element={<SecondaryLayout />}>
+                        <Route path='sign-in' element={<LoginPage />} />
+                        <Route path='sign-up' element={<RegisterPage />} />
+                        <Route path='verify' element={<VerifyAccountPage />} />
+                        <Route path='reset/password' element={<ResetPasswordPage />} />
+                    </Route>
+                    <Route element={<MainLayout />}>
+                        <Route element={<PrivateRoutes />}>
+                            <Route path='profile/*' element={<ProfilePage />}>
+                                <Route path='orders' element={<ProfilePage />} />
+                                <Route path='wishlist' element={<FavoritesPage />} />
+                                <Route path='cart' element={<ProfilePage />} />
+                                <Route path='cards' element={<ProfilePage />} />
+                            </Route>
+                        </Route>
+                    </Route>
                 </Route>
             </RoutesRouter>
         </BrowserRouter>

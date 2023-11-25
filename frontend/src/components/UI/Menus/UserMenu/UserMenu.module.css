@@ -1,0 +1,113 @@
+.wrapper {
+    max-width: 25%;
+}
+.container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--text-color-two);
+    background-color: transparent;
+}
+.headerIconContainer {
+    border: 2px solid var(--text-color-one);
+    border-radius: 100%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.headerIconContainerIcon {
+    min-width: 100%;
+    height: 100%;
+}
+.headerTextsContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.headerTitle {
+    font-weight: 500;
+}
+.headerText {
+    font-size: 11pt;
+}
+.body {
+    user-select: none;
+}
+.bodyNav {
+
+}
+.bodyNavUl {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.bodyNavUlLi {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.bodyNavUlLiHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    cursor: pointer;
+}
+.bodyNavUlLiHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.bodyNavUlLiHeaderIcon {
+    min-width: 28px;
+    height: 100%;
+}
+.bodyNavUlLiHeaderTitle {
+    font-weight: 500;
+}
+.bodyNavUlLiHeaderIconCaret {
+    min-width: 20px;
+    height: 100%;
+}
+.bodyNavUlLiBody {
+    transform-origin: top;
+    transition: transform 0.3s, visibility 0.3s, max-height 0.3s;
+    max-height: 1000px;
+}
+.bodyNavUlLiBodyHide {
+    transform: scale(1, 0);
+    visibility: hidden;
+    max-height: 0;
+}
+.bodyNavUlLiBodyNav {
+    margin-left: 38px;
+}
+.bodyNavUlLiBodyNavUl {
+    list-style: none;
+}
+.bodyNavUlLiBodyNavUlLi {
+    display: flex;
+}
+.bodyNavUlLiBodyNavUlLiNavLink {
+    color: var(--text-color-one);
+    text-decoration: none;
+    transition: 0.2s;
+    background-color: transparent;
+    padding: 3px 0px;
+}
+.bodyNavUlLiBodyNavUlLiNavLink:hover {
+    color: var(--primary-color);
+}

@@ -40,7 +40,14 @@ const RegisterForm = () => {
     
     const { initializeGoogleAccounts } = useGoogleOAuth({
         oAuthButtonsRef: oAuthButtonsRef,
-        setMessage: setMessage
+        setMessage: setMessage,
+        config: {
+            type: 'standard',
+            size: 'large',
+            logo_alignment: 'center',
+            width: '400',
+            text: 'signup_with'
+        }
     })
 
     const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()

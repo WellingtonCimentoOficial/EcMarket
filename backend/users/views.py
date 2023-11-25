@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer
+from .serializers import UserSerializer, MyTokenObtainPairSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView as TokenObtainPairViewOriginal,
     TokenRefreshView as TokenRefreshViewOriginal,
@@ -46,6 +46,7 @@ class TokenObtainPairView(TokenObtainPairViewOriginal):
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
+    serializer_class = MyTokenObtainPairSerializer
     def post(self, request):
         try:
             token = request.data.get('token')
@@ -57,11 +58,17 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
                 send_welcome_notification(user)
 
             authenticated_user = authenticate(request, username=user.email, password=user_info['sub'], user=user)
-
+            
             if authenticated_user:
-                access_token = str(RefreshToken.for_user(authenticated_user).access_token)
-                refresh_token = str(RefreshToken.for_user(authenticated_user))
+                serializer = self.serializer_class()
+
+                tokens = serializer.get_token(authenticated_user)
+                
+                access_token = str(tokens.access_token)
+                refresh_token = str(tokens)
+                
                 return Response({'access': access_token, 'refresh': refresh_token}, status=status.HTTP_200_OK)
+            
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         except exceptions.UserAlreadyExists:
             return Response({'cod': 1, 'error': 'Authenticate using the form'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -70,6 +77,7 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
         except exceptions.InternalError:
             return Response({'cod': 3, 'error': 'An error occurred while validating the google oauth token'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
+            print(e)
             if hasattr(e, "detail") and hasattr(e, "status_code"):
                 return Response({'error': e.detail}, status=e.status_code)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
