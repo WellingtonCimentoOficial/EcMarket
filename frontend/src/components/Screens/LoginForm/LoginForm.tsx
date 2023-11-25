@@ -86,7 +86,6 @@ const LoginForm = () => {
                         text: 'Ocorreu um erro ao fazer a solicitação, tente novamente mais tarde.',
                         isError: true
                     })
-                    console.log(error.response?.status)
                 }
             }
         }

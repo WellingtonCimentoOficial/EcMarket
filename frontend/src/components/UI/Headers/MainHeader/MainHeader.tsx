@@ -17,6 +17,9 @@ import { CategoryName } from '../../../../types/CategoryType';
 import { ZipCodeContext } from '../../../../contexts/ZipCodeContext';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
+import { jwtDecode } from 'jwt-decode';
+import { TokenType } from '../../../../types/TokenType';
+import BtnA01 from '../../Buttons/BtnA01/BtnA01';
 
 type Props = {
     shadow?: boolean
@@ -44,12 +47,12 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
     const [cartNumberOfItems, setCartNumberOfItems] = useState<number>(0)
-    const [user, setUser] = useState('Wellington')
+    const [name, setName] = useState<string | null>(null)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
 
-    const { tokens } = useContext(AuthContext)
+    const { tokens, logout } = useContext(AuthContext)
 
     const axiosPrivate = useAxiosPrivate()
 
@@ -145,11 +148,24 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         }
     }, [get_categories_name])
 
-    useEffect(() => {
+    useEffect(() => { // GET CART QUANTITY OF ITEMS
         if(tokens.refresh){
             get_cart()
+        }else{
+            setCartNumberOfItems(0)
         }
     }, [tokens.refresh, get_cart])
+
+    useEffect(() => { // GET USER FIRST NAME IN TOKEN
+        if(tokens.refresh){
+            try {
+                const jwt_data: TokenType = jwtDecode(tokens.refresh)
+                setName(jwt_data.user_first_name)
+            } catch (error) {
+                // ENTER HERE WHEN TOKENS.REFRESH HAS A INVALID VALUE
+            }
+        }
+    }, [tokens.refresh])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
@@ -209,30 +225,36 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                 </div>
                 <div className={styles.containerUtils}>
                     <div className={styles.flexUtil}>
-                        <a href="/accounts/profile" className={styles.utilIconContainer} >
+                        <div className={styles.utilIconContainer} >
                             <PiUserLight className={styles.utilIcon} />
                             <div className={styles.flexUtilHeader}>
-                                {user ? 
+                                {(tokens.refresh && name) ? 
                                     <>
-                                        <span className={styles.flexUtilHeaderTitle}>Olá, {user.length > 10 ? `${user.slice(0, 10)}...` : user}</span>
+                                        <span className={styles.flexUtilHeaderTitle}>Olá, {name.length > 10 ? `${name.slice(0, 10)}...` : name}</span>
                                         <span className={styles.flexUtilHeaderSubTitle}>Conta e dados</span>
                                     </>
                                     :
                                     <>
-                                        <span className={styles.flexUtilHeaderTitle}>Olá, </span>
+                                        <span className={styles.flexUtilHeaderTitle}>Bem vindo(a) </span>
                                         <span className={styles.flexUtilHeaderSubTitle}>Fazer Login</span>
                                     </>
                                 }
                             </div>
-                        </a>
+                        </div>
                         <div className={styles.flexUtilBody}>
                             <div className={styles.flexUtilBodyContainer}>
                                 <div className={styles.flexUtilBodyContainerHeader}>
-                                    <PiUserLight className={styles.flexUtilBodyContainerHeaderProfileIcon} />
-                                    <div className={styles.flexUtilBodyContainerHeaderRight}>
-                                        <span className={styles.flexUtilBodyContainerHeaderRightTitle}>Olá, <span className={styles.flexUtilBodyContainerHeaderRightTitleName}>Wellington</span></span>
-                                        <span className={styles.flexUtilBodyContainerHeaderRightLogout}>Sair</span>
-                                    </div>
+                                    {(tokens.refresh && name) ? (
+                                        <>
+                                            <PiUserLight className={styles.flexUtilBodyContainerHeaderProfileIcon} />
+                                            <div className={styles.flexUtilBodyContainerHeaderRight}>
+                                                <span className={styles.flexUtilBodyContainerHeaderRightTitle}>Olá, <span className={styles.flexUtilBodyContainerHeaderRightTitleName}>{name}</span></span>
+                                                <span className={styles.flexUtilBodyContainerHeaderRightLogout} onClick={() => logout()}>Sair</span>
+                                            </div>
+                                        </>
+                                    ):(
+                                        <BtnA01 href='/accounts/sign-in' autoWidth>Fazer login</BtnA01>
+                                    )}
                                 </div>
                                 <div className={styles.flexUtilBodyContainerBody}>
                                     <ul className={styles.flexUtilBodyContainerBodyUl}>
@@ -273,7 +295,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                     <div className={styles.flexUtil}>
                         <a href="/accounts/favorites" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
-                            {cartNumberOfItems > 0 && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
+                            <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>
                         </a>
                     </div>
                 </div>

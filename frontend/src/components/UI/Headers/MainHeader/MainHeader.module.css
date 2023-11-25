@@ -19,7 +19,8 @@
     display: flex;
 }
 .locationIcon {
-    font-size: 25px;
+    min-width: 28px;
+    height: 100%;
 }
 .containerLocation:hover .flexLocationIcon .locationIcon {
     color: var(--primary-color);
@@ -208,6 +209,8 @@
     justify-content: center;
     gap: 5px;
     text-decoration: none;
+    cursor: pointer;
+    user-select: none;
 }
 .utilIcon {
     font-size: 30px;

@@ -26,7 +26,6 @@ export const useReCaptchaToken = () => {
                 document.head.appendChild(script)
         
                 script.onload = () => {
-                    console.log("adicionado")
                     setRecaptchaScriptLoaded(true)
                 }
             }

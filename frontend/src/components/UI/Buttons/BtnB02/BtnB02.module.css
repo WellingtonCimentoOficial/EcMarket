@@ -4,7 +4,8 @@
 .BtnB02 {
     background-color: transparent;
     color: var(--primary-color);
-    padding: 10px 30px;
+    padding: 0px 30px;
+    min-height: 50px;
     border-radius: 5px;
     border: 2px solid var(--primary-color);
     font-size: 12pt;

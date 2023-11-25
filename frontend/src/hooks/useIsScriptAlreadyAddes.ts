@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 export const useIsScriptAlreadyAdded = () => {
     const isScriptAlreadyAdded = useCallback((src: string) => {
-        console.log('uma vez')
         const scripts = document.getElementsByTagName('script');
         for (let i = 0; i < scripts.length; i++) {
             if (scripts[i].src === src) {

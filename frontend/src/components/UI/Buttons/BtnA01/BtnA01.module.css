@@ -1,9 +1,12 @@
 .BtnA01 {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--primary-color);
     color: white;
     text-decoration: none;
-    padding: 10px 30px;
+    padding: 0px 30px;
+    min-height: 50px;
     border-radius: 5px;
     border: 2px solid var(--primary-color);
     transition: 0.3s;
