@@ -23,6 +23,7 @@ export const useAxiosPrivate = () => {
                 const prevRequest = error.config as AxiosRequestConfig & { sent?: boolean };
                 if (error.response?.status === 401 && !prevRequest?.sent) {
                     prevRequest.sent = true;
+                    
                     try {
                         const refreshToken = getClientToken()
                         if(refreshToken){
@@ -33,9 +34,8 @@ export const useAxiosPrivate = () => {
                             return axiosAuth(prevRequest);
                         }
                     } catch (error) {
-                        logout()
+                        return Promise.resolve()
                     }
-
                 }
                 return Promise.reject(error);
             }

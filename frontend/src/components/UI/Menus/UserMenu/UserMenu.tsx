@@ -53,6 +53,10 @@ const UserMenu = (props: Props) => {
                         title: 'Seus endereços',
                         href: '/account/addresses'
                     },
+                    {
+                        title: 'Lista de desejos',
+                        href: '/account/wishlist'
+                    },
                 ]
             },
             {
@@ -60,6 +64,10 @@ const UserMenu = (props: Props) => {
                 icon: <PiShoppingCartLight />,
                 title: 'Compras',
                 data: [
+                    {
+                        title: 'Carrinho',
+                        href: '/account/cart'
+                    },
                     {
                         title: 'Pedidos',
                         href: '/account/orders'

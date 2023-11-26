@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState, useCallback } from "react";
 import { axios } from "../services/api";
 import * as OriginalAxios from 'axios'
+import { useNavigate } from "react-router-dom";
 
 type Props = {
     children: React.ReactNode
@@ -34,16 +35,24 @@ const initialValue: AuthContextType = {
     },
 }
 
+type LogoutPropsType = {
+    redirect?: boolean
+    href?: string
+}
+
 export const AuthContext = createContext<AuthContextType>(initialValue)
 
 export const AuthContextProvider = ({children}: Props) => {
     const [tokens, setTokens] = useState<TokensType>(initialValue.tokens)
 
-    const logout = useCallback(() => {
+    const navigate = useNavigate()
+
+    const logout = useCallback(({ redirect=true, href='/account/sign-in' } : LogoutPropsType={}) => {
         setTokens(prev => {
             return {...prev, access: null, refresh: null}
         })
         localStorage.removeItem('token')
+        redirect && navigate(href)
     }, [])
 
     const refreshTokens = useCallback(async (refreshToken: string) => {
@@ -63,7 +72,7 @@ export const AuthContextProvider = ({children}: Props) => {
                 if(error.response?.data.cod === 35 || error.response?.status === 401){
                     logout()
                 }
-                return null
+                return Promise.resolve()
             }
         }
     }, [logout])
@@ -79,16 +88,11 @@ export const AuthContextProvider = ({children}: Props) => {
 
 
     useEffect(() => {
-        // (async () => {
-        //     console.log('aquii no useefecct')
-        //     const refreshToken = getClientToken()
-        //     refreshToken && await refreshTokens(refreshToken)
-        // })()
         const refreshToken = getClientToken()
         setTokens(prev => {
             return {...prev, refresh: refreshToken}
         })
-    }, [getClientToken, refreshTokens])
+    }, [getClientToken])
 
     return (
         <AuthContext.Provider value={{tokens, setTokens, refreshTokens, getClientToken, storeToken, logout}}>

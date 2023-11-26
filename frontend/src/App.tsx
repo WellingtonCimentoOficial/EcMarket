@@ -7,6 +7,7 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import { ReCaptchaInterface } from './types/ReCaptchaType'
 import { GoogleInterface } from './types/GoogleType'
 import { AppleInterface } from './types/AppleType'
+import { BrowserRouter } from 'react-router-dom';
 
 declare global {
     interface Window {
@@ -20,13 +21,15 @@ function App() {
     useEffect(() => {document.title = process.env.REACT_APP_PROJECT_NAME || document.title}, [])
     return (
         <div className="App">
-            <AuthContextProvider>
-                <LoadingContextProvider>
-                    <ZipCodeProvider>
-                        <Routes />
-                    </ZipCodeProvider>
-                </LoadingContextProvider>
-            </AuthContextProvider>
+            <BrowserRouter>
+                <AuthContextProvider>
+                    <LoadingContextProvider>
+                        <ZipCodeProvider>
+                            <Routes />
+                        </ZipCodeProvider>
+                    </LoadingContextProvider>
+                </AuthContextProvider>
+            </BrowserRouter>
         </div>
     )
 }

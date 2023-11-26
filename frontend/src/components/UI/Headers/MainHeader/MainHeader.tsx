@@ -69,22 +69,22 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
             {
                 icon: <PiClipboardTextLight  />,
                 name: 'Meus pedidos',
-                href: '/account/profile/orders'
+                href: '/account/orders'
             },
             {
                 icon: <PiHeartLight />,
                 name: 'Lista de desejos',
-                href: '/account/profile/wishlist'
+                href: '/account/wishlist'
             },
             {
                 icon: <PiShoppingCartLight />,
                 name: 'Carrinho de compras',
-                href: '/account/profile/cart'
+                href: '/account/cart'
             },
             {
                 icon: <PiCardholderLight  />,
                 name: 'Meus cartões',
-                href: '/account/profile/cards'
+                href: '/account/cards'
             },
         ],
         footer: [
@@ -132,9 +132,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     }, [searchText])
 
     const get_cart = useCallback(async () => {
-        const response = await axiosPrivate.get('/cart/')
-        if(response.status === 200){
-            setCartNumberOfItems(response.data.products.length)
+        try {
+            const response = await axiosPrivate.get('/cart/')
+            if(response.status === 200){
+                setCartNumberOfItems(response.data.products.length)
+            }
+        } catch (error) {
+            // ERROR IN TRY TO ACCESS .STATUS
         }
     }, [axiosPrivate])
 
@@ -288,12 +292,12 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         </div>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/account/profile/wishlist" className={styles.utilIconContainer} >
+                        <a href="/account/wishlist" className={styles.utilIconContainer} >
                             <PiHeartLight className={styles.utilIcon} />
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
-                        <a href="/account/profile/cart" className={styles.utilIconContainer} >
+                        <a href="/account/cart" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
                             {tokens.refresh && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
                         </a>
