@@ -13,7 +13,7 @@ const RegisterPage = (props: Props) => {
 
     const navigate = useNavigate()
 
-    useEffect(() => {
+    useEffect(() => { //SEND USER TO HOME PAGE IF HE IS ALREADY AUTHENTICATED
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Register`)
         if(tokens.refresh){
             navigate('/')

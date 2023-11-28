@@ -110,3 +110,13 @@ class ErrorSamePasswords(APIException):
     status_code = 400
     default_code = 'error_same_passwords'
     default_detail = 'The new password is the same as the current one'
+
+class InvalidCpfFormat(APIException):
+    status_code = 400
+    default_code = 'invalid_cpf_format'
+    default_detail = 'The cpf format is invalid'
+
+class InvalidCpf(APIException):
+    status_code = 400
+    default_code = 'Invalid_cpf'
+    default_detail = 'The cpf is invalid'

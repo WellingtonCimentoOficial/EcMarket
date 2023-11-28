@@ -4,8 +4,8 @@ import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiChec
 import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
-import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
+import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
 
 type Props = {}
 
@@ -54,13 +54,6 @@ const CodeConfirmationForm = (props: Props) => {
     const [codeExp, setCodeExp] = useState<string>('')
 
     const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
-
-    // checks if email has a valid format
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
-
-    // checks if there is at least one uppercase letter, lowercase letter, number and special character
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$/;
-
     
     const send_reset_password_code = async (CaptchaToken: string) => {
         setIsLoading(true)
@@ -579,8 +572,9 @@ const CodeConfirmationForm = (props: Props) => {
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <BtnB01 
                                         autoWidth 
-                                        disabled={isLoading ? true : false}>
-                                        {isLoading ? <SprintLoader /> : stage === 3 ? 'Enviar' : 'Próximo'}
+                                        disabled={isLoading ? true : false}
+                                        isLoading={isLoading}>
+                                        {stage === 3 ? 'Enviar' : 'Próximo'}
                                     </BtnB01>
                                 </div>
                             </form>

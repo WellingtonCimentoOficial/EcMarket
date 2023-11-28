@@ -1,6 +1,85 @@
-.wrapper {
+@keyframes inpitFocus {
+    from {
 
+    }
+}
+
+.wrapper {
+    padding: 30px 0px;
+    display: flex;
+    gap: 30px;
+}
+.userMenu {
+    min-width: 30%;
+    box-shadow: var(--shadow-complete);
 }
 .container {
-    padding: 30px 0px;
+    width: 100%;
+    min-height: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-complete);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--text-color-two);
+    padding-bottom: 15px;
+}
+.headerTitle {
+    font-size: 18pt;
+    font-weight: 500;
+}
+.headerDescription {
+    color: var(--text-color-one-blur);
+    font-size: 11pt;
+}
+.body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    height: 100%;
+}
+.bodyForm {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background-color: transparent;
+    width: 100%;
+}
+.bodyFormInput {
+    position: relative;
+}
+.bodyFormInput:focus-within {
+    color: var(--primary-color);
+}
+.bodyFormInputLabel {
+    position: absolute;
+    top: -20%;
+    left: 15px;
+    font-size: 9pt;
+    background-color: white;
+    padding: 0px 5px;
+    user-select: none;
+}
+.bodyFormInputInput {
+    border: 2px solid var(--text-color-two);
+    width: 100%;
+    font-size: 12pt;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+.bodyFormInputInput:focus {
+    border-color: var(--primary-color);
+}
+.invalidInput {
+    border-color: var(--primary-color);
+}
+.invalidInputLabel {
+    color: var(--primary-color);
 }

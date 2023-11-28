@@ -4,10 +4,10 @@ import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiUser
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
-import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
+import { NameRegex, emailRegex, passwordRegex } from '../../../utils/regexPatterns';
 
 const RegisterForm = () => {
     const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
@@ -51,15 +51,6 @@ const RegisterForm = () => {
     })
 
     const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
-    
-    // checks if name has a valid format
-    const NameRegex = /^[a-zA-Z\s]+$/;
-
-    // checks if email has a valid format
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
-
-    // checks if there is at least one uppercase letter, lowercase letter, number and special character
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$/;
 
     const post_data = async (CaptchaToken: string) => {
         setIsLoading(true)
@@ -180,6 +171,7 @@ const RegisterForm = () => {
         const value = e.target.value
         if(password === value){
             setConfirmPasswordIsValid(true)
+            inputsRef.current.confirmPassword?.blur()
         }else{
             setConfirmPasswordIsValid(false)
         }
@@ -401,8 +393,9 @@ const RegisterForm = () => {
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <BtnB01 
                                         autoWidth 
-                                        disabled={isLoading ? true : false}>
-                                        {isLoading ? <SprintLoader /> : 'Cadastrar'}
+                                        disabled={isLoading ? true : false}
+                                        isLoading={isLoading}>
+                                            Cadastrar
                                     </BtnB01>
                                 </div>
                             </form>

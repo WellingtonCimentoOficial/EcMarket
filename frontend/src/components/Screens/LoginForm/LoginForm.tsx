@@ -4,12 +4,12 @@ import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiChec
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
-import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
+import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
 
 const LoginForm = () => {
     const [rememberMe, setRememberMe] = useState<boolean>(false)
@@ -43,12 +43,6 @@ const LoginForm = () => {
             text: 'signin_with'
         }
     })
-
-    // checks if email has a valid format
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g
-
-    // checks if there is at least one uppercase letter, lowercase letter, number and special character
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$/;
 
     const post_data = async (CaptchaToken: string) => {
         setIsLoading(true)
@@ -237,13 +231,14 @@ const LoginForm = () => {
                                 />
                                 <label className={styles.containerBodyFormInputContainerRememberInputLabel} htmlFor="remember-me">Lembrar de min</label>
                             </div>
-                            <a className={styles.containerBodyFormInputContainerForgetPassword} href="/accounts/reset/password">Esqueceu sua senha?</a>
+                            <a className={styles.containerBodyFormInputContainerForgetPassword} href="/account/reset/password">Esqueceu sua senha?</a>
                         </div>
                         <div className={styles.containerBodyFormInputContainer}>
                             <BtnB01 
                                 autoWidth 
-                                disabled={isLoading ? true : false}>
-                                {isLoading ? <SprintLoader /> : 'Login'}
+                                disabled={isLoading ? true : false}
+                                isLoading={isLoading}>
+                                    Login
                             </BtnB01>
                         </div>
                     </form>

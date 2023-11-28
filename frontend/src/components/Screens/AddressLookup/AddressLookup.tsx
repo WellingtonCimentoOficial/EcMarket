@@ -3,9 +3,9 @@ import styles from "./AddressLookup.module.css"
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01'
 import { PiPlusBold } from 'react-icons/pi';
 import { ZipCodeContext } from '../../../contexts/ZipCodeContext';
-import SprintLoader from '../../UI/Loaders/SprintLoader/SprintLoader';
 import { axios } from '../../../services/api';
 import { PiMapPinLine, PiTrash } from 'react-icons/pi';
+import { specialCharactersRegex } from '../../../utils/regexPatterns';
 
 type Props = {}
 
@@ -19,7 +19,7 @@ const AddressLookup = (props: Props) => {
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replaceAll(/\D/g, "")
+        const value = e.target.value.replaceAll(specialCharactersRegex, "")
         if(isLoading){
             setIsLoading(currentValue => currentValue)
             return
@@ -94,8 +94,9 @@ const AddressLookup = (props: Props) => {
                                 autoHeight
                                 className={styles.btnSubmit} 
                                 disabled={isLoading ? true : false}
+                                isLoading={isLoading}
                             >
-                                    {isLoading ? <SprintLoader className={styles.loader} /> : 'Confirmar'}
+                                Confirmar
                             </BtnB01>
                         </div>
                     </form>

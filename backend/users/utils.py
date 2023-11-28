@@ -2,14 +2,7 @@ from utils.payment_gateway import Gateway
 from .exceptions import UserAlreadyExists, InvalidGoogleToken, InternalError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-from .exceptions import (
-    InvalidPasswordFormat, InvalidEmailFormat, 
-    InvalidFirstNameFormat, InvalidLastNameFormat, 
-    EmailAlreadyUsed, TermsNotAccepted, ErrorCreatingVerificationCode,
-    InvalidVerificationCodeFormat, ExpiredVerificationCode, AccountAlreadyVerified,
-    InvalidVerificationCode, VerificationCodeNotFound, ErrorCreatingPasswordResetCode,
-    InvalidPasswordResetCodeFormat
-)
+from . import exceptions
 from users.models import VerificationCode, PasswordResetCode
 from uuid import uuid4
 from datetime import timedelta
@@ -129,35 +122,66 @@ def apple_user_id_exists(email):
         return True
     return False
 
-def validate_data_format(first_name=None, last_name=None, email=None, password=None, terms=None, password_reset_code=None):
+
+def validate_cpf_algorithm(cpf):
+    def calculate_first_verifying_digit(cpf):
+        first_nine_digits = list(map(int, cpf[:9]))
+        first_nine_digits_decreasing_range = list(range(10, 1, -1))
+        calc = [num * factor for num, factor in zip(first_nine_digits, first_nine_digits_decreasing_range)]
+        total = sum(calc)
+        rest_of_division = total % 11
+        digit = 0 if rest_of_division < 2 else 11 - rest_of_division
+        return digit
+
+    def calculate_second_verifying_digit(cpf):
+        first_ten_digits = list(map(int, cpf[:10]))
+        first_ten_digits_decreasing_range = list(range(11, 1, -1))
+        calc = [num * factor for num, factor in zip(first_ten_digits, first_ten_digits_decreasing_range)]
+        total = sum(calc)
+        rest_of_division = total % 11
+        digit = 0 if rest_of_division < 2 else 11 - rest_of_division
+        return digit
+    
+    first_digit = calculate_first_verifying_digit(cpf)
+    second_digit = calculate_second_verifying_digit(cpf + str(first_digit))
+    return cpf[-2:] == str(first_digit) + str(second_digit)
+
+def validate_data_format(first_name=None, last_name=None, email=None, password=None, terms=None, password_reset_code=None, cpf=None):
     name_regex = re.compile("^[a-zA-Z\s]+$")
     email_regex = re.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
     password_regex = re.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-]).*$")
     only_numbers_regex = re.compile("^[0-9]+$")
+    cpf_regex = re.compile("(?!(\d)\1{2}.\1{3}.\1{3}-\1{2})\d{3}\.\d{3}\.\d{3}-\d{2}")
 
     if first_name is not None:
         if not name_regex.match(first_name):
-            raise InvalidFirstNameFormat()
+            raise exceptions.InvalidFirstNameFormat()
         
     if last_name is not None:
         if not name_regex.match(last_name):
-            raise InvalidLastNameFormat()
+            raise exceptions.InvalidLastNameFormat()
 
     if email is not None:
         if not email_regex.match(email):
-            raise InvalidEmailFormat()
+            raise exceptions.InvalidEmailFormat()
 
     if password is not None:
         if not password_regex.match(password) or len(password) < 8:
-            raise InvalidPasswordFormat()
+            raise exceptions.InvalidPasswordFormat()
 
     if terms is not None:
         if not terms:
-            raise TermsNotAccepted()
+            raise exceptions.TermsNotAccepted()
 
     if password_reset_code is not None:
         if not only_numbers_regex.match(password_reset_code):
-            raise InvalidPasswordResetCodeFormat()
+            raise exceptions.InvalidPasswordResetCodeFormat()
+        
+    if cpf is not None:
+        if not only_numbers_regex.match(cpf) or len(cpf) != 11:
+            raise exceptions.InvalidCpfFormat()
+        elif not validate_cpf_algorithm(cpf):
+            raise exceptions.InvalidCpf()
 
     return True
 
@@ -165,7 +189,7 @@ def create_user(first_name=None, last_name=None, email=None, password=None):
     User = get_user_model()
 
     if User.objects.filter(email=email).first() is not None:
-        raise EmailAlreadyUsed()
+        raise exceptions.EmailAlreadyUsed()
     
     new_user = User.objects.create(first_name=first_name, last_name=last_name, email=email, password=make_password(password))
 
@@ -182,17 +206,17 @@ def create_new_verification_code(user):
         verification_code.user = user
         verification_code.save()
     except:
-        raise ErrorCreatingVerificationCode()
+        raise exceptions.ErrorCreatingVerificationCode()
 
 
 def verify_user_account(code):
     if code == '':
-        raise InvalidVerificationCode()
+        raise exceptions.InvalidVerificationCode()
 
     try:
         code_instance = VerificationCode.objects.filter(code=code).first()
     except:
-        raise InvalidVerificationCodeFormat()
+        raise exceptions.InvalidVerificationCodeFormat()
     
     if code_instance is not None:
         user = code_instance.user
@@ -208,9 +232,9 @@ def verify_user_account(code):
                     return user
                 except:
                     raise InternalError()
-            raise ExpiredVerificationCode()
-        raise AccountAlreadyVerified()
-    raise VerificationCodeNotFound()
+            raise exceptions.ExpiredVerificationCode()
+        raise exceptions.AccountAlreadyVerified()
+    raise exceptions.VerificationCodeNotFound()
 
 def create_new_password_reset_code(user):
     try:
@@ -225,7 +249,7 @@ def create_new_password_reset_code(user):
 
         return password_reset_code
     except:
-        raise ErrorCreatingPasswordResetCode()
+        raise exceptions.ErrorCreatingPasswordResetCode()
 
 def send_password_changed_notification(user):
     try:

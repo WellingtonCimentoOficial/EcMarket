@@ -11,11 +11,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user_first_name'] = user.first_name
         token['user_last_name'] = user.last_name
         token['user_email'] = user.email
+        token['is_verified'] = user.is_verified
         
         return token
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        exclude = ('password', 'google_user_id', 'apple_user_id', 'gateway_user_id')
         

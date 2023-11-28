@@ -17,9 +17,8 @@ import { CategoryName } from '../../../../types/CategoryType';
 import { ZipCodeContext } from '../../../../contexts/ZipCodeContext';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
-import { jwtDecode } from 'jwt-decode';
-import { TokenType } from '../../../../types/TokenType';
 import BtnA01 from '../../Buttons/BtnA01/BtnA01';
+import { useJwtData } from '../../../../hooks/useJwtData';
 
 type Props = {
     shadow?: boolean
@@ -55,6 +54,8 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const { tokens, logout } = useContext(AuthContext)
 
     const axiosPrivate = useAxiosPrivate()
+
+    const { getJwtData } = useJwtData()
 
     const menuConfig: MenuConfigType = {
         header: {
@@ -140,7 +141,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         } catch (error) {
             // ERROR IN TRY TO ACCESS .STATUS
         }
-    }, [axiosPrivate])
+    }, [axiosPrivate, setCartNumberOfItems])
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -163,13 +164,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     useEffect(() => { // GET USER FIRST NAME IN TOKEN
         if(tokens.refresh){
             try {
-                const jwt_data: TokenType = jwtDecode(tokens.refresh)
-                setName(jwt_data.user_first_name)
+                const jwtData = getJwtData()
+                setName(jwtData ? jwtData.user_first_name : null)
             } catch (error) {
                 // ENTER HERE WHEN TOKENS.REFRESH HAS A INVALID VALUE
             }
         }
-    }, [tokens.refresh])
+    }, [tokens.refresh, getJwtData])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>

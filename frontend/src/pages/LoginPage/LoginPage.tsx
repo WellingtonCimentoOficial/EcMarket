@@ -13,7 +13,7 @@ const LoginPage = (props: Props) => {
 
     const navigate = useNavigate()
 
-    useEffect(() => {
+    useEffect(() => { //SEND USER TO HOME PAGE IF HE IS ALREADY AUTHENTICATED
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Login`)
         if(tokens.refresh){
             navigate('/')

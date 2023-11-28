@@ -77,7 +77,6 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
         except exceptions.InternalError:
             return Response({'cod': 3, 'error': 'An error occurred while validating the google oauth token'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print(e)
             if hasattr(e, "detail") and hasattr(e, "status_code"):
                 return Response({'error': e.detail}, status=e.status_code)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -99,7 +98,7 @@ class TokenRefreshView(TokenRefreshViewOriginal):
             return Response({'cod': 35, 'error': 'The informed token user no longer exists'}, status=status.HTTP_401_UNAUTHORIZED)
         except TokenError:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        except Exception:
+        except:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
@@ -293,4 +292,50 @@ def verify_account(request):
     except InvalidReCaptchaToken:
         return Response({'cod': 24, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
     except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_verified(request):
+    try:
+        user = request.user
+        return Response({ 'is_verified': user.is_verified }, status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_user_profile(request):
+    try:
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        cpf = request.data.get('cpf')
+        recaptcha_token = request.data.get('g-recaptcha-response')
+
+        validate_data_format(first_name=first_name, last_name=last_name, cpf=cpf)
+
+        recaptcha = ReCaptcha(token=recaptcha_token)
+        recaptcha.validate_token()
+        
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.id_number = cpf
+        user.save()
+
+        serializer = UserSerializer(user, context={'request': request})
+
+        return Response(serializer.data)
+    except InvalidReCaptchaToken:
+        return Response({'cod': 36, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.InvalidFirstNameFormat:
+        return Response({'cod': 37, 'error': 'The first name format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.InvalidLastNameFormat:
+        return Response({'cod': 38, 'error': 'The last name format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.InvalidCpfFormat:
+        return Response({'cod': 39, 'error': 'The identification format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.InvalidCpf:
+        return Response({'cod': 40, 'error': 'The identification number is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

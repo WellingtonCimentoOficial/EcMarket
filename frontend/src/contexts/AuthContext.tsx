@@ -53,7 +53,7 @@ export const AuthContextProvider = ({children}: Props) => {
         })
         localStorage.removeItem('token')
         redirect && navigate(href)
-    }, [])
+    }, [navigate])
 
     const refreshTokens = useCallback(async (refreshToken: string) => {
         try {
@@ -62,7 +62,7 @@ export const AuthContextProvider = ({children}: Props) => {
             })
             if(response.status === 200){
                 setTokens(prev => {
-                    return {...prev, refresh: response.data.refresh}
+                    return {...prev, access: response.data.access, refresh: response.data.refresh}
                 })
                 storeToken(response.data.refresh)
                 return response.data
@@ -88,11 +88,21 @@ export const AuthContextProvider = ({children}: Props) => {
 
 
     useEffect(() => {
-        const refreshToken = getClientToken()
-        setTokens(prev => {
-            return {...prev, refresh: refreshToken}
-        })
-    }, [getClientToken])
+        (async () => {
+            try {
+                const refreshToken = getClientToken()
+                if(refreshToken){
+                    const newTokens = await refreshTokens(refreshToken)
+                    setTokens(prev => {
+                        return {...prev, access: newTokens.access, refresh: newTokens.refresh}
+                    })
+                }
+            } catch (error) {
+                
+            }
+        })()
+    }, [getClientToken, refreshTokens, setTokens])
+
 
     return (
         <AuthContext.Provider value={{tokens, setTokens, refreshTokens, getClientToken, storeToken, logout}}>
