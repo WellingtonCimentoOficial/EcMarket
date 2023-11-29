@@ -10,6 +10,8 @@ import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
 import { LoadingContext } from '../../contexts/LoadingContext'
 import { useCpfValidator } from '../../hooks/useCpfValidator'
 import * as originalAxios from 'axios'
+import { UserProfileType } from '../../types/UserType'
+import { UserContext } from '../../contexts/UserContext'
 
 type Props = {}
 
@@ -21,14 +23,14 @@ type InputsType = {
 }
 
 const ProfilePage = (props: Props) => {
-    const [firstName, setFirstName] = useState<string>('Wellington')
-    const [firstNameIsValid, setFirstNameIsValid] = useState<boolean>(true)
+    const [firstName, setFirstName] = useState<string>('')
+    const [firstNameIsValid, setFirstNameIsValid] = useState<boolean>(false)
 
-    const [lastName, setLastName] = useState<string>('Cimento')
-    const [lastNameIsValid, setLastNameIsValid] = useState<boolean>(true)
+    const [lastName, setLastName] = useState<string>('')
+    const [lastNameIsValid, setLastNameIsValid] = useState<boolean>(false)
 
-    const [email, setEmail] = useState<string>('wellingtoncimentooficial@gmail.com')
-    const [emailIsValid, setEmailIsValid] = useState<boolean>(true)
+    const [email, setEmail] = useState<string>('')
+    const [emailIsValid, setEmailIsValid] = useState<boolean>(false)
 
     const [cpf, setCpf] = useState<string>('')
     const [cpfIsValid, setCpfIsValid] = useState<boolean>(false)
@@ -44,6 +46,8 @@ const ProfilePage = (props: Props) => {
     const { isLoading, setIsLoading } = useContext(LoadingContext)
 
     const { validate_cpf_algorithm } = useCpfValidator()
+
+    const { user, setUser } = useContext(UserContext)
 
     const inputsRef = useRef<InputsType>({
         firstName: null,
@@ -61,12 +65,26 @@ const ProfilePage = (props: Props) => {
                 cpf: cpf.replaceAll(specialCharactersRegex, ''),
                 "g-recaptcha-response": recaptchaToken
             })
+            const data: UserProfileType = response.data
             if(response?.status === 200){
-                console.log(response.data)
+                setUser(data)
             }
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
-                console.log(error)
+                if(error.response?.data.cod === 36){
+                    
+                }else if(error.response?.data.cod === 37){
+                    setFirstNameIsValid(false)
+                    inputsRef.current.firstName?.focus()
+                }else if(error.response?.data.cod === 38){
+                    setLastNameIsValid(false)
+                    inputsRef.current.lastName?.focus()
+                }else if(error.response?.data.cod === 39 || error.response?.data.cod === 40){
+                    setCpfIsValid(false)
+                    inputsRef.current.cpf?.focus()
+                }else{
+
+                }
             }
         }
         setIsLoading(false)
@@ -75,12 +93,12 @@ const ProfilePage = (props: Props) => {
     const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newNameRegex = new RegExp(NameRegex)
         const value = e.target.value
-        if(newNameRegex.test(value)){
+        if(newNameRegex.test(value) && value.length > 3 && value.length <= 50){
             setFirstNameIsValid(true)
         }else{
             setFirstNameIsValid(false)
         }
-        setFirstName(value)
+        setFirstName(value.length > 50 ? value.slice(0, 50) : value)
     }
 
     const handleLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,18 +109,18 @@ const ProfilePage = (props: Props) => {
         }else{
             setLastNameIsValid(false)
         }
-        setLastName(value)
+        setLastName(value.length > 50 ? value.slice(0, 50) : value)
     }
 
-    const handleEmail= (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newEmailRegex = new RegExp(emailRegex)
         const value = e.target.value
-        if(newEmailRegex.test(value)){
+        if(newEmailRegex.test(value) && value.length > 3 && value.length <= 255){
             setEmailIsValid(true)
         }else{
             setEmailIsValid(false)
         }
-        setEmail(value)
+        setEmail(value.length > 255 ? value.slice(0, 255) : value)
     }
 
     const handleCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,8 +128,7 @@ const ProfilePage = (props: Props) => {
         const value = e.target.value.replaceAll(/\D/g, "")
         if(newOnlyNumbersRegex.test(value)){
             if(value.length >= 11){
-                const cpfFormatted = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9, 11)}`
-                setCpf(cpfFormatted)
+                setCpf(value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'))
                 if(validate_cpf_algorithm(value.slice(0, 11))){
                     setCpfIsValid(true)
                     inputsRef.current.cpf?.blur()
@@ -157,6 +174,39 @@ const ProfilePage = (props: Props) => {
         initializeRecaptchaScript()
     }, [initializeRecaptchaScript])
 
+    useEffect(() => {
+        if(user){
+            setFirstName(() => {
+                if(user.first_name){
+                    setFirstNameIsValid(true)
+                    return user.first_name
+                }
+                return ''
+            })
+            setLastName(() => {
+                if(user.last_name){
+                    setLastNameIsValid(true)
+                    return user.last_name
+                }
+                return ''
+            })
+            setEmail(() => {
+                if(user.email){
+                    setEmailIsValid(true)
+                    return user.email
+                }
+                return ''
+            })
+            setCpf(() => {
+                if(user.id_number){
+                    setCpfIsValid(true)
+                    return user.id_number.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+                }
+                return ''
+            })
+        }
+    }, [user, setFirstName, setLastName, setEmail, setCpf, setFirstNameIsValid, setLastNameIsValid, setEmailIsValid, setCpfIsValid])
+
     return (
         <WidthLayout width={90}>
             <div className={styles.wrapper}>
@@ -177,6 +227,8 @@ const ProfilePage = (props: Props) => {
                                     type="text" 
                                     name="first_name" 
                                     id="first_name" 
+                                    minLength={3}
+                                    maxLength={50}
                                     className={`${styles.bodyFormInputInput} ${(!firstNameIsValid && !isFirstRender) ? styles.invalidInput : null}`}
                                     onChange={handleFirstName}
                                     value={firstName}
@@ -189,6 +241,8 @@ const ProfilePage = (props: Props) => {
                                     type="text" 
                                     name="last_name" 
                                     id="last_name" 
+                                    minLength={3}
+                                    maxLength={50}
                                     className={`${styles.bodyFormInputInput} ${(!lastNameIsValid && !isFirstRender) ? styles.invalidInput : null}`}
                                     onChange={handleLastName}
                                     value={lastName}
@@ -201,6 +255,8 @@ const ProfilePage = (props: Props) => {
                                     type="email" 
                                     name="email" 
                                     id="email" 
+                                    minLength={3}
+                                    maxLength={255}
                                     className={`${styles.bodyFormInputInput} ${(!emailIsValid && !isFirstRender) ? styles.invalidInput : null}`}
                                     disabled
                                     onChange={handleEmail}
@@ -214,7 +270,9 @@ const ProfilePage = (props: Props) => {
                                     type="text" 
                                     name="cpf" 
                                     id="cpf" 
-                                    placeholder='000.000.000-00' 
+                                    placeholder='000.000.000-00'
+                                    minLength={14}
+                                    maxLength={14}
                                     className={`${styles.bodyFormInputInput} ${(!cpfIsValid && !isFirstRender) ? styles.invalidInput : null}`}
                                     onChange={handleCpf}
                                     value={cpf}

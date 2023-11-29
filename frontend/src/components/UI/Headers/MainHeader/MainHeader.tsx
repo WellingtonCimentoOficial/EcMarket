@@ -8,7 +8,8 @@ import {
     PiMapPinLight,
     PiMapPinFill,
     PiClipboardTextLight ,
-    PiCardholderLight 
+    PiCardholderLight,
+    PiSealCheckFill
 } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
 import FullLogo from '../../Logos/FullLogo/FullLogo';
@@ -18,16 +19,13 @@ import { ZipCodeContext } from '../../../../contexts/ZipCodeContext';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
 import BtnA01 from '../../Buttons/BtnA01/BtnA01';
-import { useJwtData } from '../../../../hooks/useJwtData';
+import { UserContext } from '../../../../contexts/UserContext';
 
 type Props = {
     shadow?: boolean
 }
 
 type MenuConfigType = {
-    header: {
-        name: string
-    }
     body: {
         icon: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
         name: string,
@@ -46,7 +44,6 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
     const [cartNumberOfItems, setCartNumberOfItems] = useState<number>(0)
-    const [name, setName] = useState<string | null>(null)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
@@ -55,12 +52,9 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
 
     const axiosPrivate = useAxiosPrivate()
 
-    const { getJwtData } = useJwtData()
+    const { user } = useContext(UserContext)
 
     const menuConfig: MenuConfigType = {
-        header: {
-            name: 'Wellington'
-        },
         body: [
             {
                 icon: <PiUserLight />,
@@ -161,17 +155,6 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         }
     }, [tokens.refresh, get_cart])
 
-    useEffect(() => { // GET USER FIRST NAME IN TOKEN
-        if(tokens.refresh){
-            try {
-                const jwtData = getJwtData()
-                setName(jwtData ? jwtData.user_first_name : null)
-            } catch (error) {
-                // ENTER HERE WHEN TOKENS.REFRESH HAS A INVALID VALUE
-            }
-        }
-    }, [tokens.refresh, getJwtData])
-
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
             <div className={styles.container}>
@@ -233,14 +216,21 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         <div className={styles.utilIconContainer} >
                             <PiUserLight className={styles.utilIcon} />
                             <div className={styles.flexUtilHeader}>
-                                {(tokens.refresh && name) ? 
+                                {(tokens.refresh && user.first_name) ? 
                                     <>
-                                        <span className={styles.flexUtilHeaderTitle}>Olá, {name.length > 10 ? `${name.slice(0, 10)}...` : name}</span>
+                                        <div className={styles.flexUtilHeaderTitleContainer}>
+                                            <span className={styles.flexUtilHeaderTitleContainerText}>
+                                                Olá, {user.first_name.length > 10 ? `${user.first_name.slice(0, 10)}...` : user.first_name}
+                                            </span>
+                                            {user.is_verified && <PiSealCheckFill className={styles.flexUtilHeaderTitleContainerIcon} title='Perfil verificado' />}
+                                        </div>
                                         <span className={styles.flexUtilHeaderSubTitle}>Conta e dados</span>
                                     </>
                                     :
                                     <>
-                                        <span className={styles.flexUtilHeaderTitle}>Bem vindo(a) </span>
+                                        <div className={styles.flexUtilHeaderTitleContainer}>
+                                            <span className={styles.flexUtilHeaderTitleContainerText}>Bem vindo(a)</span>
+                                        </div>
                                         <span className={styles.flexUtilHeaderSubTitle}>Fazer Login</span>
                                     </>
                                 }
@@ -249,11 +239,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         <div className={styles.flexUtilBody}>
                             <div className={styles.flexUtilBodyContainer}>
                                 <div className={styles.flexUtilBodyContainerHeader}>
-                                    {(tokens.refresh && name) ? (
+                                    {(tokens.refresh && user.first_name) ? (
                                         <>
                                             <PiUserLight className={styles.flexUtilBodyContainerHeaderProfileIcon} />
                                             <div className={styles.flexUtilBodyContainerHeaderRight}>
-                                                <span className={styles.flexUtilBodyContainerHeaderRightTitle}>Olá, <span className={styles.flexUtilBodyContainerHeaderRightTitleName}>{name}</span></span>
+                                                <span className={styles.flexUtilBodyContainerHeaderRightTitle}>Olá, <span className={styles.flexUtilBodyContainerHeaderRightTitleName}>
+                                                    {user.first_name.length > 15 ? `${user.first_name.slice(0, 15)}...` : user.first_name}
+                                                </span></span>
                                                 <span className={styles.flexUtilBodyContainerHeaderRightLogout} onClick={() => logout()}>Sair</span>
                                             </div>
                                         </>

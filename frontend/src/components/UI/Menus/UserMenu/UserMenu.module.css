@@ -48,6 +48,9 @@
 }
 .headerTitle {
     font-weight: 500;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 .headerText {
     font-size: 11pt;

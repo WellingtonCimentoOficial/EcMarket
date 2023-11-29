@@ -117,6 +117,14 @@
     flex-direction: column;
     color: var(--text-color-one);
 }
+.flexUtilHeaderTitleContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.flexUtilHeaderTitleContainerIcon {
+    color: var(--primary-color);
+}
 .flexUtilBody {
     position: absolute;
     right: -50%;
@@ -254,10 +262,10 @@
     transition: 0.3s;
 }
 
-.flexUtilHeaderTitle, .flexLocationTextTitle {
+.flexUtilHeaderTitleContainerText, .flexLocationTextTitle {
     font-size: 10pt;
 }
-.flexUtilHeaderTitle, .flexLocationTextTitle,
+.flexUtilHeaderTitleContainerText, .flexLocationTextTitle,
 .flexUtilHeaderSubTitle{
     white-space: nowrap;
 }

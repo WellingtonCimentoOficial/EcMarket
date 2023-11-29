@@ -27,7 +27,7 @@
 .header {
     background-color: transparent;
     border-bottom: 1px solid var(--text-color-two);
-    padding-bottom: 15px;
+    padding-bottom: 30px;
 }
 .headerTitle {
     font-size: 18pt;

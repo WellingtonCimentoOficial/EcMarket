@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer, MyTokenObtainPairSerializer
+from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView as TokenObtainPairViewOriginal,
     TokenRefreshView as TokenRefreshViewOriginal,
@@ -303,6 +303,18 @@ def is_verified(request):
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    try:
+        user = request.user
+
+        serializer = UserProfileSerializer(user, context={'request': request})
+
+        return Response(serializer.data)
+    except:
+        ...
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user_profile(request):
@@ -323,7 +335,7 @@ def update_user_profile(request):
         user.id_number = cpf
         user.save()
 
-        serializer = UserSerializer(user, context={'request': request})
+        serializer = UserProfileSerializer(user, context={'request': request})
 
         return Response(serializer.data)
     except InvalidReCaptchaToken:
@@ -336,6 +348,5 @@ def update_user_profile(request):
         return Response({'cod': 39, 'error': 'The identification format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
     except exceptions.InvalidCpf:
         return Response({'cod': 40, 'error': 'The identification number is invalid'}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        print
+    except Exception:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

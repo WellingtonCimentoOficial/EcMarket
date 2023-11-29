@@ -8,6 +8,7 @@ import { ReCaptchaInterface } from './types/ReCaptchaType'
 import { GoogleInterface } from './types/GoogleType'
 import { AppleInterface } from './types/AppleType'
 import { BrowserRouter } from 'react-router-dom';
+import { UserContextProvider } from './contexts/UserContext';
 
 declare global {
     interface Window {
@@ -23,11 +24,13 @@ function App() {
         <div className="App">
             <BrowserRouter>
                 <AuthContextProvider>
-                    <LoadingContextProvider>
-                        <ZipCodeProvider>
-                            <Routes />
-                        </ZipCodeProvider>
-                    </LoadingContextProvider>
+                    <UserContextProvider>
+                        <LoadingContextProvider>
+                            <ZipCodeProvider>
+                                <Routes />
+                            </ZipCodeProvider>
+                        </LoadingContextProvider>
+                    </UserContextProvider>
                 </AuthContextProvider>
             </BrowserRouter>
         </div>

@@ -154,15 +154,15 @@ def validate_data_format(first_name=None, last_name=None, email=None, password=N
     cpf_regex = re.compile("(?!(\d)\1{2}.\1{3}.\1{3}-\1{2})\d{3}\.\d{3}\.\d{3}-\d{2}")
 
     if first_name is not None:
-        if not name_regex.match(first_name):
+        if not name_regex.match(first_name) or len(first_name) < 3 or len(first_name) > 50 :
             raise exceptions.InvalidFirstNameFormat()
         
     if last_name is not None:
-        if not name_regex.match(last_name):
+        if not name_regex.match(last_name) or len(last_name) < 3 or len(last_name) > 50 :
             raise exceptions.InvalidLastNameFormat()
 
     if email is not None:
-        if not email_regex.match(email):
+        if not email_regex.match(email) or len(email) < 3 or len(email) > 255:
             raise exceptions.InvalidEmailFormat()
 
     if password is not None:
