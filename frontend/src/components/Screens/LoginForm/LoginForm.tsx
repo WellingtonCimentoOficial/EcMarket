@@ -1,6 +1,6 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useContext, useEffect } from 'react'
 import styles from './LoginForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiCheck } from "react-icons/pi";
+import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
@@ -10,6 +10,9 @@ import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { MessageErrorType } from '../../../types/ErrorType';
+import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
+import { INVALID_AUTHENTICATION_APPLE_ERROR, INVALID_AUTHENTICATION_GOOGLE_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
 
 const LoginForm = () => {
     const [rememberMe, setRememberMe] = useState<boolean>(false)
@@ -19,7 +22,7 @@ const LoginForm = () => {
     const [passwordIsValid, setPasswordIsValid] = useState<boolean>(true)
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [message, setMessage] = useState<{title: string, text: string, isError: boolean} | null>(null)
+    const [message, setMessage] = useState<MessageErrorType | null>(null)
 
     const inputEmailRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
     const inputPasswordRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
@@ -29,7 +32,7 @@ const LoginForm = () => {
     
     const { setTokens, storeToken } = useContext(AuthContext)
     
-    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
+    const { getCaptchaToken } = useReCaptchaToken()
 
     const { initializeGoogleAccounts } = useGoogleOAuth({ 
         oAuthButtonsRef: oAuthButtonsRef, 
@@ -62,16 +65,16 @@ const LoginForm = () => {
             if(originalAxios.isAxiosError(error)){
                 if(error.response?.data.cod === 4){
                     setMessage({
-                        title: 'Autenticação Inválida',
-                        text: 'Faça o login utilizando o método de autenticação do Google.',
+                        title: INVALID_AUTHENTICATION_GOOGLE_ERROR.title,
+                        text: INVALID_AUTHENTICATION_GOOGLE_ERROR.text,
                         isError: true
                     })
                     setEmail('')
                     setPassword('')
                 }else if(error.response?.data.cod === 27){
                     setMessage({
-                        title: 'Autenticação Inválida',
-                        text: 'Faça o login utilizando o método de autenticação da Apple.',
+                        title: INVALID_AUTHENTICATION_APPLE_ERROR.title,
+                        text: INVALID_AUTHENTICATION_APPLE_ERROR.text,
                         isError: true
                     })
                     setEmail('')
@@ -83,8 +86,8 @@ const LoginForm = () => {
                     inputEmailRef.current?.focus()
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao fazer a solicitação, tente novamente mais tarde.',
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
                         isError: true
                     })
                 }
@@ -133,8 +136,7 @@ const LoginForm = () => {
 
     useEffect(() => {
         initializeGoogleAccounts()
-        initializeRecaptchaScript()
-    }, [initializeGoogleAccounts, initializeRecaptchaScript])
+    }, [initializeGoogleAccounts])
 
     return (
         <div className={styles.wrapper}>
@@ -145,18 +147,7 @@ const LoginForm = () => {
                 </div>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
                     {message && 
-                        <div className={styles.containerError} style={{ borderColor: message.isError ? 'red' : 'green' }}>
-                            <div className={styles.containerErrorHeader}>
-                                {message.isError ? 
-                                    <PiSealWarning className={`${styles.containerErrorHeaderIcon} ${styles.messageFailure}`} /> : 
-                                    <PiCheck className={`${styles.containerErrorHeaderIcon} ${styles.messageSuccess}`} />
-                                }
-                            </div>
-                            <div className={styles.containerErrorBody}>
-                                <h3 className={`${styles.containerErrorBodyTitle} ${message.isError ? styles.messageFailure : styles.messageSuccess}`}>{message.title}</h3>
-                                <span className={styles.containerErrorBodyText}>{message.text}</span>
-                            </div>
-                        </div>
+                        <SimpleError title={message.title} text={message.text} isError={message.isError} />
                     }
                     <div className={styles.containerBodySocialAccounts}>
                         <div 

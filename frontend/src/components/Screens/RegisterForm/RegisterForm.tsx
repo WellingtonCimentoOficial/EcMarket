@@ -1,6 +1,6 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useEffect } from 'react'
 import styles from './RegisterForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiUserBold, PiCheck } from "react-icons/pi";
+import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiUserBold } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
@@ -8,6 +8,10 @@ import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 import { NameRegex, emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { MessageErrorType } from '../../../types/ErrorType';
+import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
+import { ACCOUNT_CREATED_SUCCESS } from '../../../constants/successMessages';
+import { EMAIL_ALREADY_USED_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR, TERMS_NOT_ACCEPTED_ERROR } from '../../../constants/errorMessages';
 
 const RegisterForm = () => {
     const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
@@ -24,7 +28,7 @@ const RegisterForm = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [message, setMessage] = useState<{title: string, text: string, isError: boolean} | null>(null)
+    const [message, setMessage] = useState<MessageErrorType | null>(null)
     const [created, setCreated] = useState<boolean>(false)
     const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
 
@@ -50,7 +54,7 @@ const RegisterForm = () => {
         }
     })
 
-    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
+    const { getCaptchaToken } = useReCaptchaToken()
 
     const post_data = async (CaptchaToken: string) => {
         setIsLoading(true)
@@ -65,8 +69,8 @@ const RegisterForm = () => {
             })
             if(response.status === 201){
                 setMessage({
-                    title: 'Conta criada',
-                    text: 'Olá, sua conta foi criada com sucesso!',
+                    title: ACCOUNT_CREATED_SUCCESS.title,
+                    text: ACCOUNT_CREATED_SUCCESS.text,
                     isError: false
                 })
                 setFirstName('')
@@ -95,27 +99,27 @@ const RegisterForm = () => {
                     setEmailIsValid(false)
                     inputsRef.current.email?.focus()
                     setMessage({
-                        title: 'E-mail ja utilizado',
-                        text: 'Já existe uma conta vinculada ao endereço de e-mail informado.',
+                        title: EMAIL_ALREADY_USED_ERROR.title,
+                        text: EMAIL_ALREADY_USED_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.status === 400 && error.response.data.cod === 10){
                     setMessage({
-                        title: 'Termos de uso',
-                        text: 'Para prosseguir com a criação da conta é necessario aceitar os termos.',
+                        title: TERMS_NOT_ACCEPTED_ERROR.title,
+                        text: TERMS_NOT_ACCEPTED_ERROR.text,
                         isError: true
                     })
                     setAcceptTerms(false)
                 }else if(error.response?.status === 400 && error.response.data.cod === 11){
                     setMessage({
-                        title: 'ReCaptcha Inválido',
-                        text: 'O recaptcha token informado é inválido.',
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao fazer a solicitação, tente novamente mais tarde.',
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
                         isError: true
                     })
                 }
@@ -217,8 +221,7 @@ const RegisterForm = () => {
 
     useEffect(() => {
         initializeGoogleAccounts()
-        initializeRecaptchaScript()
-    }, [initializeGoogleAccounts, initializeRecaptchaScript])
+    }, [initializeGoogleAccounts])
 
     return (
         <div className={styles.wrapper}>
@@ -229,18 +232,7 @@ const RegisterForm = () => {
                 </div>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
                     {message && 
-                        <div className={styles.containerError} style={{ borderColor: message.isError ? 'red' : 'green' }}>
-                            <div className={styles.containerErrorHeader}>
-                                {message.isError ? 
-                                    <PiSealWarning className={`${styles.containerErrorHeaderIcon} ${styles.messageFailure}`} /> : 
-                                    <PiCheck className={`${styles.containerErrorHeaderIcon} ${styles.messageSuccess}`} />
-                                }
-                            </div>
-                            <div className={styles.containerErrorBody}>
-                                <h3 className={`${styles.containerErrorBodyTitle} ${message.isError ? styles.messageFailure : styles.messageSuccess}`}>{message.title}</h3>
-                                <span className={styles.containerErrorBodyText}>{message.text}</span>
-                            </div>
-                        </div>
+                        <SimpleError title={message.title} text={message.text} isError={message.isError} />
                     }
                     {!created && 
                         <>

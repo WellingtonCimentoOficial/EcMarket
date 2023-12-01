@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styles from './ProfilePage.module.css'
-import UserMenu from '../../components/UI/Menus/UserMenu/UserMenu'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import BtnB01 from '../../components/UI/Buttons/BtnB01/BtnB01'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
@@ -12,6 +11,10 @@ import { useCpfValidator } from '../../hooks/useCpfValidator'
 import * as originalAxios from 'axios'
 import { UserProfileType } from '../../types/UserType'
 import { UserContext } from '../../contexts/UserContext'
+import { MessageErrorType } from '../../types/ErrorType'
+import SimpleError from '../../components/UI/Errors/SimpleError/SimpleError'
+import { RECAPTCHA_ERROR, REQUEST_ERROR } from '../../constants/errorMessages'
+import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
 
 type Props = {}
 
@@ -49,6 +52,9 @@ const ProfilePage = (props: Props) => {
 
     const { user, setUser } = useContext(UserContext)
 
+    const [message, setMessage] = useState<MessageErrorType | null>(null)
+
+
     const inputsRef = useRef<InputsType>({
         firstName: null,
         lastName: null,
@@ -72,7 +78,11 @@ const ProfilePage = (props: Props) => {
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
                 if(error.response?.data.cod === 36){
-                    
+                    setMessage({
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
+                        isError: true
+                    })
                 }else if(error.response?.data.cod === 37){
                     setFirstNameIsValid(false)
                     inputsRef.current.firstName?.focus()
@@ -83,7 +93,11 @@ const ProfilePage = (props: Props) => {
                     setCpfIsValid(false)
                     inputsRef.current.cpf?.focus()
                 }else{
-
+                    setMessage({
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
+                        isError: true
+                    })
                 }
             }
         }
@@ -209,16 +223,12 @@ const ProfilePage = (props: Props) => {
 
     return (
         <WidthLayout width={90}>
-            <div className={styles.wrapper}>
-                <div className={styles.userMenu}>
-                    <UserMenu />
-                </div>
-                <div className={styles.container}>
-                    <div className={styles.header}>
-                        <h3 className={styles.headerTitle}>Seu perfil</h3>
-                        <p className={styles.headerDescription}>Informações relacionadas a você, informações pessoais.</p>
-                    </div>
-                    <div className={styles.body}>
+            <ProfileLayout title='Seu perfil' text='Informações relacionadas a você, informações pessoais.'>
+                <div className={styles.wrapper}>
+                    <div className={styles.container}>
+                        {message &&
+                            <SimpleError title={message.title} text={message.text} isError={message.isError} />
+                        }
                         <form className={styles.bodyForm} onSubmit={handleSubmit}>
                             <div className={styles.bodyFormInput}>
                                 <span className={`${styles.bodyFormInputLabel} ${(!firstNameIsValid && !isFirstRender) ? styles.invalidInputLabel : null}`}>Primeiro nome</span>
@@ -273,6 +283,7 @@ const ProfilePage = (props: Props) => {
                                     placeholder='000.000.000-00'
                                     minLength={14}
                                     maxLength={14}
+                                    disabled={user.id_number ? true : false}
                                     className={`${styles.bodyFormInputInput} ${(!cpfIsValid && !isFirstRender) ? styles.invalidInput : null}`}
                                     onChange={handleCpf}
                                     value={cpf}
@@ -282,7 +293,7 @@ const ProfilePage = (props: Props) => {
                         </form>
                     </div>
                 </div>
-            </div>
+            </ProfileLayout>
         </WidthLayout>
     )
 }

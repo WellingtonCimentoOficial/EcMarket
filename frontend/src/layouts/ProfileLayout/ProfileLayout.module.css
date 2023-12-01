@@ -1,0 +1,37 @@
+.wrapper {
+    padding: 30px 0px;
+    display: flex;
+    gap: 30px;
+}
+.userMenu {
+    min-width: 30%;
+    box-shadow: var(--shadow-complete);
+}
+.container {
+    width: 100%;
+    min-height: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-complete);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--text-color-two);
+    padding-bottom: 30px;
+}
+.headerTitle {
+    font-size: 18pt;
+    font-weight: 500;
+}
+.headerDescription {
+    color: var(--text-color-one-blur);
+    font-size: 11pt;
+}
+.body {
+    background-color: transparent;
+    height: 100%;
+}

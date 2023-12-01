@@ -7,6 +7,13 @@ import { PiSealCheckFill, PiXCircleFill  } from "react-icons/pi";
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
 import { LoadingContext } from '../../contexts/LoadingContext'
+import { VERIFIED_ACCOUNT_SUCCESS } from '../../constants/successMessages'
+import { 
+    ACCOUNT_ALREADY_VERIFIED_ERROR, ACCOUNT_VERIFICATION_CODE_NOT_FOUND_ERROR, 
+    ACCOUNT_VERIFICATION_ERROR, EXPIRED_ACCOUNT_VERIFICATION_CODE_ERROR, 
+    INVALID_ACCOUNT_VERIFICATION_CODE_ERROR, INVALID_ACCOUNT_VERIFICATION_CODE_FORMAT_ERROR, 
+    RECAPTCHA_ERROR 
+} from '../../constants/errorMessages'
 
 type Props = {}
 
@@ -31,8 +38,8 @@ const VerifyAccountPage = (props: Props) => {
             if(response.status === 200){
                 setIsVerified(true)
                 setMessage({
-                    title: 'Conta Verificada!',
-                    text: 'Sua conta foi verificada com sucesso, agora você pode aproveitar todos os beneficios.',
+                    title: VERIFIED_ACCOUNT_SUCCESS.title,
+                    text: VERIFIED_ACCOUNT_SUCCESS.text,
                     isError: false
                 })
             }
@@ -40,44 +47,44 @@ const VerifyAccountPage = (props: Props) => {
             if(originalAxios.isAxiosError(error)){
                 if(error?.response?.data.cod === 12){
                     setMessage({
-                        title: 'Código Expirado',
-                        text: 'O código de verificação está expirado. Será necesário solicitar outro para poder efeturar a verificação da conta.',
+                        title: EXPIRED_ACCOUNT_VERIFICATION_CODE_ERROR.title,
+                        text: EXPIRED_ACCOUNT_VERIFICATION_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 13){
                     setMessage({
-                        title: 'Formato Inválido',
-                        text: 'O formato do código de verificação informado é inválido. Verifique o mesmo e tente novamente.',
+                        title: INVALID_ACCOUNT_VERIFICATION_CODE_FORMAT_ERROR.title,
+                        text: INVALID_ACCOUNT_VERIFICATION_CODE_FORMAT_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 14){
                     setMessage({
-                        title: 'Conta já verificada',
-                        text: 'A conta portadora do código de verificação ja foi validada.',
+                        title: ACCOUNT_ALREADY_VERIFIED_ERROR.title,
+                        text: ACCOUNT_ALREADY_VERIFIED_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 15){
                     setMessage({
-                        title: 'Código Inválido',
-                        text: 'O código de verificação informado é inválido.',
+                        title: INVALID_ACCOUNT_VERIFICATION_CODE_ERROR.title,
+                        text: INVALID_ACCOUNT_VERIFICATION_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 16){
                     setMessage({
-                        title: 'Código não encontrado',
-                        text: 'O código de verificação não foi encontrado.',
+                        title: ACCOUNT_VERIFICATION_CODE_NOT_FOUND_ERROR.title,
+                        text: ACCOUNT_VERIFICATION_CODE_NOT_FOUND_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 24){
                     setMessage({
-                        title: 'Erro no ReCaptcha',
-                        text: 'Ocorreu um erro ao tentar validar o recaptcha, tente novamente mais tarde.',
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao tentar validar a conta.',
+                        title: ACCOUNT_VERIFICATION_ERROR.title,
+                        text: ACCOUNT_VERIFICATION_ERROR.text,
                         isError: true
                     })
                 }

@@ -50,6 +50,10 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
     def post(self, request):
         try:
             token = request.data.get('token')
+            recaptcha_token = request.data.get("g-recaptcha-response")
+
+            recaptcha = ReCaptcha(token=recaptcha_token)
+            recaptcha.validate_token()
             
             user_info = validate_google_token(token=token)
             created, user = get_or_create_user_in_google(user_info=user_info)
@@ -76,6 +80,8 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
             return Response({'cod': 2, 'error': 'Invalid google oauth token'}, status=status.HTTP_401_UNAUTHORIZED)
         except exceptions.InternalError:
             return Response({'cod': 3, 'error': 'An error occurred while validating the google oauth token'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except InvalidReCaptchaToken:
+            return Response({'cod': 41, "error": "Validation failure of reCAPTCHA"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             if hasattr(e, "detail") and hasattr(e, "status_code"):
                 return Response({'error': e.detail}, status=e.status_code)

@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './CodeConfirmationForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiSealWarning, PiCheck } from "react-icons/pi";
+import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { MessageErrorType } from '../../../types/ErrorType';
+import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
+import { EXPIRED_CODE_ERROR, INVALID_THIRD_PARTY_AUTHENTICATION_ERROR, INVALID_CODE_ERROR, INVALID_CODE_FORMAT_ERROR, INVALID_EMAIL_ERROR, INVALID_PASSWORD_ERROR, NEW_PASSWORD_SAME_AS_CURRENT_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
+import { PASSWORD_CHANGED_SUCCESS } from '../../../constants/successMessages';
 
 type Props = {}
 
@@ -19,7 +23,7 @@ const CodeConfirmationForm = (props: Props) => {
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [message, setMessage] = useState<{title: string, text: string, isError: boolean} | null>(null)
+    const [message, setMessage] = useState<MessageErrorType | null>(null)
     const [success, setSuccess] = useState<boolean>(false)
     const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
     const [stage, setStage] = useState<number>(1)
@@ -53,7 +57,7 @@ const CodeConfirmationForm = (props: Props) => {
     const [leftTime, setLeftTime] = useState('00:00')
     const [codeExp, setCodeExp] = useState<string>('')
 
-    const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
+    const { getCaptchaToken } = useReCaptchaToken()
     
     const send_reset_password_code = async (CaptchaToken: string) => {
         setIsLoading(true)
@@ -73,26 +77,26 @@ const CodeConfirmationForm = (props: Props) => {
                     setIsFirstRender(false)
                     setEmailIsValid(false)
                     setMessage({
-                        title: 'E-mail inválido',
-                        text: 'O formato do e-mail informado é inválido, verifique o mesmo e tente novamente.',
+                        title: INVALID_EMAIL_ERROR.title,
+                        text: INVALID_EMAIL_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 23){
                     setMessage({
-                        title: 'Erro no ReCaptcha',
-                        text: 'Ocorreu um erro ao tentar validar o recaptcha, tente novamente mais tarde.',
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }else if(error?.response?.data.cod === 26){
                     setMessage({
-                        title: 'Autenticação Inválida',
-                        text: 'Não é possível redefinir sua senha, pois você utiliza o método de autenticação de terceiros.',
+                        title: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.title,
+                        text: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.text,
                         isError: true
                     })
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao tentar fazer a solicitação, tente novamente mais tarde.',
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
                         isError: true
                     })
                     setEmailIsValid(false)
@@ -128,8 +132,8 @@ const CodeConfirmationForm = (props: Props) => {
                         }
                     })
                     setMessage({
-                        title: 'Código Expirado',
-                        text: 'O código informado está expirado, tente solicitar outro.',
+                        title: EXPIRED_CODE_ERROR.title,
+                        text: EXPIRED_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 19){
@@ -145,32 +149,32 @@ const CodeConfirmationForm = (props: Props) => {
                         }
                     })
                     setMessage({
-                        title: 'Código Inválido',
-                        text: 'O código informado é inválido, verifique o mesmo e tente novamente.',
+                        title: INVALID_CODE_ERROR.title,
+                        text: INVALID_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 20){
                     setMessage({
-                        title: 'E-mail inválido',
-                        text: 'O formato do e-mail informado é inválido, verifique o mesmo e tente novamente.',
+                        title: INVALID_EMAIL_ERROR.title,
+                        text: INVALID_EMAIL_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 21){
                     setMessage({
-                        title: 'Código inválido',
-                        text: 'O formato do código informado é inválido, verifique o mesmo e tente novamente.',
+                        title: INVALID_CODE_ERROR.title,
+                        text: INVALID_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 22){
                     setMessage({
-                        title: 'Erro no ReCaptcha',
-                        text: 'Ocorreu um erro ao tentar validar o recaptcha, tente novamente mais tarde.',
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao tentar fazer a solicitação, tente novamente mais tarde.',
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
                         isError: true
                     })
                 }
@@ -190,8 +194,8 @@ const CodeConfirmationForm = (props: Props) => {
             })
             if(response.status === 200){
                 setMessage({
-                    title: 'Senha alterada com sucesso!',
-                    text: 'Olá, sua senha foi alterada corretamente. Acesse a página de login para acessar sua conta.',
+                    title: PASSWORD_CHANGED_SUCCESS.title,
+                    text: PASSWORD_CHANGED_SUCCESS.text,
                     isError: false
                 })
                 setSuccess(true)
@@ -200,38 +204,38 @@ const CodeConfirmationForm = (props: Props) => {
             if(originalAxios.isAxiosError(error)){
                 if(error.response?.data.cod === 32){
                     setMessage({
-                        title: 'Código inválido',
-                        text: 'O formato do código informado é inválido, verifique o mesmo e tente novamente.',
+                        title: INVALID_CODE_FORMAT_ERROR.title,
+                        text: INVALID_CODE_FORMAT_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 28){
                     setMessage({
-                        title: 'Senha Inválida',
-                        text: 'A senha precisa ter no mínimo 8 digitos incluindo, caractere especial, letra maiúscula, letra minúscula e número.',
+                        title: INVALID_PASSWORD_ERROR.title,
+                        text: INVALID_PASSWORD_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 29){
                     setMessage({
-                        title: 'Erro no ReCaptcha',
-                        text: 'Ocorreu um erro ao tentar validar o recaptcha, tente novamente mais tarde.',
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 31){
                     setMessage({
-                        title: 'Autenticação Inválida',
-                        text: 'Não é possível redefinir sua senha, pois você utiliza o método de autenticação de terceiros.',
+                        title: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.title,
+                        text: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 33){
                     setMessage({
-                        title: 'Código Expirado',
-                        text: 'O código informado está expirado, tente solicitar outro.',
+                        title: EXPIRED_CODE_ERROR.title,
+                        text: EXPIRED_CODE_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 34){
                     setMessage({
-                        title: 'Senha Inválida',
-                        text: 'A nova senha não pode ser igual a atual.',
+                        title: NEW_PASSWORD_SAME_AS_CURRENT_ERROR.title,
+                        text: NEW_PASSWORD_SAME_AS_CURRENT_ERROR.text,
                         isError: true
                     })
                     setIsFirstRender(false)
@@ -241,8 +245,8 @@ const CodeConfirmationForm = (props: Props) => {
                     setConfirmPasswordIsValid(false)
                 }else{
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Ocorreu um erro ao tentar fazer a solicitação, tente novamente mais tarde.',
+                        title: REQUEST_ERROR.title,
+                        text: REQUEST_ERROR.text,
                         isError: true
                     })
                 }
@@ -388,10 +392,6 @@ const CodeConfirmationForm = (props: Props) => {
         }
     }, [codeExp, stopWatch])
 
-    useEffect(() => {
-        initializeRecaptchaScript()
-    }, [initializeRecaptchaScript])
-
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
@@ -401,18 +401,7 @@ const CodeConfirmationForm = (props: Props) => {
                 </div>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
                     {message && 
-                        <div className={styles.containerError} style={{ borderColor: message.isError ? 'red' : 'green' }}>
-                            <div className={styles.containerErrorHeader}>
-                                {message.isError ? 
-                                    <PiSealWarning className={`${styles.containerErrorHeaderIcon} ${styles.messageFailure}`} /> : 
-                                    <PiCheck className={`${styles.containerErrorHeaderIcon} ${styles.messageSuccess}`} />
-                                }
-                            </div>
-                            <div className={styles.containerErrorBody}>
-                                <h3 className={`${styles.containerErrorBodyTitle} ${message.isError ? styles.messageFailure : styles.messageSuccess}`}>{message.title}</h3>
-                                <span className={styles.containerErrorBodyText}>{message.text}</span>
-                            </div>
-                        </div>
+                        <SimpleError title={message.title} text={message.text} isError={message.isError} />
                     }
                     {!success && 
                         <>

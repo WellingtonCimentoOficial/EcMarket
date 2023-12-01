@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage/RegisterPage'
 import VerifyAccountPage from './pages/VerifyAccountPage/VerifyAccountPage'
 import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
+import AddressesPage from './pages/AddressesPage/AddressesPage'
 
 const Routes = (): JSX.Element => {
     return (
@@ -32,12 +33,12 @@ const Routes = (): JSX.Element => {
                 </Route>
                 <Route element={<MainLayout />}>
                     <Route element={<PrivateRoutes />}>
-                        <Route path='profile/*' element={<ProfilePage />}>
-                            <Route path='orders' element={<ProfilePage />} />
-                            <Route path='wishlist' element={<FavoritesPage />} />
-                            <Route path='cart' element={<ProfilePage />} />
-                            <Route path='cards' element={<ProfilePage />} />
-                        </Route>
+                        <Route path='profile' element={<ProfilePage />} />
+                        <Route path='addresses' element={<AddressesPage />} />
+                        <Route path='orders' element={<ProfilePage />} />
+                        <Route path='wishlist' element={<FavoritesPage />} />
+                        <Route path='cart' element={<ProfilePage />} />
+                        <Route path='cards' element={<ProfilePage />} />
                     </Route>
                 </Route>
             </Route>

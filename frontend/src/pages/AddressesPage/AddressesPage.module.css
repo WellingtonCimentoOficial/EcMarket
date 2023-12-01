@@ -1,0 +1,104 @@
+.container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.addCard {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+    border: 2px dashed var(--text-color-two);
+    width: 100%;
+}
+.addCard:hover {
+    border-color: var(--text-color-one);
+}
+.addCardContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.addCardText {
+    color: var(--text-color-one-blur);
+}
+.addCard:hover .addCardText {
+    color: var(--text-color-one);
+}
+.addCardIcon {
+    min-width: 50px;
+    height: 100%;
+    color: var(--text-color-two);
+}
+.addCard:hover .addCardIcon {
+    color: var(--text-color-one);
+}
+.card {
+    width: 300px;
+    border: 1px solid var(--text-color-two);
+    background-color: white;
+    flex-grow: 1;
+}
+.cardContainer {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--text-color-two);
+    padding-bottom: 10px;
+}
+.cardHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cardHeaderIcon {
+    min-width: 30px;
+    height: 100%;
+}
+.cardHeaderRight {
+    cursor: pointer;
+    display: flex;
+}
+.cardHeaderPinIcon {
+    min-width: 20px;
+    height: 100%;
+}
+.cardHeaderTitle {
+    font-weight: 500;
+}
+.cardBody {
+    display: flex;
+    flex-direction: column;
+}
+.cardBodyText {
+    font-size: 11pt;
+}
+.cardFooter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cardFooterText {
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+/* CONJUNTOS */
+.addCard, .card {
+    border-radius: 10px;
+    height: 230px;
+}
+.addCard, .addCardIcon, .addCardText {
+    transition: 0.3s;
+}
+.cardFooter, .cardBody {
+    margin-left: 42px;
+}

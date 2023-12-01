@@ -4,12 +4,14 @@ import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import CodeConfirmationForm from '../../components/Screens/CodeConfirmationForm/CodeConfirmationForm'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
 
 type Props = {}
 
 const ResetPasswordPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
     const { tokens } = useContext(AuthContext)
+    const { initializeRecaptchaScript } = useReCaptchaToken()
 
     const navigate = useNavigate()
 
@@ -19,6 +21,10 @@ const ResetPasswordPage = (props: Props) => {
             navigate('/')
         }
     }, [tokens.refresh, updateTitle, navigate])
+
+    useEffect(() => {
+        initializeRecaptchaScript()
+    }, [initializeRecaptchaScript])
 
     return (
         <div className={styles.wrapper}>

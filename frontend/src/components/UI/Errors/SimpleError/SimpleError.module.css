@@ -1,0 +1,29 @@
+.wrapper {
+    border: 1px solid transparent;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+.header {
+
+}
+.headerIcon {
+    font-size: 23pt;
+}
+.body {
+
+}
+.bodyTitle {
+    font-weight: 500;
+}
+.bodyText {
+    display: block;
+}
+.success {
+    color: green;
+}
+.failure {
+    color: red;
+}

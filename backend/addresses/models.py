@@ -20,6 +20,7 @@ class UserAddress(models.Model):
         return f'{self.street}, {self.number}, {self.complement} - {self.district}, {self.city} - {self.state}, {self.zip_code} - {self.country}'
     
 class UserDeliveryAddress(models.Model):
+    name = models.CharField(max_length=255, null=True)
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='delivery_addresses')
     street = models.CharField(max_length=255)
     number = models.CharField(max_length=20)

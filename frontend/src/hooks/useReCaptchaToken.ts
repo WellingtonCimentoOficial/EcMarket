@@ -1,6 +1,11 @@
 import { useCallback, useState } from "react"
 import { useIsScriptAlreadyAdded } from "./useIsScriptAlreadyAddes"
 
+type callbackProps = { 
+    RecaptchaToken: string, 
+    GoogleToken: string 
+}
+
 export const useReCaptchaToken = () => {
     const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
     const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState<boolean>(false)
@@ -9,10 +14,11 @@ export const useReCaptchaToken = () => {
 
     const scriptSrc = `https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`
 
-    const getCaptchaToken = useCallback(async (func : (CaptchaToken : string) => void) => {
-        window.grecaptcha.ready(function() {
+    const getCaptchaToken = useCallback(async (callback : (props: any) => void, { GoogleToken } : { GoogleToken?: string } = {}) => {
+        window.grecaptcha?.ready(function() {
             window.grecaptcha.execute(reCaptchaToken, {action: 'submit'}).then(function(token) {
-                func(token)
+                const callbackArgs: string | callbackProps = GoogleToken ? { RecaptchaToken: token, GoogleToken: GoogleToken } : token
+                callback(callbackArgs)
             })
         })
     }, [reCaptchaToken])

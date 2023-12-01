@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import * as originalAxios from 'axios'
 import { useIsScriptAlreadyAdded } from './useIsScriptAlreadyAddes'
+import { GOOGLE_OAUTH2_TOKEN_VALIDATION_ERROR, INVALID_GOOGLE_OAUTH2_TOKEN_ERROR, INVALID_USER_AUTHENTICATION_METHOD_ERROR, RECAPTCHA_ERROR } from '../constants/errorMessages'
+import { useReCaptchaToken } from './useReCaptchaToken'
 
 type Props = {
     setMessage: React.Dispatch<React.SetStateAction<{title: string, text: string, isError: boolean} | null>>
@@ -23,13 +25,16 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
 
     const { isScriptAlreadyAdded } = useIsScriptAlreadyAdded()
 
+    const { getCaptchaToken } = useReCaptchaToken()
+
     const scriptSrc = `https://accounts.google.com/gsi/client`
 
-    const handleGoogleAuthentication = useCallback(async (googleResponse: CredentialResponseType) => {
+    const handleGoogleAuthentication = useCallback(async ({ RecaptchaToken, GoogleToken } : { RecaptchaToken: string, GoogleToken: string }) => {
         setIsLoading && setIsLoading(true)
         try {
             const response = await axios.post('/accounts/sign-in/google/token/', {
-                token: googleResponse.credential
+                token: GoogleToken,
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setMessage(null)
@@ -41,20 +46,26 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
             if(originalAxios.isAxiosError(error)){
                 if(error.response?.data.cod === 1){
                     setMessage({
-                        title: 'Autenticação Inválida',
-                        text: 'Esse método de autenticação não está disponível para sua conta.',
+                        title: INVALID_USER_AUTHENTICATION_METHOD_ERROR.title,
+                        text: INVALID_USER_AUTHENTICATION_METHOD_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 2){
                     setMessage({
-                        title: 'Token Inválido',
-                        text: 'Token do google oauth inválido',
+                        title: INVALID_GOOGLE_OAUTH2_TOKEN_ERROR.title,
+                        text: INVALID_GOOGLE_OAUTH2_TOKEN_ERROR.text,
                         isError: true
                     })
                 }else if(error.response?.data.cod === 3){
                     setMessage({
-                        title: 'Ocorreu um erro',
-                        text: 'Não foi possível validar o Google Oauth Token',
+                        title: GOOGLE_OAUTH2_TOKEN_VALIDATION_ERROR.title,
+                        text: GOOGLE_OAUTH2_TOKEN_VALIDATION_ERROR.text,
+                        isError: true
+                    })
+                }else if(error.response?.data.cod === 41){
+                    setMessage({
+                        title: RECAPTCHA_ERROR.title,
+                        text: RECAPTCHA_ERROR.text,
                         isError: true
                     })
                 }
@@ -63,10 +74,16 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
         setIsLoading && setIsLoading(false)
     }, [navigate, setTokens, storeToken, setMessage, setIsLoading])
 
+    const handleSubmit = useCallback(async (googleResponse: CredentialResponseType) => {
+        getCaptchaToken(handleGoogleAuthentication, {
+            GoogleToken: googleResponse.credential
+        })
+    }, [getCaptchaToken, handleGoogleAuthentication])
+
     const initializeSettings = useCallback(() => {
         window.google?.accounts?.id.initialize({
             client_id: googleOAuthClientId,
-            callback: handleGoogleAuthentication,
+            callback: handleSubmit,
             login_uri: 'http://localhost:3000/'
         })
 
@@ -86,7 +103,7 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
             )
         }
     }, [
-        googleOAuthClientId, handleGoogleAuthentication, oAuthButtonsRef,
+        googleOAuthClientId, handleSubmit, oAuthButtonsRef,
         config.type, config.theme, config.size, config.text, config.shape,
         config.logo_alignment, config.width, config.locale, config.click_listener
     ])

@@ -140,31 +140,6 @@
     align-items: center;
     gap: 5px;
 }
-.containerError {
-    border: 1px solid transparent;
-    padding: 20px;
-    border-radius: 10px;
-    display: flex;
-    gap: 10px;
-}
-.containerErrorHeader {
-
-}
-.containerErrorHeaderIcon {
-    font-size: 23pt;
-}
-.containerErrorBodyTitle {
-    font-weight: 500;
-}
-.containerErrorBodyText {
-    display: block;
-}
-.messageSuccess {
-    color: green;
-}
-.messageFailure {
-    color: red;
-}
 .InvalidAcceptTerms {
     border-color: var(--primary-color);
 }

@@ -69,7 +69,7 @@ export const AuthContextProvider = ({children}: Props) => {
             }
         } catch (error) {
             if(OriginalAxios.isAxiosError(error)){
-                if(error.response?.data.cod === 35 || error.response?.status === 401){
+                if(error.response?.data.cod === 35 || error.response?.status === 401 || error.code === 'ERR_NETWORK'){
                     logout()
                 }
                 return Promise.resolve()
@@ -94,7 +94,7 @@ export const AuthContextProvider = ({children}: Props) => {
                 if(refreshToken){
                     const newTokens = await refreshTokens(refreshToken)
                     setTokens(prev => {
-                        return {...prev, access: newTokens.access, refresh: newTokens.refresh}
+                        return {...prev, access: newTokens?.access, refresh: newTokens?.refresh}
                     })
                 }
             } catch (error) {
