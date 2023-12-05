@@ -622,7 +622,7 @@ const AddressesPage = (props: Props) => {
                                             </div>
                                             <div className={styles.cardFooter}>
                                                 <div 
-                                                    title='Editar'
+                                                    title='Excluir'
                                                     className={styles.cardFooterItem} 
                                                     onClick={() => setShowForm({ show: true, isUpdate: true, idAddress: address.id })}
                                                 >
