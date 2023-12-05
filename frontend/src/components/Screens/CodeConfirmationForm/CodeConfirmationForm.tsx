@@ -5,7 +5,7 @@ import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
-import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { EXPIRED_CODE_ERROR, INVALID_THIRD_PARTY_AUTHENTICATION_ERROR, INVALID_CODE_ERROR, INVALID_CODE_FORMAT_ERROR, INVALID_EMAIL_ERROR, INVALID_PASSWORD_ERROR, NEW_PASSWORD_SAME_AS_CURRENT_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
@@ -59,12 +59,12 @@ const CodeConfirmationForm = (props: Props) => {
 
     const { getCaptchaToken } = useReCaptchaToken()
     
-    const send_reset_password_code = async (CaptchaToken: string) => {
+    const send_reset_password_code = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
             const response = await axios.post('/accounts/reset/password/code', {
                 email: email,
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setCodeExp(response.data.exp)
@@ -106,13 +106,13 @@ const CodeConfirmationForm = (props: Props) => {
         setIsLoading(false)
     }
 
-    const confirm_reset_password_code = async (CaptchaToken: string) => {
+    const confirm_reset_password_code = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
             const response = await axios.post('/accounts/reset/password/code/confirm', {
                 email,
                 code: Object.values(code).join().replaceAll(',', ''),
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setStage(3)
@@ -183,14 +183,14 @@ const CodeConfirmationForm = (props: Props) => {
         setIsLoading(false)
     }
 
-    const reset_password = async (CaptchaToken: string) => {
+    const reset_password = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
             const response = await axios.post('/accounts/reset/password', {
                 email,
                 code: Object.values(code).join().replaceAll(',', ''),
                 password,
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setMessage({

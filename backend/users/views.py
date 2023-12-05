@@ -319,7 +319,7 @@ def get_user_profile(request):
 
         return Response(serializer.data)
     except:
-        ...
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])

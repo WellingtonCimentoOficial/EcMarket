@@ -14,10 +14,10 @@ export const useReCaptchaToken = () => {
 
     const scriptSrc = `https://www.google.com/recaptcha/api.js?render=${reCaptchaToken}`
 
-    const getCaptchaToken = useCallback(async (callback : (props: any) => void, { GoogleToken } : { GoogleToken?: string } = {}) => {
+    const getCaptchaToken = useCallback(async (callback : (...args: any[]) => void, ...args: any[]) => {
         window.grecaptcha?.ready(function() {
             window.grecaptcha.execute(reCaptchaToken, {action: 'submit'}).then(function(token) {
-                const callbackArgs: string | callbackProps = GoogleToken ? { RecaptchaToken: token, GoogleToken: GoogleToken } : token
+                const callbackArgs = { RecaptchaToken: token, ...(args.length > 0 ? args[0] : {}) }
                 callback(callbackArgs)
             })
         })

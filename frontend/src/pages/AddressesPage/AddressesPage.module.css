@@ -1,6 +1,15 @@
+@keyframes showForm {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
 .container {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     flex-wrap: wrap;
 }
 .addCard {
@@ -24,16 +33,10 @@
 .addCardText {
     color: var(--text-color-one-blur);
 }
-.addCard:hover .addCardText {
-    color: var(--text-color-one);
-}
 .addCardIcon {
     min-width: 50px;
     height: 100%;
     color: var(--text-color-two);
-}
-.addCard:hover .addCardIcon {
-    color: var(--text-color-one);
 }
 .card {
     width: 300px;
@@ -86,9 +89,38 @@
     align-items: center;
     gap: 10px;
 }
+.cardFooterItem {
+    display: flex;
+    cursor: pointer;
+    gap: 5px;
+}
+.cardFooterItemIcon {
+    min-width: 25px;
+    height: 100%;
+}
 .cardFooterText {
     color: var(--primary-color);
     cursor: pointer;
+    user-select: none;
+}
+
+.form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation-name: showForm;
+    animation-duration: 0.3s;
+}
+.formItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: transparent;
+}
+.formSelect {
+    border-width: 2px;
+    padding: 8px 15px;
 }
 
 /* CONJUNTOS */
@@ -101,4 +133,7 @@
 }
 .cardFooter, .cardBody {
     margin-left: 42px;
+}
+.addCard:hover .addCardText, .addCard:hover .addCardIcon {
+    color: var(--text-color-one);
 }

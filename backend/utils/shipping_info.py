@@ -1,4 +1,46 @@
 import requests 
+from addresses.utils import UF_TO_STATE
+from rest_framework.exceptions import APIException
+
+class InvalidZipCodeError(APIException):
+    status_code = 400
+    default_code = 'invalid_zip_code_error'
+    default_detail = 'Invalid Zip Code Error'
+
+class InvalidAddressError(APIException):
+    status_code = 400
+    default_code = 'invalid_address_error'
+    default_detail = 'Invalid Address Error'
+
+class InvalidTokenError(APIException):
+    status_code = 400
+    default_code = 'invalid_token_error'
+    default_detail = 'Invalid Token Error'
+
+class DeliveryTimeError(APIException):
+    status_code = 500
+    default_code = 'delivery_time_error'
+    default_detail = 'Delivery Time Error'
+
+class DeliveryPriceError(APIException):
+    status_code = 500
+    default_code = 'delivery_price_error'
+    default_detail = 'Delivery Price Error'
+
+class ZipCodeInfoError(APIException):
+    status_code = 500
+    default_code = 'zip_code_info_error'
+    default_detail = 'Zip Code Info Error'
+
+class InvalidNameFieldError(APIException):
+    status_code = 400
+    default_code = 'invalid_name_field'
+    default_detail = 'Invalid Name Field'
+
+class InvalidComplementFieldError(APIException):
+    status_code = 400
+    default_code = 'invalid_complement_field'
+    default_detail = 'Invalid Complement Field'
 
 class Correios:
     def __init__(self, username, APItoken):
@@ -13,8 +55,9 @@ class Correios:
 
             if response.status_code == 200 or response.status_code == 201:
                 return response.json()['token']
+            raise InvalidTokenError()
         except:
-            return ''
+            raise InvalidTokenError()
         
     def get_delivery_time(self, token, source_zip_code, destination_zip_code):
         url = f"https://apihom.correios.com.br/prazo/v1/nacional/03220?cepOrigem={source_zip_code}&cepDestino={destination_zip_code}"
@@ -38,7 +81,7 @@ class Correios:
                 return response.json()
             return fake_response
         except:
-            return {}
+            raise DeliveryTimeError()
         
     def get_delivery_price(self, token, source_zip_code, destination_zip_code, obj_weight, obj_length, obj_width, obj_height):
         url = ("https://apihom.correios.com.br/preco/v1/nacional/03220?"
@@ -96,7 +139,7 @@ class Correios:
                 return response.json()
             return fake_response
         except:
-            return {}
+            raise DeliveryPriceError()
         
     def get_zip_code_info(self, token, destination_zip_code):
         url = f"https://apihom.correios.com.br/cep/v1/enderecos/{destination_zip_code}"
@@ -130,9 +173,61 @@ class Correios:
                 return response.json()
             return fake_response
         except:
-            return {}
+            raise ZipCodeInfoError()
         
     def validate_zip_code(self, zip_code):
         if zip_code.isdigit() and len(zip_code) == 8:
             return True
-        return False
+        raise InvalidZipCodeError()
+    
+    def validate_data(self, name=None, zip_code=None, street=None, number=None, complement=None, state=None, district=None, city=None, uf=None):
+        token = self.get_token()
+        data = self.get_zip_code_info(token=token, destination_zip_code=zip_code)
+        data_street = data.get('logradouro')
+        data_district = data.get('bairro')
+        data_city = data.get('localidade')
+        data_zip_code = data.get('cep')
+        data_uf = data.get('uf')
+
+        if name is not None:
+            if len(name) <= 0 or len(name) > 20:
+                raise InvalidNameFieldError()
+
+        if street is not None:
+            if street != data_street:
+                raise InvalidAddressError()
+
+        if district is not None:
+            if district != data_district:
+                raise InvalidAddressError()
+
+        if city is not None:
+            if city != data_city:
+                raise InvalidAddressError()
+
+        if uf is not None:
+            if uf != data_uf:
+                raise InvalidAddressError()
+
+        if state is not None:
+            if state != UF_TO_STATE.get(str(data_uf).upper()):
+                raise InvalidAddressError()
+
+        if number is not None:
+            if not str(number).isdigit():
+                raise InvalidAddressError()
+            
+        if complement is not None:
+            if len(complement) > 25:
+                raise InvalidComplementFieldError()
+        
+        validated_data = {
+            'street': data_street,
+            'number': number,
+            'district': data_district,
+            'city': data_city,
+            'state': UF_TO_STATE.get(str(data_uf).upper()),
+            'uf': data_uf,
+            'zip_code': data_zip_code
+        }
+        return validated_data

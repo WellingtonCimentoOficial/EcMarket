@@ -7,7 +7,7 @@ import { axios } from '../../../services/api';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
-import { NameRegex, emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { onlyUpperCaseLowerCaseAndSpaceLettersRegex, emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { ACCOUNT_CREATED_SUCCESS } from '../../../constants/successMessages';
@@ -56,7 +56,7 @@ const RegisterForm = () => {
 
     const { getCaptchaToken } = useReCaptchaToken()
 
-    const post_data = async (CaptchaToken: string) => {
+    const post_data = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
             const response = await axios.post('/accounts/sign-up/', {
@@ -65,7 +65,7 @@ const RegisterForm = () => {
                 email,
                 password,
                 terms: acceptTerms,
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 201){
                 setMessage({
@@ -130,7 +130,7 @@ const RegisterForm = () => {
 
     const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
-        if(NameRegex.test(value)){
+        if(onlyUpperCaseLowerCaseAndSpaceLettersRegex.test(value)){
             setFirstNameIsValid(true)
         }else{
             setFirstNameIsValid(false)
@@ -140,7 +140,7 @@ const RegisterForm = () => {
 
     const handleLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
-        if(NameRegex.test(value)){
+        if(onlyUpperCaseLowerCaseAndSpaceLettersRegex.test(value)){
             setLastNameIsValid(true)
         }else{
             setLastNameIsValid(false)

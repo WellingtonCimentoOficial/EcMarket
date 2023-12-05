@@ -3,7 +3,7 @@ import styles from './ProfilePage.module.css'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import BtnB01 from '../../components/UI/Buttons/BtnB01/BtnB01'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
-import { NameRegex, emailRegex, onlyNumbersRegex, specialCharactersRegex } from '../../utils/regexPatterns'
+import { onlyUpperCaseLowerCaseAndSpaceLettersRegex, emailRegex, onlyNumbersRegex, everythingExceptNumbersRegex } from '../../constants/regexPatterns'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
 import { LoadingContext } from '../../contexts/LoadingContext'
@@ -15,6 +15,7 @@ import { MessageErrorType } from '../../types/ErrorType'
 import SimpleError from '../../components/UI/Errors/SimpleError/SimpleError'
 import { RECAPTCHA_ERROR, REQUEST_ERROR } from '../../constants/errorMessages'
 import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
+import LabelInput from '../../components/UI/Inputs/LabelInput/LabelInput'
 
 type Props = {}
 
@@ -46,14 +47,13 @@ const ProfilePage = (props: Props) => {
 
     const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
 
-    const { isLoading, setIsLoading } = useContext(LoadingContext)
-
     const { validate_cpf_algorithm } = useCpfValidator()
 
     const { user, setUser } = useContext(UserContext)
 
     const [message, setMessage] = useState<MessageErrorType | null>(null)
 
+    const [localIsLoading, setLocalIsLoading] = useState<boolean>(false)
 
     const inputsRef = useRef<InputsType>({
         firstName: null,
@@ -62,17 +62,17 @@ const ProfilePage = (props: Props) => {
         cpf: null
     })
 
-    const save_data = async (recaptchaToken: string) => {
-        setIsLoading(true)
+    const save_data = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
+        setLocalIsLoading(true)
         try {
             const response = await axiosPrivate.patch('/accounts/profile/update', {
                 first_name: firstName,
                 last_name: lastName,
-                cpf: cpf.replaceAll(specialCharactersRegex, ''),
-                "g-recaptcha-response": recaptchaToken
+                cpf: cpf.replaceAll(everythingExceptNumbersRegex, ''),
+                "g-recaptcha-response": RecaptchaToken
             })
-            const data: UserProfileType = response.data
             if(response?.status === 200){
+                const data: UserProfileType = response.data
                 setUser(data)
             }
         } catch (error) {
@@ -101,11 +101,11 @@ const ProfilePage = (props: Props) => {
                 }
             }
         }
-        setIsLoading(false)
+        setLocalIsLoading(false)
     }
 
     const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newNameRegex = new RegExp(NameRegex)
+        const newNameRegex = new RegExp(onlyUpperCaseLowerCaseAndSpaceLettersRegex)
         const value = e.target.value
         if(newNameRegex.test(value) && value.length > 3 && value.length <= 50){
             setFirstNameIsValid(true)
@@ -116,7 +116,7 @@ const ProfilePage = (props: Props) => {
     }
 
     const handleLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newNameRegex = new RegExp(NameRegex)
+        const newNameRegex = new RegExp(onlyUpperCaseLowerCaseAndSpaceLettersRegex)
         const value = e.target.value
         if(newNameRegex.test(value)){
             setLastNameIsValid(true)
@@ -230,66 +230,60 @@ const ProfilePage = (props: Props) => {
                             <SimpleError title={message.title} text={message.text} isError={message.isError} />
                         }
                         <form className={styles.bodyForm} onSubmit={handleSubmit}>
-                            <div className={styles.bodyFormInput}>
-                                <span className={`${styles.bodyFormInputLabel} ${(!firstNameIsValid && !isFirstRender) ? styles.invalidInputLabel : null}`}>Primeiro nome</span>
-                                <input 
-                                    ref={element => inputsRef.current['firstName'] = element}
-                                    type="text" 
-                                    name="first_name" 
-                                    id="first_name" 
-                                    minLength={3}
-                                    maxLength={50}
-                                    className={`${styles.bodyFormInputInput} ${(!firstNameIsValid && !isFirstRender) ? styles.invalidInput : null}`}
-                                    onChange={handleFirstName}
-                                    value={firstName}
-                                />
-                            </div>
-                            <div className={styles.bodyFormInput}>
-                                <span className={`${styles.bodyFormInputLabel} ${(!lastNameIsValid && !isFirstRender) ? styles.invalidInputLabel : null}`}>Sobrenome</span>
-                                <input 
-                                    ref={element => inputsRef.current['lastName'] = element}
-                                    type="text" 
-                                    name="last_name" 
-                                    id="last_name" 
-                                    minLength={3}
-                                    maxLength={50}
-                                    className={`${styles.bodyFormInputInput} ${(!lastNameIsValid && !isFirstRender) ? styles.invalidInput : null}`}
-                                    onChange={handleLastName}
-                                    value={lastName}
-                                />
-                            </div>
-                            <div className={styles.bodyFormInput}>
-                                <span className={`${styles.bodyFormInputLabel} ${(!emailIsValid && !isFirstRender) ? styles.invalidInputLabel : null}`}>E-mail</span>
-                                <input 
-                                    ref={element => inputsRef.current['email'] = element}
-                                    type="email" 
-                                    name="email" 
-                                    id="email" 
-                                    minLength={3}
-                                    maxLength={255}
-                                    className={`${styles.bodyFormInputInput} ${(!emailIsValid && !isFirstRender) ? styles.invalidInput : null}`}
-                                    disabled
-                                    onChange={handleEmail}
-                                    value={email}
-                                />
-                            </div>
-                            <div className={styles.bodyFormInput}>
-                                <span className={`${styles.bodyFormInputLabel} ${(!cpfIsValid && !isFirstRender) ? styles.invalidInputLabel : null}`}>CPF</span>
-                                <input 
-                                    ref={element => inputsRef.current['cpf'] = element}
-                                    type="text" 
-                                    name="cpf" 
-                                    id="cpf" 
-                                    placeholder='000.000.000-00'
-                                    minLength={14}
-                                    maxLength={14}
-                                    disabled={user.id_number ? true : false}
-                                    className={`${styles.bodyFormInputInput} ${(!cpfIsValid && !isFirstRender) ? styles.invalidInput : null}`}
-                                    onChange={handleCpf}
-                                    value={cpf}
-                                />
-                            </div>
-                            <BtnB01 autoWidth isLoading={isLoading}>Salvar</BtnB01>
+                            <LabelInput 
+                                invalid={(!firstNameIsValid && !isFirstRender) ? true : false}
+                                ref={element => inputsRef.current['firstName'] = element}
+                                type="text" 
+                                name="first_name" 
+                                id="first_name"
+                                minLength={3}
+                                maxLength={50}
+                                onChange={handleFirstName}
+                                value={firstName}
+                                labelText='Primeiro nome'
+                                disabled={localIsLoading}
+                            />
+                            <LabelInput 
+                                invalid={(!lastNameIsValid && !isFirstRender) ? true : false}
+                                ref={element => inputsRef.current['lastName'] = element}
+                                type="text" 
+                                name="last_name" 
+                                id="last_name"
+                                minLength={3}
+                                maxLength={50}
+                                onChange={handleLastName}
+                                value={lastName}
+                                labelText='Sobrenome'
+                                disabled={localIsLoading}
+                            />
+                            <LabelInput 
+                                invalid={(!emailIsValid && !isFirstRender) ? true : false}
+                                ref={element => inputsRef.current['email'] = element}
+                                type="email" 
+                                name="email" 
+                                id="email"
+                                minLength={3}
+                                maxLength={255}
+                                disabled
+                                onChange={handleEmail}
+                                value={email}
+                                labelText='E-mail'
+                            />
+                            <LabelInput 
+                                invalid={(!cpfIsValid && !isFirstRender) ? true : false}
+                                ref={element => inputsRef.current['cpf'] = element}
+                                type="text" 
+                                name="cpf" 
+                                id="cpf"
+                                placeholder='000.000.000-00'
+                                minLength={14}
+                                maxLength={14}
+                                disabled={user.id_number ? true : false}
+                                onChange={handleCpf}
+                                value={cpf}
+                                labelText='CPF'
+                            />
+                            <BtnB01 autoWidth isLoading={localIsLoading} disabled={localIsLoading}>Salvar</BtnB01>
                         </form>
                     </div>
                 </div>

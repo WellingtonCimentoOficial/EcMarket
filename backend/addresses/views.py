@@ -4,10 +4,14 @@ from rest_framework.response import Response
 from .models import UserAddress, UserDeliveryAddress
 from .serializers import AddressSerializer, DeliveryAddressSerializer
 from rest_framework import status
-from .utils import validate_address
+from .utils import validate_address, UF_TO_STATE
 from .exceptions import AddressNotFoundError, DeliveryAddressNotFoundError
-from utils.shipping_info import Correios
-import os
+from utils.shipping_info import (
+    Correios, InvalidZipCodeError, InvalidAddressError, 
+    InvalidTokenError, InvalidNameFieldError, InvalidComplementFieldError
+)
+from utils.recaptcha import ReCaptcha, InvalidReCaptchaToken
+import os 
 
 # Create your views here.
 @api_view(['GET'])
@@ -31,23 +35,54 @@ def add_address(request):
     state = request.data.get("state")
     uf = request.data.get("uf")
     zip_code = request.data.get("zip_code")
+    country = request.data.get("country")
+    recaptcha_token = request.data.get("g-recaptcha-response")
 
     try:
-        # validating the information sent by the front end
-        validate_address(street, number, district, city, state, uf, zip_code)
+        # validating recaptcha token
+        recaptcha = ReCaptcha(token=recaptcha_token)
+        recaptcha.validate_token()
+
+        # initializing the correios class
+        correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
+
+        # checking if zip code is valid
+        correios.validate_zip_code(zip_code)
+
+        # validating data sent by frontend
+        validated_data = correios.validate_data(zip_code=zip_code, street=street, district=district, number=number, state=state, city=city, uf=uf)
         
         # creating a address in database
-        address = UserAddress.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
+        address = UserAddress.objects.create(
+            user=request.user, 
+            street=validated_data.get('street'), 
+            number=validated_data.get('number'), 
+            district=validated_data.get('district'), 
+            complement=complement, 
+            city=validated_data.get('city'), 
+            state=validated_data.get('state'), 
+            uf=validated_data.get('uf'), 
+            zip_code=validated_data.get('zip_code'), 
+            country=country
+        )
 
         # serializing the data 
         serializer = AddressSerializer(address, context={'request': request})
 
         # returning a response
-        return Response(serializer.data)
-    
-    except Exception as e:
-        if hasattr(e, "detail") and hasattr(e, "status_code"):
-            return Response({'error': e.detail}, status=e.status_code)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except InvalidZipCodeError:
+        return Response({'cod': 42, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidAddressError:
+        return Response({'cod': 43, 'error': 'The address is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidReCaptchaToken:
+        return Response({'cod': 44, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidTokenError:
+        return Response({'cod': 45, 'error': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidComplementFieldError:
+        return Response({'cod': 66, 'error': 'The complement field is Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PUT'])
@@ -61,10 +96,21 @@ def update_address(request):
     state = request.data.get("state")
     uf = request.data.get("uf")
     zip_code = request.data.get("zip_code")
+    recaptcha_token = request.data.get("g-recaptcha-response")
 
     try:
-        # validating the information sent by the front end
-        validate_address(street, number, district, city, state, uf, zip_code)
+        # validating recaptcha token
+        recaptcha = ReCaptcha(token=recaptcha_token)
+        recaptcha.validate_token()
+
+        # initializing the correios class
+        correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
+
+        # checking if zip code is valid
+        correios.validate_zip_code(zip_code)
+
+        # validating data sent by frontend
+        validated_data = correios.validate_data(zip_code=zip_code, street=street, district=district, number=number, state=state, city=city, uf=uf)
 
         # verifing if user has not a address
         if not hasattr(request.user, 'address'):
@@ -72,14 +118,14 @@ def update_address(request):
 
         # updating a address in database
         address = request.user.address
-        address.street = street
-        address.number = number
-        address.district = district
+        address.street = validated_data.get('street')
+        address.number = validated_data.get('number')
+        address.district = validated_data.get('district')
         address.complement = complement
-        address.city = city
-        address.state = state
-        address.uf = uf
-        address.zip_code = zip_code
+        address.city = validated_data.get('city')
+        address.state = validated_data.get('state')
+        address.uf = validated_data.get('uf')
+        address.zip_code = validated_data.get('zip_code')
         address.save()
 
         # serializing the data 
@@ -88,9 +134,19 @@ def update_address(request):
         # returning a response
         return Response(serializer.data)
     
-    except Exception as e:
-        if hasattr(e, "detail") and hasattr(e, "status_code"):
-            return Response({'error': e.detail}, status=e.status_code)
+    except InvalidZipCodeError:
+        return Response({'cod': 56, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidAddressError:
+        return Response({'cod': 57, 'error': 'The address is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidReCaptchaToken:
+        return Response({'cod': 58, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidTokenError:
+        return Response({'cod': 59, 'error': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+    except AddressNotFoundError:
+        return Response({ 'cod': 60, 'error': 'The address was not found' }, status=status.HTTP_404_NOT_FOUND)
+    except InvalidComplementFieldError:
+        return Response({'cod': 67, 'error': 'The complement field is Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -107,6 +163,7 @@ def get_delivery_addresses(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
 def add_delivery_address(request):
+    name = request.data.get("name")
     street = request.data.get("street")
     number = request.data.get("number")
     district = request.data.get("district")
@@ -115,28 +172,71 @@ def add_delivery_address(request):
     state = request.data.get("state")
     uf = request.data.get("uf")
     zip_code = request.data.get("zip_code")
+    country = request.data.get("country")
+    recaptcha_token = request.data.get("g-recaptcha-response")
 
     try:
-        # validating the information sent by the front end
-        validate_address(street, number, district, city, state, uf, zip_code)
+        # validating delivery address quantity
+        if request.user.delivery_addresses.count() >= 2:
+            return Response({ 'cod': 50, 'error': 'Maximum number of delivery addresses reached' }, status=status.HTTP_401_UNAUTHORIZED)
+
+        # validating recaptcha token
+        recaptcha = ReCaptcha(token=recaptcha_token)
+        recaptcha.validate_token()
+
+        # initializing the correios class
+        correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
+
+        # checking if zip code is valid
+        correios.validate_zip_code(zip_code)
+
+        # validating data sent by frontend
+        validated_data = correios.validate_data(
+            name=name, zip_code=zip_code, street=street, 
+            district=district, number=number, complement=complement, 
+            state=state, city=city, uf=uf
+        )
         
         # creating a address in database
-        address = UserDeliveryAddress.objects.create(user=request.user, street=street, number=number, district=district, complement=complement, city=city, state=state, uf=uf, zip_code=zip_code, country="BR")
+        address = UserDeliveryAddress.objects.create(
+            user=request.user,
+            name=name,
+            street=validated_data.get('street'), 
+            number=validated_data.get('number'), 
+            district=validated_data.get('district'), 
+            complement=complement, 
+            city=validated_data.get('city'), 
+            state=validated_data.get('state'), 
+            uf=validated_data.get('uf'), 
+            zip_code=validated_data.get('zip_code'), 
+            country=country
+        )
 
         # serializing the data 
         serializer = DeliveryAddressSerializer(address, context={'request': request})
 
         # returning a response
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    except Exception as e:
-        if hasattr(e, "detail") and hasattr(e, "status_code"):
-            return Response({'error': e.detail}, status=e.status_code)
+    except InvalidNameFieldError:
+        return Response({ 'cod': 49, 'error': 'The name field is invalid' }, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidZipCodeError:
+        return Response({'cod': 51, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidAddressError:
+        return Response({'cod': 52, 'error': 'The address is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidReCaptchaToken:
+        return Response({'cod': 53, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidTokenError:
+        return Response({'cod': 54, 'error': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidComplementFieldError:
+        return Response({'cod': 68, 'error': 'The complement field is Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated]) 
 def update_delivery_address(request, pk):
+    name = request.data.get("name")
     street = request.data.get("street")
     number = request.data.get("number")
     district = request.data.get("district")
@@ -145,10 +245,24 @@ def update_delivery_address(request, pk):
     state = request.data.get("state")
     uf = request.data.get("uf")
     zip_code = request.data.get("zip_code")
+    recaptcha_token = request.data.get("g-recaptcha-response")
 
     try:
-        # validating the information sent by the front end
-        validate_address(street, number, district, city, state, uf, zip_code)
+        # validating recaptcha token
+        recaptcha = ReCaptcha(token=recaptcha_token)
+        recaptcha.validate_token()
+
+        # initializing the correios class
+        correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
+
+        # checking if zip code is valid
+        correios.validate_zip_code(zip_code)
+
+        # validating data sent by frontend
+        validated_data = correios.validate_data(
+            name=name, zip_code=zip_code, street=street, district=district, 
+            number=number, complement=complement, state=state, city=city, uf=uf
+        )
 
         # getting a address from database
         delivery_address = request.user.delivery_addresses.filter(id=pk).first()
@@ -158,14 +272,15 @@ def update_delivery_address(request, pk):
             raise DeliveryAddressNotFoundError()
         
         # updating a delivery address in database
-        delivery_address.street = street
-        delivery_address.number = number
-        delivery_address.district = district
+        delivery_address.name = name
+        delivery_address.street = validated_data.get('street')
+        delivery_address.number = validated_data.get('number')
+        delivery_address.district = validated_data.get('district')
         delivery_address.complement = complement
-        delivery_address.city = city
-        delivery_address.state = state
-        delivery_address.uf = uf
-        delivery_address.zip_code = zip_code
+        delivery_address.city = validated_data.get('city')
+        delivery_address.state = validated_data.get('state')
+        delivery_address.uf = validated_data.get('uf')
+        delivery_address.zip_code = validated_data.get('zip_code')
         delivery_address.save()
 
         # serializing the data 
@@ -174,9 +289,19 @@ def update_delivery_address(request, pk):
         # returning a response
         return Response(serializer.data)
     
-    except Exception as e:
-        if hasattr(e, "detail") and hasattr(e, "status_code"):
-            return Response({'error': e.detail}, status=e.status_code)
+    except InvalidZipCodeError:
+        return Response({'cod': 61, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidAddressError:
+        return Response({'cod': 62, 'error': 'The address is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidReCaptchaToken:
+        return Response({'cod': 63, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidTokenError:
+        return Response({'cod': 64, 'error': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidNameFieldError:
+        return Response({ 'cod': 65, 'error': 'The name field is invalid' }, status=status.HTTP_400_BAD_REQUEST)
+    except InvalidComplementFieldError:
+        return Response({'cod': 69, 'error': 'The complement field is Invalid'}, status=status.HTTP_400_BAD_REQUEST)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['DELETE'])
@@ -194,11 +319,11 @@ def delete_delivery_address(request, pk):
         delivery_address.delete()
         
         # returning a response
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
-    except Exception as e:
-        if hasattr(e, "detail") and hasattr(e, "status_code"):
-            return Response({'error': e.detail}, status=e.status_code)
+    except DeliveryAddressNotFoundError:
+        return Response({ 'cod': 55, 'error': 'The address was not found' }, status=status.HTTP_404_NOT_FOUND)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -209,8 +334,7 @@ def get_cep_info(request, zip_code):
         correios = Correios(username=os.getenv('CORREIOS_USERNAME'), APItoken=os.getenv('CORREIOS_TOKEN'))
 
         # checking if zip code is valid
-        if not correios.validate_zip_code(zip_code):
-            return Response({'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+        correios.validate_zip_code(zip_code)
 
         # getting a correios token
         token = correios.get_token()
@@ -218,16 +342,18 @@ def get_cep_info(request, zip_code):
         # getting a zip code informations
         zip_code_info = correios.get_zip_code_info(token=token, destination_zip_code=zip_code)
 
-        # checking if token and zip_code_info are valid and then returning a response
-        if token and zip_code_info:
-            data = {
-                'zip_code': zip_code_info.get('cep'),
-                'uf': zip_code_info.get('uf'),
-                'city': zip_code_info.get('localidade'),
-                'neighborhood': zip_code_info.get('bairro'),
-                'address': zip_code_info.get('logradouro'),
-            }
-            return Response(data)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # returning a response
+        data = {
+            'address': zip_code_info.get('logradouro'),
+            'zip_code': zip_code_info.get('cep'),
+            'neighborhood': zip_code_info.get('bairro'),
+            'city': zip_code_info.get('localidade'),
+            'state': UF_TO_STATE.get(str(zip_code_info.get('uf')).upper()),
+            'uf': zip_code_info.get('uf'),
+        }
+        return Response(data)
+    
+    except InvalidZipCodeError:
+        return Response({'cod': 48, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

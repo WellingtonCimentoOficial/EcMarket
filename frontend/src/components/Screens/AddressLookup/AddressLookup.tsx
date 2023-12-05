@@ -5,7 +5,7 @@ import { PiPlusBold } from 'react-icons/pi';
 import { ZipCodeContext } from '../../../contexts/ZipCodeContext';
 import { axios } from '../../../services/api';
 import { PiMapPinLine, PiTrash } from 'react-icons/pi';
-import { specialCharactersRegex } from '../../../utils/regexPatterns';
+import { everythingExceptNumbersRegex } from '../../../constants/regexPatterns';
 
 type Props = {}
 
@@ -19,14 +19,14 @@ const AddressLookup = (props: Props) => {
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replaceAll(specialCharactersRegex, "")
+        const value = e.target.value.replaceAll(everythingExceptNumbersRegex, "")
         if(isLoading){
             setIsLoading(currentValue => currentValue)
             return
         }
 
-        if(value.length === 8){
-            setZipCodeText(value.slice(0, 5) + '-' + value.slice(5))
+        if(value.length >= 8){
+            setZipCodeText(value.slice(0, 8).replace(/^(\d{5})(\d{3})$/, '$1-$2'))
             setZipCodeisValid(true)
             inputRef.current?.blur()
         }else{

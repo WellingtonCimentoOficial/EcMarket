@@ -8,7 +8,7 @@ from .utils import apply_product_filters, mount_product_filters
 from brands.models import ProductBrand
 from categories.models import CategoryProduct
 from utils.custom_pagination import CustomPagination
-from utils.shipping_info import Correios
+from utils.shipping_info import Correios, InvalidZipCodeError, InvalidTokenError
 import os
 import re
 
@@ -128,12 +128,16 @@ def get_product_delivery(request, pk, zip_code):
         source_zip_code = re.sub(r'\D', '', product.store.address.zip_code)
 
         # checking if store zip code is valid
-        if not correios.validate_zip_code(source_zip_code):
-            return Response({'error': 'The source zip code is invalid'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+        try:
+            correios.validate_zip_code(source_zip_code)
+        except InvalidZipCodeError:
+            return Response({'cod': 46, 'error': 'The source zip code is invalid'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         # checking if destination zip code is valid
-        if not correios.validate_zip_code(destination_zip_code):
-            return Response({'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            correios.validate_zip_code(destination_zip_code)
+        except InvalidZipCodeError:
+            return Response({'cod': 47, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
         # getting a correios token
         token = correios.get_token()
@@ -156,17 +160,15 @@ def get_product_delivery(request, pk, zip_code):
             destination_zip_code=destination_zip_code
         )
 
-        # checking if token, price and time are valid and then returning a response
-        if token and price and time:
-            data = {
-                'company': 'Correios',
-                'delivery_time': time.get('prazoEntrega'),
-                'max_date': time.get('dataMaxima'),
-                'home_delivery': time.get('entregaDomiciliar'),
-                'saturday_delivery': time.get('entregaSabado'),
-                'price': float(str(price.get('pcFinal')).replace(',', '.'))
-            }
-            return Response(data)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # returning a response
+        data = {
+            'company': 'Correios',
+            'delivery_time': time.get('prazoEntrega'),
+            'max_date': time.get('dataMaxima'),
+            'home_delivery': time.get('entregaDomiciliar'),
+            'saturday_delivery': time.get('entregaSabado'),
+            'price': float(str(price.get('pcFinal')).replace(',', '.'))
+        }
+        return Response(data)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

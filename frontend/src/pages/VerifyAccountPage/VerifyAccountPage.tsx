@@ -29,11 +29,11 @@ const VerifyAccountPage = (props: Props) => {
 
     const { isLoading, setIsLoading } = useContext(LoadingContext)
 
-    const verify_account = useCallback(async (CaptchaToken: string) => {
+    const verify_account = useCallback(async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         try {
             const response = await axios.post(`/accounts/verify/`, {
                 code,
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setIsVerified(true)

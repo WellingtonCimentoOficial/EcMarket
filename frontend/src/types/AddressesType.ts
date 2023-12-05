@@ -23,3 +23,11 @@ export interface DeliveryAddressType {
     zip_code: string
     country: string
 }
+export interface CepInfoType {
+    address: string
+    zip_code: string
+    neighborhood: string
+    city: string
+    state: string
+    uf: string
+}

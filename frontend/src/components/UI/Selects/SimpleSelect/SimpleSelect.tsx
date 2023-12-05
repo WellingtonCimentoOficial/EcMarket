@@ -7,15 +7,18 @@ type Props = {
     data: SelectType[]
     value: SelectType
     onChange: React.Dispatch<React.SetStateAction<SelectType>>
+    className?: string
+    invalid?: boolean
+    disabled?: boolean
 }
 
-const SimpleSelect = ({ value, data, onChange }: Props) => {
+const SimpleSelect = ({ value, data, onChange, className, invalid, disabled }: Props) => {
     const [show, setShow] = useState<boolean>(false)
 
     return (
-        <div className={styles.wrapper} tabIndex={1} onBlur={() => setShow(false)}>
+        <div className={`${styles.wrapper} ${disabled ? styles.disabled : null}`} tabIndex={1} onBlur={() => setShow(false)}>
             <div className={styles.container}>
-                <div className={styles.header} onClick={() => setShow(value => !value)}>
+                <div className={`${styles.header} ${className} ${invalid ? styles.invalid : null}`} onClick={() => setShow(value => !value)}>
                     <h4 className={styles.title}>{value.text}</h4>
                     {show ? <PiCaretUpLight /> : <PiCaretDownLight />}
                 </div>

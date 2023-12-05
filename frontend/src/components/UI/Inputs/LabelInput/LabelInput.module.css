@@ -1,0 +1,36 @@
+.container {
+    position: relative;
+    width: 100%;
+}
+.container:focus-within {
+    color: var(--primary-color);
+}
+.inputLabel {
+    position: absolute;
+    top: -20%;
+    left: 15px;
+    font-size: 9pt;
+    background-color: white;
+    padding: 0px 5px;
+    user-select: none;
+}
+.input {
+    border: 2px solid var(--text-color-two);
+    width: 100%;
+    font-size: 12pt;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+.input:focus {
+    border-color: var(--primary-color);
+}
+.invalidInput {
+    border-color: var(--primary-color);
+}
+.invalidInputLabel {
+    color: var(--primary-color);
+}
+.disabled {
+    opacity: 50%;
+}

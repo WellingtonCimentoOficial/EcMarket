@@ -3,10 +3,10 @@ from .models import UserAddress, UserDeliveryAddress, StoreAddress
 
 # Register your models here.
 class UserAddressAdmin(admin.ModelAdmin):
-    list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
+    list_display = ('user', 'street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
     
 class UserDeliveryAddressAdmin(admin.ModelAdmin):
-    list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
+    list_display = ('user', 'street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')
 
 class StoreAddressAdmin(admin.ModelAdmin):
     list_display = ('street', 'number', 'district', 'complement', 'city', 'state', 'uf', 'zip_code', 'country')

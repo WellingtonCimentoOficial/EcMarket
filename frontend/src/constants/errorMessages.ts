@@ -100,3 +100,25 @@ export const ACCOUNT_VERIFICATION_ERROR = {
     title: 'Ocorreu um erro',
     text: 'Ocorreu um erro ao tentar validar a conta.'
 }
+
+//ADDRESS MESSAGES
+export const INVALID_ADDRESS_ERROR = {
+    title: 'Endereço Inválido',
+    text: 'O endereço informado é inválido.'
+}
+export const MAXIMUM_NUMBER_OF_DELIVERY_ADDRESSES_REACHED_ERROR = {
+    title: 'Quantidade máxima atingida',
+    text: 'Você já atingiu a quantidade máxima de endereços cadastrados.'
+}
+export const DELIVERY_ADDRESS_NOT_FOUND = {
+    title: 'Endereço não encontrado',
+    text: 'O endereço não foi encontrado, tente atualizar a página.'
+}
+export const INVALID_DELIVERY_ADDRESS_NAME_FIELD = {
+    title: 'O nome é inválido',
+    text: 'O nome é inválido'
+}
+export const INVALID_DELIVERY_ADDRESS_COMPLEMENT_FIELD = {
+    title: 'O complemento é inválido',
+    text: 'O complemento é inválido'
+}

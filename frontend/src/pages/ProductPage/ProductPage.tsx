@@ -96,8 +96,8 @@ const ProductPage = (props: Props) => {
         setIsLoading(true)
         try {
             const response = await axios.get(`/products/${productId}`)
-            const data: Product = await response.data
             if(response.status === 200){
+                const data: Product = await response.data
                 setProduct(data)
                 setCurrentImage(data.children[0].images.principal_image)
                 updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)

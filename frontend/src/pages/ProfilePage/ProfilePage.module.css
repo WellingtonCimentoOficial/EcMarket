@@ -15,35 +15,3 @@
     background-color: transparent;
     width: 100%;
 }
-.bodyFormInput {
-    position: relative;
-}
-.bodyFormInput:focus-within {
-    color: var(--primary-color);
-}
-.bodyFormInputLabel {
-    position: absolute;
-    top: -20%;
-    left: 15px;
-    font-size: 9pt;
-    background-color: white;
-    padding: 0px 5px;
-    user-select: none;
-}
-.bodyFormInputInput {
-    border: 2px solid var(--text-color-two);
-    width: 100%;
-    font-size: 12pt;
-    padding: 8px 15px;
-    border-radius: 5px;
-    transition: 0.3s;
-}
-.bodyFormInputInput:focus {
-    border-color: var(--primary-color);
-}
-.invalidInput {
-    border-color: var(--primary-color);
-}
-.invalidInputLabel {
-    color: var(--primary-color);
-}

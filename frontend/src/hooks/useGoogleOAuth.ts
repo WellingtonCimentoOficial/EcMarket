@@ -76,7 +76,7 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
 
     const handleSubmit = useCallback(async (googleResponse: CredentialResponseType) => {
         getCaptchaToken(handleGoogleAuthentication, {
-            GoogleToken: googleResponse.credential
+            GoogleToken: googleResponse.credential,
         })
     }, [getCaptchaToken, handleGoogleAuthentication])
 

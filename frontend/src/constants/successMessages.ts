@@ -9,6 +9,6 @@ export const ACCOUNT_CREATED_SUCCESS = {
 
 // VERIFY ACCOUNT MESSAGES
 export const VERIFIED_ACCOUNT_SUCCESS = {
-    title: 'Conta criada',
+    title: 'Conta Verificada',
     text: 'Sua conta foi verificada com sucesso, agora você pode aproveitar todos os beneficios.'
 }

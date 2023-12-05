@@ -34,8 +34,8 @@ export const UserContextProvider = ({ children } : UserContextProviderProps) => 
 
     const get_user_profile = useCallback(async () => {
         const response = await axiosPrivate.get('/accounts/profile/')
-        const data: UserProfileType = response.data
         if(response?.status === 200){
+            const data: UserProfileType = response.data
             setUser(data)
         }
     }, [axiosPrivate])

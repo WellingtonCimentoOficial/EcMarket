@@ -9,7 +9,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import * as originalAxios from 'axios';
 import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
-import { emailRegex, passwordRegex } from '../../../utils/regexPatterns';
+import { emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { INVALID_AUTHENTICATION_APPLE_ERROR, INVALID_AUTHENTICATION_GOOGLE_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
@@ -47,13 +47,13 @@ const LoginForm = () => {
         }
     })
 
-    const post_data = async (CaptchaToken: string) => {
+    const post_data = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
             const response: {data: {refresh: string, access: string}, status: number} = await axios.post('/accounts/sign-in/token/', {
                 email,
                 password,
-                "g-recaptcha-response": CaptchaToken
+                "g-recaptcha-response": RecaptchaToken
             })
             if(response.status === 200){
                 setMessage(null)
