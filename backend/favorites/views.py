@@ -24,10 +24,10 @@ def add_to_favorites(request, pk):
     try:
         product = ProductChild.objects.filter(id=pk).first()
 
-        if product is not None:
-            request.user.favorite.products.add(product)
-        else:
+        if product is None:
             raise ProductNotFoundError()
+        
+        request.user.favorite.products.add(product)
 
         serializer = FavoriteSerializer(request.user.favorite, context={'request': request})
         return Response(serializer.data)

@@ -56,7 +56,7 @@ const AddressesPage = (props: Props) => {
     }>({ show: false})
 
     const [name, setName] = useState<string>('')
-    const [nameIsValid, setNameIsValid] = useState<boolean>(!address ? true : false)
+    const [nameIsValid, setNameIsValid] = useState<boolean>(false)
 
     const [street, setStreet] = useState<string>('')
     const [streetIsValid, setStreetIsValid] = useState<boolean>(false)
@@ -110,7 +110,7 @@ const AddressesPage = (props: Props) => {
         },
     ]
     const [country, setCountry] = useState<SelectType>(countries[0])
-    const [countryIsValid, setCountryIsValid] = useState<boolean>(country ? true : false)
+    const countryIsValid = country ? true : false
 
     const getCep = useCallback(async (zipCode: string) => {
         setIsLoading(true)
@@ -118,6 +118,8 @@ const AddressesPage = (props: Props) => {
             const response = await axios.get(`/addresses/cep/${zipCode}`)
             if(response?.status === 200){
                 const data: CepInfoType = response.data
+
+                setNameIsValid(!address ? true : false)
 
                 setStreet(data.address)
                 setStreetIsValid(true)
@@ -151,7 +153,7 @@ const AddressesPage = (props: Props) => {
             }
         }
         setIsLoading(false)
-    }, [setStreet, setDistrict, setCity, setUf, setIsLoading])
+    }, [address, setNameIsValid, setStreet, setDistrict, setCity, setUf, setIsLoading])
 
     const addAddress = useCallback(async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setLocalIsLoading(true)
@@ -219,7 +221,6 @@ const AddressesPage = (props: Props) => {
                         text: INVALID_DELIVERY_ADDRESS_NAME_FIELD.text,
                         isError: true
                     })
-                    setShowForm({ show: false })
                     inputsRef.current.name?.focus()
                 }else if(error.response?.data.cod === 66 || error.response?.data.cod === 67 || error.response?.data.cod === 68 || error.response?.data.cod === 69){
                     setMessage({
@@ -622,11 +623,11 @@ const AddressesPage = (props: Props) => {
                                             </div>
                                             <div className={styles.cardFooter}>
                                                 <div 
-                                                    title='Excluir'
+                                                    title='Editar'
                                                     className={styles.cardFooterItem} 
                                                     onClick={() => setShowForm({ show: true, isUpdate: true, idAddress: address.id })}
                                                 >
-                                                    <PiTrashLight className={styles.cardFooterItemIcon} />
+                                                    <PiPencilSimpleLight className={styles.cardFooterItemIcon} />
                                                 </div>
                                             </div>
                                         </div>

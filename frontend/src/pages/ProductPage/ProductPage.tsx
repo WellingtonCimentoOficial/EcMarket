@@ -29,7 +29,7 @@ import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderA
 import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 
 // ICONS
-import { PiHeartLight, PiArrowBendDownLeft, PiShieldCheck } from 'react-icons/pi';
+import { PiHeartLight, PiHeartFill, PiArrowBendDownLeft, PiShieldCheck } from 'react-icons/pi';
 import { FaShippingFast } from 'react-icons/fa';
 
 // TYPES
@@ -37,6 +37,7 @@ import { Delivery } from '../../types/DeliveryType'
 import { Category } from '../../types/CategoryType'
 import { Product } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
+import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 
 type Props = {}
 
@@ -83,6 +84,7 @@ const ProductPage = (props: Props) => {
     const [totalPageCount, setTotalPageCount] = useState<number>(0)
     const [shouldScroll, setShouldScroll] = useState<boolean>(false)
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
+    const [isFavorite, setIsFavorite] = useState<boolean>(false)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
@@ -91,6 +93,28 @@ const ProductPage = (props: Props) => {
 
     const navigate = useNavigate()
 
+    const axiosPrivate = useAxiosPrivate()
+
+    const add_to_favorites = useCallback(async () => {
+        try {
+            const response = await axiosPrivate.post(`/favorites/create/${product?.id}`)
+            if(response.status === 200){
+                setIsFavorite(true)
+            }
+        } catch (error) {
+            setIsFavorite(false)
+        }   
+    }, [axiosPrivate, product?.id, setIsFavorite])
+
+    const remove_from_favorites = useCallback(async () => {
+        try {
+            const response = await axiosPrivate.delete(`/favorites/delete/${product?.id}`)
+            if(response.status === 200){
+                setIsFavorite(false)
+            }
+        } catch (error) {
+        }   
+    }, [axiosPrivate, product?.id, setIsFavorite])
 
     const get_product = useCallback(async () => {
         setIsLoading(true)
@@ -252,8 +276,12 @@ const ProductPage = (props: Props) => {
                                     <div className={styles.containerMainInfoHeaderTitle}>
                                         <div className={styles.containerMainInfoHeaderTitleSubOne}>
                                             <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {product.children[0].sku || `00000`}</span>
-                                            <div className={styles.favoriteButton}>
-                                                <PiHeartLight className={styles.favoriteIcon} />
+                                            <div className={styles.favoriteButton} onClick={() => isFavorite ? remove_from_favorites() : add_to_favorites()}>
+                                                {isFavorite ? (
+                                                    <PiHeartFill className={styles.favoriteIcon} />
+                                                ):(
+                                                    <PiHeartLight className={styles.favoriteIcon} />
+                                                )}
                                             </div>
                                         </div>
                                         <span className={styles.containerMainInfoHeaderTitleText}>{product?.name}</span>
