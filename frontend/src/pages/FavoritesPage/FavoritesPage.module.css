@@ -1,0 +1,22 @@
+.favoritesWrapper {
+    padding: 0px 30px;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.item {
+    border-bottom-width: 1px;
+    border-style: dashed;
+    border-color: var(--text-color-two);
+}
+.item:last-child {
+    border-bottom: 0;
+}
+.container2 {
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

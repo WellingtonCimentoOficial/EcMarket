@@ -59,4 +59,5 @@ export interface Product {
     store: Store
     technical_informations: TechnicalInformation[]
     sales: Sales
+    is_favorite: boolean
 }

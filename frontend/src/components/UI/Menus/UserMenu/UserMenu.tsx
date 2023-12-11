@@ -7,6 +7,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { UserContext } from '../../../../contexts/UserContext';
 
 type Props = {
+    shadow?: boolean
 }
 
 type DataType = {
@@ -19,7 +20,7 @@ type DataType = {
     }[]
 }
 
-const UserMenu = (props: Props) => {
+const UserMenu = ({ shadow }: Props) => {
     const { user } = useContext(UserContext)
     const [items, setItems] = useState<{
         id: number,
@@ -113,7 +114,7 @@ const UserMenu = (props: Props) => {
     }, [data, currentRoute.pathname])
 
     return (
-        <div className={styles.wrapper}>
+        <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
             <div className={styles.container}>
                 <div className={styles.header}>
                     <div className={styles.headerIconContainer}>

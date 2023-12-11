@@ -4,12 +4,17 @@ import styles from "./BtnB02.module.css"
 type Props = {
     autoWidth?: boolean
     children: React.ReactNode
+    className?: string
+    onClick?: () => void
 }
 
-const BtnB02 = ({ autoWidth, children }: Props) => {
+const BtnB02 = ({ autoWidth, children, className, onClick }: Props) => {
     return (
-        <div className={`${styles.wrapper} ${autoWidth ? styles.AutoWidth : null}`}>
-            <button className={`${styles.BtnB02} ${autoWidth ? styles.AutoWidth : null}`}>{children}</button>
+        <div 
+            onClick={() => onClick && onClick()}
+            className={`${styles.wrapper} ${autoWidth ? styles.AutoWidth : null}`}
+        >
+            <button className={`${styles.BtnB02} ${autoWidth ? styles.AutoWidth : null} ${className}`}>{children}</button>
         </div>
     )
 }

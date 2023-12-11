@@ -11,6 +11,17 @@ class ProductChildDetailSerializer(serializers.ModelSerializer):
     installment_details = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
 
+    class Meta:
+        model = ProductChild
+        exclude = [
+            'product_father',
+            'principal_image', 
+            'image_2', 
+            'image_3', 
+            'image_4', 
+            'image_5' 
+        ] 
+
     def get_discount_percentage(self, obj):
         return obj.discount_percentage()
     
@@ -35,16 +46,6 @@ class ProductChildDetailSerializer(serializers.ModelSerializer):
         }
         return data
 
-    class Meta:
-        model = ProductChild
-        exclude = [
-            'product_father',
-            'principal_image', 
-            'image_2', 
-            'image_3', 
-            'image_4', 
-            'image_5' 
-        ]
 
 
 class ProductChildMinimalSerializer(serializers.ModelSerializer):
@@ -114,6 +115,13 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     store = StoreSerializer()
     sales = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.favorite.products.filter(id=obj.id).exists()
+        return False
 
     def get_rating(self, obj):
         average_rating = obj.comments.aggregate(Avg('rating'))['rating__avg']

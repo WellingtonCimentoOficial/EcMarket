@@ -38,6 +38,9 @@ import { Category } from '../../types/CategoryType'
 import { Product } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
+import { AuthContext } from '../../contexts/AuthContext'
+import { useFavoritesRequest } from '../../hooks/useFavoritesRequest'
+import StyledSectionA from '../../styles/StyledSectionA'
 
 type Props = {}
 
@@ -95,34 +98,27 @@ const ProductPage = (props: Props) => {
 
     const axiosPrivate = useAxiosPrivate()
 
-    const add_to_favorites = useCallback(async () => {
-        try {
-            const response = await axiosPrivate.post(`/favorites/create/${product?.id}`)
-            if(response.status === 200){
-                setIsFavorite(true)
-            }
-        } catch (error) {
-            setIsFavorite(false)
-        }   
-    }, [axiosPrivate, product?.id, setIsFavorite])
+    const { tokens } = useContext(AuthContext)
 
-    const remove_from_favorites = useCallback(async () => {
-        try {
-            const response = await axiosPrivate.delete(`/favorites/delete/${product?.id}`)
-            if(response.status === 200){
-                setIsFavorite(false)
-            }
-        } catch (error) {
-        }   
-    }, [axiosPrivate, product?.id, setIsFavorite])
+    const { addToFavorites, removeFromFavorites } = useFavoritesRequest()
 
-    const get_product = useCallback(async () => {
+    const handleAddToFavorites = () => {
+        setIsFavorite(true)
+    }
+
+    const handleRemoveFromFavorites = () => {
+        setIsFavorite(false)
+    }
+
+    const get_product = useCallback(async ({ isAuthenticated }:{ isAuthenticated?: boolean }={}) => {
         setIsLoading(true)
         try {
-            const response = await axios.get(`/products/${productId}`)
+            const path = `/products/${productId}`
+            const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
             if(response.status === 200){
                 const data: Product = await response.data
                 setProduct(data)
+                setIsFavorite(data.is_favorite)
                 setCurrentImage(data.children[0].images.principal_image)
                 updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
                 navigate(location.pathname.replace(String(productName), createSlug(data.name)), { replace: true })
@@ -131,7 +127,7 @@ const ProductPage = (props: Props) => {
             setProduct(null)
         }
         setIsLoading(false)
-    }, [productId, location.pathname, productName, createSlug, navigate, setIsLoading, updateTitle])
+    }, [productId, location.pathname, productName, axiosPrivate, createSlug, navigate, setIsLoading, updateTitle])
     
     const get_rating_statistics = useCallback(async () => {
         setIsLoading(true)
@@ -193,7 +189,7 @@ const ProductPage = (props: Props) => {
         }
     }
 
-    useEffect(() => {get_product()}, [get_product])
+    useEffect(() => {get_product({ isAuthenticated: !!tokens.refresh })}, [tokens.refresh, get_product])
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
     useEffect(() => {get_categories()}, [get_categories])
@@ -276,7 +272,12 @@ const ProductPage = (props: Props) => {
                                     <div className={styles.containerMainInfoHeaderTitle}>
                                         <div className={styles.containerMainInfoHeaderTitleSubOne}>
                                             <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {product.children[0].sku || `00000`}</span>
-                                            <div className={styles.favoriteButton} onClick={() => isFavorite ? remove_from_favorites() : add_to_favorites()}>
+                                            <div 
+                                                className={styles.favoriteButton} 
+                                                onClick={() => isFavorite ? 
+                                                removeFromFavorites({ productId: product.id, callback: handleRemoveFromFavorites }) : 
+                                                addToFavorites({ productId: product.id, callback: handleAddToFavorites })}
+                                            >
                                                 {isFavorite ? (
                                                     <PiHeartFill className={styles.favoriteIcon} />
                                                 ):(
@@ -596,7 +597,7 @@ const ProductPage = (props: Props) => {
                         }
                     </div>
                     <div className={styles.footer}>
-                        <section className={styles.sectionA}>
+                        <StyledSectionA>
                             {categoriesData[0] && categoriesData[0].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
                                     {categoriesData[0].products.map((product) => (
@@ -604,8 +605,8 @@ const ProductPage = (props: Props) => {
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
-                        </section>
-                        <section className={styles.sectionA}>
+                        </StyledSectionA>
+                        <StyledSectionA>
                             {categoriesData[1] && categoriesData[1].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[1].name} href={`/search?q=&categories=${categoriesData[1].id}`} enableScroll={true} autoScroll={true}>
                                     {categoriesData[1].products.map((product) => (
@@ -613,7 +614,7 @@ const ProductPage = (props: Props) => {
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
-                        </section>
+                        </StyledSectionA>
                     </div>
                 </WidthLayout>
             </div>

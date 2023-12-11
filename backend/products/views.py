@@ -8,7 +8,8 @@ from .utils import apply_product_filters, mount_product_filters
 from brands.models import ProductBrand
 from categories.models import CategoryProduct
 from utils.custom_pagination import CustomPagination
-from utils.shipping_info import Correios, InvalidZipCodeError, InvalidTokenError
+from utils.shipping_info import Correios, InvalidZipCodeError
+from rest_framework.request import Request
 import os
 import re
 

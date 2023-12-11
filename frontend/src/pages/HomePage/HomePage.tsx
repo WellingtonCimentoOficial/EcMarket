@@ -11,6 +11,7 @@ import BoxBanner from '../../components/UI/Banners/BoxBanner/BoxBanner'
 import BoxAccordion from '../../components/UI/Accordions/BoxAccordion/BoxAccordion'
 import LuminexBanner from '../../components/UI/Banners/LuminexBanner/LuminexBanner'
 import { LoadingContext } from '../../contexts/LoadingContext'
+import StyledSectionA from '../../styles/StyledSectionA'
 
 const HomePage = (): JSX.Element => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
@@ -87,7 +88,7 @@ const HomePage = (): JSX.Element => {
             <WidthLayout width={75}>
                 {categoriesData &&
                     <>
-                        <section className={styles.sectionA}>
+                        <StyledSectionA>
                             {categoriesData[0] && categoriesData[0].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
                                     {categoriesData[0].products.map((product) => (
@@ -95,8 +96,8 @@ const HomePage = (): JSX.Element => {
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
-                        </section>
-                        <section className={styles.sectionA}>
+                        </StyledSectionA>
+                        <StyledSectionA>
                             {categoriesData[1] && categoriesData[1].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[1].name} href={`/search?q=&categories=${categoriesData[1].id}`}>
                                     {categoriesData[1].products.slice(0, 10).map((product) => (
@@ -104,14 +105,14 @@ const HomePage = (): JSX.Element => {
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
-                        </section>
+                        </StyledSectionA>
                     </>
                 }
-                <section className={styles.sectionA}>
+                <StyledSectionA>
                     <MacBanner data={macBannerData} inverse={true} />
-                </section>
+                </StyledSectionA>
                 {categoriesData &&
-                    <section className={styles.sectionA}>
+                    <StyledSectionA>
                         {categoriesData[2] && categoriesData[2].products.length > 0 && (
                             <HeaderAndContentLayout title={categoriesData[2].name} href={`/search?q=&categories=${categoriesData[2].id}`} enableScroll={true} autoScroll={true}>
                                 {categoriesData[2].products.map((product) => (
@@ -119,17 +120,17 @@ const HomePage = (): JSX.Element => {
                                 ))}
                             </HeaderAndContentLayout>
                         )}
-                    </section>
+                    </StyledSectionA>
                 }
-                <section className={styles.sectionA}>
+                <StyledSectionA>
                     {categoriesData[3] && categoriesData[3].products.length >= 6 && (
                         <HeaderAndContentLayout title={categoriesData[3].name} href={`/search?q=&categories=${categoriesData[3].id}`}>
                             <BoxBanner mainData={categoriesData[3].products[0]} data={categoriesData[3].products} />
                         </HeaderAndContentLayout>
                     )}
-                </section>
+                </StyledSectionA>
                 {categoriesData &&
-                    <section className={styles.sectionA}>
+                    <StyledSectionA>
                         {categoriesData[4] && categoriesData[4].products.length > 0 && (
                             <HeaderAndContentLayout title={categoriesData[4].name} href={`/search?q=&categories=${categoriesData[4].id}`} enableScroll={true} autoScroll={true}>
                                 {categoriesData[4].products.map((product) => (
@@ -137,9 +138,9 @@ const HomePage = (): JSX.Element => {
                                 ))}
                             </HeaderAndContentLayout>
                         )}
-                    </section>
+                    </StyledSectionA>
                 }
-                <section className={styles.sectionA}>
+                <StyledSectionA>
                     <div className={styles.center} style={{gap: "10px"}}>
                         <LuminexBanner
                             image='https://support.apple.com/content/dam/edam/applecare/images/en_US/psp_heros/hero-banner-apple-pay.image.large_2x.jpg'
@@ -163,9 +164,9 @@ const HomePage = (): JSX.Element => {
                             btnText='Quero conhecer'
                         />
                     </div>
-                </section>
+                </StyledSectionA>
                 {categoriesData &&
-                    <section className={styles.sectionA}>
+                    <StyledSectionA>
                         {categoriesData[5] && categoriesData[5].products.length > 0 && (
                             <HeaderAndContentLayout title={categoriesData[5].name} href={`/search?q=&categories=${categoriesData[5].id}`} enableScroll={true} autoScroll={true}>
                                 {categoriesData[5].products.map((product) => (
@@ -173,16 +174,16 @@ const HomePage = (): JSX.Element => {
                                 ))}
                             </HeaderAndContentLayout>
                         )}
-                    </section>
+                    </StyledSectionA>
                 }
-                <section className={styles.sectionA}>
+                <StyledSectionA>
                     <div className={styles.center}>
                         <BoxAccordion 
                         title='Perguntas frequentes' 
                         description='4 perguntas que as pessoas mais fazem' 
                         data={commonQuestions} />
                     </div>
-                </section>
+                </StyledSectionA>
             </WidthLayout>
         </>
     )

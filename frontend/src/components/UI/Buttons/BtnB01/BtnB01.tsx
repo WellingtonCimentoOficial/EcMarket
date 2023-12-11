@@ -9,12 +9,14 @@ type Props = {
     disabled?: boolean
     className?: string
     isLoading?: boolean
+    onClick?: () => void
 }
 
-const BtnB01 = ({ autoWidth, autoHeight, children, disabled, className, isLoading }: Props) => {
+const BtnB01 = ({ autoWidth, autoHeight, children, disabled, className, isLoading, onClick }: Props) => {
     return (
         <div className={`${styles.wrapper} ${autoWidth ? styles.AutoWidth : null} ${autoHeight ? styles.AutoHeight : null}`}>
             <button 
+                onClick={() => onClick && onClick()}
                 className={`${styles.BtnB01} ${autoWidth ? styles.AutoWidth : null}  ${autoHeight ? styles.AutoHeight : null} ${className}`} 
                 disabled={disabled}>
                     { isLoading ? <SprintLoader /> : children }

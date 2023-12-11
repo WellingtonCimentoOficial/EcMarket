@@ -480,11 +480,6 @@
     border-top: 1px solid var(--text-color-two);
 }
 
-.sectionA {
-    margin: 50px 0px;
-    background-color: transparent;
-}
-
 /* EXTRAS */
 .favoriteButton {
     background-color: transparent;

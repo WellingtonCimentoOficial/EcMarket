@@ -1,0 +1,78 @@
+.wrapper {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+}
+.container {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    background-color: transparent;
+    width: 100%;
+}
+.containerImage {
+
+}
+.flexImage {
+    width: 100%;
+    height: 130px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.image {
+    max-width: 100%;
+    max-height: 100%;
+}
+.containerContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.header {
+    display: flex;
+    flex-direction: column;
+}
+.title {
+    font-size: 14pt;
+    font-weight: 500;
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color-one);
+}
+.title:hover {
+    color: var(--primary-color);
+}
+.text {
+    color: var(--text-color-one-blur);
+}
+.bodyPrices {
+    display: flex;
+    gap: 10px;
+}
+.price {
+    font-size: 15pt;
+    font-weight: 500;
+}
+.discount_price {
+    text-decoration: line-through;
+    color: var(--text-color-one-blur);
+}
+.containerControllers {
+    padding: 10px;
+    max-width: 280px;
+    min-width: 280px;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+.flexController {
+    padding: 0;
+    min-height: 40px;
+}

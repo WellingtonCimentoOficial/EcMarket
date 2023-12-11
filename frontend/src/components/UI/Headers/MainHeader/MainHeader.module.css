@@ -51,7 +51,7 @@
     color: var(--text-color-one);
 }
 .inputSearch:focus {
-    border-color: var(--text-color-two-blur);
+    border-color: var(--text-color-two-focus);
 }
 .buttonSearch {
     position: absolute;
@@ -70,7 +70,7 @@
     color: var(--text-color-two);
 }
 .inputSearch:focus + .buttonSearch .iconSearch {
-    color: var(--text-color-two-blur);
+    color: var(--text-color-two-focus);
 }
 .containerSuggestions {
     position: absolute;
