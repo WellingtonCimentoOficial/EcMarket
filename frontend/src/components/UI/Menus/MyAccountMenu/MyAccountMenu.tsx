@@ -1,14 +1,16 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import styles from './MyAccountMenu.module.css'
 import { NavLink, useLocation } from 'react-router-dom'
 import { PiSealCheckFill, PiUserLight, 
     PiShoppingCartLight, PiCardholderLight, 
     PiMapPinLight, PiHeartLight, PiKeyLight, 
-    PiStarLight, PiNoteLight, PiUserFill, PiMapPinFill, 
-    PiHeartFill, PiKeyFill, PiShoppingCartFill, PiNoteFill, 
-    PiStarFill, PiCardholderFill, PiRepeatLight, PiRepeatFill 
+    PiStarLight, PiUserFill, PiMapPinFill, 
+    PiHeartFill, PiKeyFill, PiShoppingCartFill, 
+    PiStarFill, PiCardholderFill, PiRepeatLight, 
+    PiRepeatFill, PiClipboardTextLight, PiClipboardTextFill 
 } from 'react-icons/pi';
 import { UserContext } from '../../../../contexts/UserContext';
+import { useAccountRequests } from '../../../../hooks/useBackendRequests';
 
 type Props = {
     shadow: boolean
@@ -24,6 +26,9 @@ type Data = {
 const MyAccountMenu = ({ shadow }: Props) => {
     const currentRoute = useLocation()
     const { user } = useContext(UserContext)
+    const { sendAccountVerificationCode } = useAccountRequests()
+    const [isVerificationEmailSent, setIsVerificationEmailSent] = useState<boolean>(false)
+
     const data: Data[] = [
         {
             name: 'Dados pessoais',
@@ -58,8 +63,8 @@ const MyAccountMenu = ({ shadow }: Props) => {
         {
             name: 'Pedidos',
             href: '/account/orders',
-            icon: <PiNoteLight />,
-            iconFill: <PiNoteFill />
+            icon: <PiClipboardTextLight />,
+            iconFill: <PiClipboardTextFill />
         },
         {
             name: 'Avaliações',
@@ -80,6 +85,11 @@ const MyAccountMenu = ({ shadow }: Props) => {
             iconFill: <PiRepeatFill />
         }
     ]
+
+    const handleSendAccountVerificationCode = ({ sent } : { sent: boolean }) => {
+        setIsVerificationEmailSent(sent)
+    }
+
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
             <div className={styles.container}>
@@ -88,6 +98,20 @@ const MyAccountMenu = ({ shadow }: Props) => {
                         <PiUserLight className={styles.headerIconContainerIcon} />
                     </div>
                     <div className={styles.headerTextsContainer}>
+                        { !user.is_verified && (
+                            !isVerificationEmailSent ? (
+                                <span 
+                                    className={styles.headerTextsContainerNameVerify} 
+                                    onClick={() => sendAccountVerificationCode({
+                                        callback: handleSendAccountVerificationCode
+                                    })}>
+                                        Verificar
+                                </span> 
+                            ):(
+                                <span className={styles.headerTextsContainerNameVerified}>E-mail enviado!</span>
+                            )
+                        )
+                        }
                         <div className={styles.headerTextsContainerName}>
                             <span className={styles.headerTitle} >
                                 {

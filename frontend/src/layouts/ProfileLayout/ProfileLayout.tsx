@@ -42,7 +42,7 @@ const ProfileLayout = ({ title, text, children, contentClassName }: Props) => {
         <div className={styles.wrapper}>
             <div className={styles.wrapperHeader}>
                 {currentRoute.pathname.split('/').map((path, index) => (
-                    <div className={styles.wrapperHeaderContainer}>
+                    <div className={styles.wrapperHeaderContainer} key={index}>
                         <NavLink 
                             to={`/${path}`} 
                                 className={({ isActive }) => !isActive ? `${styles.path} ${styles.pathActive}` : styles.path}

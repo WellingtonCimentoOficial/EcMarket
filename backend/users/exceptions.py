@@ -54,7 +54,7 @@ class TermsNotAccepted(APIException):
 class ErrorCreatingVerificationCode(APIException):
     status_code = 400
     default_code = 'error_creating_verification_code'
-    default_detail = 'Error creating verificationCcode'
+    default_detail = 'Error creating verification code'
 
 class InvalidVerificationCodeFormat(APIException):
     status_code = 400
@@ -120,3 +120,8 @@ class InvalidCpf(APIException):
     status_code = 400
     default_code = 'Invalid_cpf'
     default_detail = 'The cpf is invalid'
+
+class AccountVerificationCodeEmailNotSent(APIException):
+    status_code = 500
+    default_code = 'account_verification_code_email_not_sent'
+    default_detail = 'The Email with account verification code was not sent'

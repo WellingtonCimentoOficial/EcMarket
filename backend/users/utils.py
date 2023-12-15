@@ -195,7 +195,7 @@ def create_user(first_name=None, last_name=None, email=None, password=None):
 
     return new_user
 
-def create_new_verification_code(user):
+def create_new_account_verification_code(user):
     try:
         code = uuid4()
         if hasattr(user, 'verification_code'):
@@ -205,6 +205,8 @@ def create_new_verification_code(user):
         verification_code.code = code
         verification_code.user = user
         verification_code.save()
+
+        return verification_code.code
     except:
         raise exceptions.ErrorCreatingVerificationCode()
 
@@ -286,3 +288,15 @@ def send_welcome_notification(user):
         email.send(fail_silently=True)
     except:
         pass
+
+def send_account_verification_code(user_instance, code):
+    try:
+        email = EmailMessage(
+            "Verificação de conta",
+            f"Para fazer a verificação da sua conta, clique no link: {os.getenv('DOMAIN_URL')}/account/verify?code={code}\nLembrando que o link tem um prazo de validade de 10 minutos.",
+            settings.EMAIL_HOST_USER,
+            [user_instance.email],
+        )
+        email.send()
+    except:
+        raise exceptions.AccountVerificationCodeEmailNotSent()

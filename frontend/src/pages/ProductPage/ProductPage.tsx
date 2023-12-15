@@ -39,7 +39,7 @@ import { Product } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { AuthContext } from '../../contexts/AuthContext'
-import { useFavoritesRequest } from '../../hooks/useFavoritesRequest'
+import { useFavoritesRequests } from '../../hooks/useBackendRequests'
 import StyledSectionA from '../../styles/StyledSectionA'
 
 type Props = {}
@@ -100,7 +100,7 @@ const ProductPage = (props: Props) => {
 
     const { tokens } = useContext(AuthContext)
 
-    const { addToFavorites, removeFromFavorites } = useFavoritesRequest()
+    const { addToFavorites, removeFromFavorites } = useFavoritesRequests()
 
     const handleAddToFavorites = () => {
         setIsFavorite(true)

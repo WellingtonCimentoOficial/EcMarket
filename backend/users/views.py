@@ -16,7 +16,8 @@ from .utils import (
     google_user_id_exists, validate_data_format, create_user,
     verify_user_account, create_new_password_reset_code,
     apple_user_id_exists, send_password_changed_notification,
-    send_account_verified_notification, send_welcome_notification
+    send_account_verified_notification, send_welcome_notification,
+    send_account_verification_code, create_new_account_verification_code
 )
 from . import exceptions
 from django.contrib.auth import get_user_model
@@ -270,6 +271,27 @@ def reset_password(request):
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def send_account_verification_code_view(request):
+    try:
+        if request.user.is_verified:
+            raise exceptions.AccountAlreadyVerified()
+
+        code = create_new_account_verification_code(user=request.user)
+
+        send_account_verification_code(user_instance=request.user, code=code)
+        
+        return Response(status=status.HTTP_200_OK)
+    
+    except exceptions.AccountAlreadyVerified:
+        return Response({'cod': 70, 'error': 'Your account has already been verified'}, status=status.HTTP_400_BAD_REQUEST)
+    except exceptions.ErrorCreatingVerificationCode as e:
+        return Response({'cod': 71, 'error': e.default_detail}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except exceptions.AccountVerificationCodeEmailNotSent as e:
+        return Response({'cod': 72, 'error': e.default_detail}, status=e.status_code)
+    except:
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def verify_account(request):

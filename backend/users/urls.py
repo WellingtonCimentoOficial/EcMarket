@@ -9,6 +9,7 @@ urlpatterns = [
     path('sign-up/account/', views.search_account, name='search_account'),
 
     path('verify/', views.verify_account, name='verify_account'),
+    path('verify/code', views.send_account_verification_code_view, name='send_account_verification_code'),
     path('verify/status', views.is_verified, name='is_verified'),
 
     path('reset/password', views.reset_password, name='reset_password'),

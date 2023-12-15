@@ -43,6 +43,16 @@
     min-width: 18px;
     height: 100%;
 }
+.headerTextsContainerNameVerify {
+    font-size: 10pt;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+.headerTextsContainerNameVerified {
+    color: var(--primary-color);
+    font-size: 10pt;
+    user-select: none;
+}
 .headerTitle {
     font-weight: 500;
     white-space: normal;

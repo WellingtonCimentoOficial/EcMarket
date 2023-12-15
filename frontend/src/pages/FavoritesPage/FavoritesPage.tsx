@@ -7,8 +7,7 @@ import HorizProductCard from '../../components/UI/ProductCards/HorizProductCard/
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { LoadingContext } from '../../contexts/LoadingContext'
 import { Product } from '../../types/ProductType'
-import { useFavoritesRequest } from '../../hooks/useFavoritesRequest'
-import { useLocation } from 'react-router-dom'
+import { useFavoritesRequests } from '../../hooks/useBackendRequests'
 
 type Props = {}
 
@@ -18,9 +17,7 @@ const FavoritesPage = (props: Props) => {
     const { setIsLoading } = useContext(LoadingContext)
     const [products, setProducts] = useState<Product[] | null>(null)
 
-    const currentRoute = useLocation()
-
-    const { removeFromFavorites } = useFavoritesRequest()
+    const { removeFromFavorites } = useFavoritesRequests()
 
     const handleRemoveFromFavorites = ({ productId } : { productId?: number }) => {
         setProducts(prev => {
