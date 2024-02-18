@@ -102,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ecommerce',
         'USER': 'postgres',
-        'PASSWORD': 'root',
+        'PASSWORD': '12345678',
         'HOST': 'localhost'
     }
 }
