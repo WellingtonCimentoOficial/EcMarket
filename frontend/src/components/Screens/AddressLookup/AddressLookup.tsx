@@ -12,7 +12,7 @@ type Props = {}
 const AddressLookup = (props: Props) => {
     const [zipCodeText, setZipCodeText] = useState<string>("")
     const [zipCodeisValid, setZipCodeisValid] = useState<boolean>(true)
-    const { setShow, setZipCode, zipCode, removeZipCode } = useContext(ZipCodeContext)
+    const { setShow, setZipCodeContextData, zipCodeContextData, removeZipCode } = useContext(ZipCodeContext)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [currentMouseOverId, setCurrentMouseOverId] = useState<number | null>(null)
 
@@ -40,14 +40,14 @@ const AddressLookup = (props: Props) => {
         try {
             const response = await axios.get(`/addresses/cep/${zipCodeText.replaceAll(/\D/g, "")}`)
             if(response.status === 200){
-                setZipCode(response.data)
+                setZipCodeContextData(response.data)
                 localStorage.setItem('zip_code', response.data.zip_code)
                 setShow(false)
                 return
             }
             setZipCodeisValid(false)
         } catch (error) {
-            setZipCode(null)
+            setZipCodeContextData(null)
         }
         setIsLoading(false)
     }
@@ -100,7 +100,7 @@ const AddressLookup = (props: Props) => {
                             </BtnB01>
                         </div>
                     </form>
-                    {zipCode && (
+                    {zipCodeContextData && (
                         <>
                             <div className={styles.bodyContainer}>
                                 <div className={styles.bodyContainerHeader}>
@@ -114,8 +114,8 @@ const AddressLookup = (props: Props) => {
                                             <PiMapPinLine className={styles.bodyItemSubOneIcon} />
                                         </div>
                                         <div className={styles.bodyItemSubTwo}>
-                                            <span>{zipCode.address} - {zipCode.neighborhood}, {zipCode.city} - {zipCode.uf}</span>
-                                            <span>{zipCode.zip_code.slice(0, 5)} - {zipCode.zip_code.slice(5)}</span>
+                                            <span>{zipCodeContextData.street} - {zipCodeContextData.district}, {zipCodeContextData.city} - {zipCodeContextData.uf}</span>
+                                            <span>{zipCodeContextData.zip_code.slice(0, 5)} - {zipCodeContextData.zip_code.slice(5)}</span>
                                         </div>
                                         <div 
                                             className={`${styles.bodyItemSubThree} ${currentMouseOverId === index ? styles.bodyItemSubThreeShow : styles.bodyItemSubThreeHide}`}

@@ -20,6 +20,7 @@ import { AuthContext } from '../../../../contexts/AuthContext';
 import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
 import BtnA01 from '../../Buttons/BtnA01/BtnA01';
 import { UserContext } from '../../../../contexts/UserContext';
+import { useAddressRequests } from '../../../../hooks/useAddressRequests';
 
 type Props = {
     shadow?: boolean
@@ -38,7 +39,7 @@ type MenuConfigType = {
 }
 
 const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
-    const { setShow, zipCode } = useContext(ZipCodeContext)
+    const { setShow, zipCodeContextData, setZipCodeContextData } = useContext(ZipCodeContext)
     const [searchText, setSearchText] = useState<string>("")
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
@@ -53,6 +54,8 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const axiosPrivate = useAxiosPrivate()
 
     const { user } = useContext(UserContext)
+
+    const { getUserAddress } = useAddressRequests()
 
     const menuConfig: MenuConfigType = {
         body: [
@@ -148,12 +151,15 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     }, [get_categories_name])
 
     useEffect(() => { // GET CART QUANTITY OF ITEMS
-        if(tokens.refresh){
-            get_cart()
-        }else{
-            setCartNumberOfItems(0)
-        }
-    }, [tokens.refresh, get_cart])
+        (async () => {
+            if(tokens.refresh){
+                await get_cart()
+                await getUserAddress({ setData: setZipCodeContextData })
+            }else{
+                setCartNumberOfItems(0)
+            }
+        })()
+    }, [tokens.refresh, get_cart, getUserAddress, setZipCodeContextData])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
@@ -173,10 +179,10 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         )}
                     </div>
                     <div className={styles.flexLocationText}>
-                        {zipCode ? (
+                        {zipCodeContextData ? (
                             <>
-                                <span className={styles.flexLocationTextTitle}>{zipCode.zip_code.slice(0, 5) + '-' + zipCode.zip_code.slice(5)}</span>
-                                <span className={styles.flexLocationTextSubTitle}>{zipCode.city}, {zipCode.uf}</span>
+                                <span className={styles.flexLocationTextTitle}>{zipCodeContextData.zip_code.slice(0, 5) + '-' + zipCodeContextData.zip_code.slice(5)}</span>
+                                <span className={styles.flexLocationTextSubTitle}>{zipCodeContextData.city}, {zipCodeContextData.uf}</span>
                             </>
                         ):(
                             <>

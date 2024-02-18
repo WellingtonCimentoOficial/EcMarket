@@ -2,20 +2,14 @@ import { createContext, useEffect, useState, useCallback } from 'react'
 import AddressLookup from '../components/Screens/AddressLookup/AddressLookup'
 import ShadowFullScreen from '../components/UI/FullScreens/ShadowFullScreen/ShadowFullScreen'
 import { axios } from '../services/api'
+import { AddressType } from '../types/AddressesType'
 
-type ZipCodeType = {
-    address: string
-    zip_code: string
-    city: string
-    neighborhood: string
-    uf: string
-}
 
 type ZipCodeContextType = {
     show: boolean,
     setShow: React.Dispatch<React.SetStateAction<boolean>>
-    zipCode: ZipCodeType | null
-    setZipCode: React.Dispatch<React.SetStateAction<ZipCodeType | null>>
+    zipCodeContextData: AddressType | null
+    setZipCodeContextData: React.Dispatch<React.SetStateAction<AddressType | null>>
     removeZipCode: () => void
 }
 
@@ -26,32 +20,32 @@ type ZipCodeProviderProps = {
 const initialZipCodeContext: ZipCodeContextType = {
     show: false,
     setShow: () => {},
-    zipCode: null,
-    setZipCode: () => {},
+    zipCodeContextData: null,
+    setZipCodeContextData: () => {},
     removeZipCode: () => {}
 }
 
 export const ZipCodeContext = createContext<ZipCodeContextType>(initialZipCodeContext)
 
 export const ZipCodeProvider = ({children}: ZipCodeProviderProps) => {
-    const [zipCode, setZipCode] = useState<ZipCodeType | null>(null)
+    const [zipCodeContextData, setZipCodeContextData] = useState<AddressType | null>(null)
     const [show, setShow] = useState<boolean>(false)
     
     const get_address = useCallback(async (zipCodeText: string) => {
         try {
             const response = await axios.get(`/addresses/cep/${zipCodeText.replaceAll(/\D/g, "")}`)
             if(response.status === 200){
-                setZipCode(response.data)
+                setZipCodeContextData(response.data)
             }
         } catch (error) {
-            setZipCode(null)
+            setZipCodeContextData(null)
         }
     }, [])
 
     const removeZipCode = () => {
         try {
             localStorage.removeItem('zip_code')
-            setZipCode(null)
+            setZipCodeContextData(null)
             setShow(false)
         } catch (error) {
             
@@ -66,7 +60,7 @@ export const ZipCodeProvider = ({children}: ZipCodeProviderProps) => {
     }, [get_address])
 
     return (
-        <ZipCodeContext.Provider value={{zipCode, setZipCode, show, setShow, removeZipCode}}>
+        <ZipCodeContext.Provider value={{zipCodeContextData, setZipCodeContextData, show, setShow, removeZipCode}}>
             {show && 
                 <ShadowFullScreen>
                     <AddressLookup />

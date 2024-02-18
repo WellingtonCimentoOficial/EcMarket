@@ -171,5 +171,6 @@ def get_product_delivery(request, pk, zip_code):
             'price': float(str(price.get('pcFinal')).replace(',', '.'))
         }
         return Response(data)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

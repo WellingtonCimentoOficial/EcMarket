@@ -72,7 +72,7 @@ const ProductPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { dateDifferenceFormat, getNameDay, getNameMonth } = useDateTimeFormatter()
-    const { setShow, zipCode } = useContext(ZipCodeContext)
+    const { setShow, zipCodeContextData } = useContext(ZipCodeContext)
     const { createSlug } = useSlug()
 
     const [product, setProduct] = useState<Product | null>(null)
@@ -173,14 +173,14 @@ const ProductPage = (props: Props) => {
 
     const get_delivery_info = useCallback(async () => {
         try {
-            const response = await axios.get(`/products/delivery/${productId}/${zipCode?.zip_code}`)
+            const response = await axios.get(`/products/delivery/${productId}/${zipCodeContextData?.zip_code}`)
             if(response.status === 200){
                 setDeliveryInfo(response.data)
             }
         } catch (error) {
             setDeliveryInfo(null)
         }
-    }, [productId, zipCode, setDeliveryInfo])
+    }, [productId, zipCodeContextData, setDeliveryInfo])
 
     const scrollToSection = (sectionName: SectionNameType) => {
         if(sectionName === 'rating'){
@@ -193,7 +193,7 @@ const ProductPage = (props: Props) => {
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
     useEffect(() => {get_categories()}, [get_categories])
-    useEffect(() => {zipCode ? get_delivery_info() : setDeliveryInfo(null)}, [zipCode, get_delivery_info, setDeliveryInfo])
+    useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
 
     useEffect(() => {
         if(product && comments){

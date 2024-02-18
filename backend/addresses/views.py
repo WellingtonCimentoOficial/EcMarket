@@ -344,16 +344,21 @@ def get_cep_info(request, zip_code):
 
         # returning a response
         data = {
-            'address': zip_code_info.get('logradouro'),
-            'zip_code': zip_code_info.get('cep'),
-            'neighborhood': zip_code_info.get('bairro'),
+            'id': 0,
+            'street': zip_code_info.get('logradouro'),
+            'number': None,
+            'district': zip_code_info.get('bairro'),
+            'complement': None,
             'city': zip_code_info.get('localidade'),
             'state': UF_TO_STATE.get(str(zip_code_info.get('uf')).upper()),
             'uf': zip_code_info.get('uf'),
+            'zip_code': zip_code_info.get('cep'),
+            'country': None
         }
         return Response(data)
     
     except InvalidZipCodeError:
         return Response({'cod': 48, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

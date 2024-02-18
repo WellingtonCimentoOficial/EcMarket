@@ -4,7 +4,7 @@ import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import { PiHouseLight, PiPencilSimpleLight, PiPlusLight, PiPushPin, PiTrashLight } from 'react-icons/pi'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
-import { AddressType, CepInfoType, DeliveryAddressType } from '../../types/AddressesType'
+import { AddressType, DeliveryAddressType } from '../../types/AddressesType'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { AuthContext } from '../../contexts/AuthContext'
 import { LoadingContext } from '../../contexts/LoadingContext'
@@ -25,6 +25,8 @@ import {
     MAXIMUM_NUMBER_OF_DELIVERY_ADDRESSES_REACHED_ERROR, 
     RECAPTCHA_ERROR, REQUEST_ERROR 
 } from '../../constants/errorMessages'
+import { useAddressRequests } from '../../hooks/useAddressRequests'
+import { ZipCodeContext } from '../../contexts/ZipCodeContext'
 
 type Props = {}
 
@@ -112,19 +114,22 @@ const AddressesPage = (props: Props) => {
     const [country, setCountry] = useState<SelectType>(countries[0])
     const countryIsValid = country ? true : false
 
+    const { getUserAddress } = useAddressRequests()
+    const { setZipCodeContextData } = useContext(ZipCodeContext)
+
     const getCep = useCallback(async (zipCode: string) => {
         setIsLoading(true)
         try {
             const response = await axios.get(`/addresses/cep/${zipCode}`)
             if(response?.status === 200){
-                const data: CepInfoType = response.data
+                const data: AddressType = response.data
 
                 setNameIsValid(!address ? true : false)
 
-                setStreet(data.address)
+                setStreet(data.street)
                 setStreetIsValid(true)
 
-                setDistrict(data.neighborhood)
+                setDistrict(data.district)
                 setDistrictIsValid(true)
 
                 setCity(data.city)
@@ -180,7 +185,11 @@ const AddressesPage = (props: Props) => {
             })
             const data = response.data
             if(response?.status === 200 || response?.status === 201){
-                (!address || (address && showForm.isUpdate && showForm.idAddress)) ? setAddress(data) : setDeliveryAddresses(prev => {
+                const updateAddresses = () => {
+                    setAddress(data)
+                    setZipCodeContextData(data)
+                }
+                (!address || (address && showForm.isUpdate && showForm.idAddress)) ? updateAddresses() : setDeliveryAddresses(prev => {
                     if(prev && showForm.isUpdate && showForm.idDeliveryAddress){
                         return [...prev.filter(item => item.id !== showForm.idDeliveryAddress), data]
                     }else if(prev && !showForm.isUpdate){
@@ -240,24 +249,8 @@ const AddressesPage = (props: Props) => {
             }
         }
         setLocalIsLoading(false)
-    }, [showForm.idAddress, showForm.idDeliveryAddress, showForm.isUpdate, country.value, address, name, street, number, district, complement, city, state, uf, zipCode, axiosPrivate, setAddress, setLocalIsLoading])
-
-
-    const getAddress = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            const response = await axiosPrivate.get('/addresses/address/')
-            if(response?.status === 200){
-                const data: AddressType = response.data
-                setAddress(data)
-            }
-        } catch (error) {
-            if(axiosOriginal.isAxiosError(error)){
-                
-            }
-        }
-        setIsLoading(false)
-    }, [axiosPrivate, setAddress, setIsLoading])
+    }, [showForm.idAddress, showForm.idDeliveryAddress, showForm.isUpdate, country.value, address, name, street, number, 
+        district, complement, city, state, uf, zipCode, axiosPrivate, setAddress, setLocalIsLoading, setZipCodeContextData])
 
     const getDeliveryAddresses = useCallback(async () => {
         setIsLoading(true)
@@ -372,10 +365,10 @@ const AddressesPage = (props: Props) => {
 
     useEffect(() => {
         if(tokens.refresh){
-            getAddress()
+            getUserAddress({ setIsLoading, setData: setAddress })
             getDeliveryAddresses()
         }
-    }, [tokens.refresh, getAddress, getDeliveryAddresses])
+    }, [tokens.refresh, getUserAddress, getDeliveryAddresses, setIsLoading])
 
     useEffect(() => {
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Addresses`)
@@ -390,9 +383,9 @@ const AddressesPage = (props: Props) => {
             if(showForm.idAddress && address){
                 setZipCode(address.zip_code.replace(/^(\d{5})(\d{3})$/, '$1-$2'))
                 setStreet(address.street)
-                setNumber(address.number)
+                setNumber(address.number || '')
                 setDistrict(address.district)
-                setComplement(address.complement)
+                setComplement(address.complement || '')
                 setCity(address.city)
                 setState(address.state)
                 setUf(address.uf)
