@@ -1,4 +1,4 @@
-https://youtu.be/xGnVH1XfkCs
+Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 ![Captura de tela 2024-02-19 020723](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/bbac645f-1955-4b54-8909-da2afef6d0e7)
 ![Captura de tela 2024-02-19 020712](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/f4459250-f476-429d-9d2f-68e2f3a0b999)
 ![Captura de tela 2024-02-19 020658](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/7bdfb8db-0c43-4607-a0db-eb26d1efea0d)
