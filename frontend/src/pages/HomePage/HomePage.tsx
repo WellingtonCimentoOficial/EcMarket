@@ -83,16 +83,16 @@ const HomePage = (): JSX.Element => {
     return (
         <>
             <WidthLayout>
-                <NiceCarousel autoScroll={true} scrollInterval={30000} data={carouselData} />
+                <NiceCarousel autoScroll scrollInterval={30000} data={carouselData} />
             </WidthLayout>
             <WidthLayout width={75}>
                 {categoriesData &&
                     <>
                         <StyledSectionA>
                             {categoriesData[0] && categoriesData[0].products.length > 0 && (
-                                <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
+                                <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll autoScroll>
                                     {categoriesData[0].products.map((product) => (
-                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage showRating />
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
@@ -101,7 +101,7 @@ const HomePage = (): JSX.Element => {
                             {categoriesData[1] && categoriesData[1].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[1].name} href={`/search?q=&categories=${categoriesData[1].id}`}>
                                     {categoriesData[1].products.slice(0, 10).map((product) => (
-                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage showRating />
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
@@ -109,14 +109,14 @@ const HomePage = (): JSX.Element => {
                     </>
                 }
                 <StyledSectionA>
-                    <MacBanner data={macBannerData} inverse={true} />
+                    <MacBanner data={macBannerData} inverse />
                 </StyledSectionA>
                 {categoriesData &&
                     <StyledSectionA>
                         {categoriesData[2] && categoriesData[2].products.length > 0 && (
-                            <HeaderAndContentLayout title={categoriesData[2].name} href={`/search?q=&categories=${categoriesData[2].id}`} enableScroll={true} autoScroll={true}>
+                            <HeaderAndContentLayout title={categoriesData[2].name} href={`/search?q=&categories=${categoriesData[2].id}`} enableScroll autoScroll>
                                 {categoriesData[2].products.map((product) => (
-                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage showRating />
                                 ))}
                             </HeaderAndContentLayout>
                         )}
@@ -132,9 +132,9 @@ const HomePage = (): JSX.Element => {
                 {categoriesData &&
                     <StyledSectionA>
                         {categoriesData[4] && categoriesData[4].products.length > 0 && (
-                            <HeaderAndContentLayout title={categoriesData[4].name} href={`/search?q=&categories=${categoriesData[4].id}`} enableScroll={true} autoScroll={true}>
+                            <HeaderAndContentLayout title={categoriesData[4].name} href={`/search?q=&categories=${categoriesData[4].id}`} enableScroll autoScroll>
                                 {categoriesData[4].products.map((product) => (
-                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage showRating />
                                 ))}
                             </HeaderAndContentLayout>
                         )}
@@ -168,9 +168,9 @@ const HomePage = (): JSX.Element => {
                 {categoriesData &&
                     <StyledSectionA>
                         {categoriesData[5] && categoriesData[5].products.length > 0 && (
-                            <HeaderAndContentLayout title={categoriesData[5].name} href={`/search?q=&categories=${categoriesData[5].id}`} enableScroll={true} autoScroll={true}>
+                            <HeaderAndContentLayout title={categoriesData[5].name} href={`/search?q=&categories=${categoriesData[5].id}`} enableScroll autoScroll>
                                 {categoriesData[5].products.map((product) => (
-                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage showRating />
                                 ))}
                             </HeaderAndContentLayout>
                         )}

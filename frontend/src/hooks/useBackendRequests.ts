@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react'
 import { useAxiosPrivate } from './useAxiosPrivate'
 import { LoadingContext } from '../contexts/LoadingContext'
 import * as originalAxios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 type FavoritesProps = {
     productId: number
@@ -19,6 +20,8 @@ export const useFavoritesRequests = () => {
     const axiosPrivate = useAxiosPrivate()
     const { setIsLoading } = useContext(LoadingContext)
 
+    const navigate = useNavigate()
+
     const addToFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
         try {
@@ -27,6 +30,11 @@ export const useFavoritesRequests = () => {
                 callback({ productId: callbackArgs?.productId })
             }
         } catch (error) {
+            if(originalAxios.isAxiosError(error)){
+                if(error.response?.status === 401){
+                    navigate('/account/sign-in')
+                }
+            }
         }   
         setIsLoading(false)
     }, [axiosPrivate, setIsLoading])

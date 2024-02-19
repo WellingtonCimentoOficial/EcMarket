@@ -9,9 +9,10 @@ type Props = {
     data: Product
     showDiscountPercentage?: boolean
     showRating?: boolean
+    showRatingFixed?: boolean
 }
 
-const SimpleProductCard: React.FC<Props> = ({ data, showDiscountPercentage = false, showRating = false }) => {
+const SimpleProductCard: React.FC<Props> = ({ data, showDiscountPercentage = false, showRating = false, showRatingFixed = false }) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
     return (
@@ -27,10 +28,11 @@ const SimpleProductCard: React.FC<Props> = ({ data, showDiscountPercentage = fal
                             <p className={styles.description}>{data.description.length > 25 ? `${data.description.slice(0, 25)}...` : data.description}</p>
                         }
                         {showRating && 
-                            <div className={styles.containerRating}>
-                                <StarRating rate={data.rating.average} />
-                                <span className={styles.ratingText}>{`(${data.rating.count.toLocaleString('pt-BR')})`}</span>
-                            </div>
+                            (data.rating.average || showRatingFixed) &&
+                                <div className={styles.containerRating}>
+                                    <StarRating rate={data.rating.average} />
+                                    <span className={styles.ratingText}>{`(${data.rating.count.toLocaleString('pt-BR')})`}</span>
+                                </div>
                         }
                     </div>
                 </div>

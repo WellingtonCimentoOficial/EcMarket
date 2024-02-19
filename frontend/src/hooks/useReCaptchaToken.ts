@@ -1,11 +1,6 @@
 import { useCallback, useState } from "react"
 import { useIsScriptAlreadyAdded } from "./useIsScriptAlreadyAddes"
 
-type callbackProps = { 
-    RecaptchaToken: string, 
-    GoogleToken: string 
-}
-
 export const useReCaptchaToken = () => {
     const reCaptchaToken = process.env.REACT_APP_RE_CAPTCHA_TOKEN || ''
     const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState<boolean>(false)
