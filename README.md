@@ -1,4 +1,4 @@
-EcMarket
+## **EcMarket**
 
 Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 
