@@ -1,4 +1,4 @@
-const mp = new MercadoPago('TEST-ed6cb7ac-651e-4785-af6c-1aa33b8f69bc');
+const mp = new MercadoPago('');
 
 var cards = []
 
