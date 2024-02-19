@@ -19,7 +19,7 @@ class ProductChildDetailSerializer(serializers.ModelSerializer):
             'image_2', 
             'image_3', 
             'image_4', 
-            'image_5' 
+            'image_5',
         ] 
 
     def get_discount_percentage(self, obj):

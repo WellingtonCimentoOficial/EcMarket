@@ -67,6 +67,11 @@ class ProductPresentation(models.Model):
     image_3 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
     image_4 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
     image_5 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
+    image_6 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
+    image_7 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
+    image_8 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
+    image_9 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
+    image_10 = models.ImageField(upload_to='static/product/presentation/', null=True, blank=True)
 
     def __str__(self):
         return self.product.name

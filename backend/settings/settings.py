@@ -100,10 +100,11 @@ WSGI_APPLICATION = 'settings.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ecommerce',
-        'USER': 'postgres',
-        'PASSWORD': '12345678',
-        'HOST': 'localhost'
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT')
     }
 }
 
@@ -159,6 +160,7 @@ AUTH_USER_MODEL = 'users.User'
 #Cors configurations
 CORS_ALLOWED_ORIGINS = [
     os.getenv('DOMAIN_URL'), # change to mercado pago
+    os.getenv('DOMAIN_FRONTEND_URL'),
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "http://127.0.0.1:5500",
@@ -172,7 +174,8 @@ CORS_ALLOW_HEADERS = (
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    CORS_ALLOWED_ORIGINS[0].replace("https://", "")
+    os.getenv('DOMAIN_URL').replace("https://", ""),
+    os.getenv('DOMAIN_FRONTEND_URL').replace("https://", ""),
 ]
 
 #csrf configurations

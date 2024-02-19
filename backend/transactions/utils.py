@@ -122,7 +122,7 @@ def create_payment_request_payload (request, products, transaction_amount, card_
             },
             "type": "customer"
         },
-        "notification_url": f"{os.getenv('DOMAIN_URL')}{reverse('update_order_status')}",
+        "notification_url": f"{os.getenv('DOMAIN_FRONTEND_URL')}{reverse('update_order_status')}",
         "additional_info": {
             "ip_address": request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR'),
             "items": items
