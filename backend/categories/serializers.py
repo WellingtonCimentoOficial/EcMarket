@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CategoryProduct
+from .models import CategoryProduct, SubCategoryProduct
 from products.serializers import ProductFatherMinimalSerializer
 
 class CategoryProductSerializer(serializers.ModelSerializer):
@@ -14,3 +14,8 @@ class CategoryProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryProduct
         exclude = ('created_at', 'updated_at')
+
+class SubCategoryProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategoryProduct
+        exclude = ('created_at', 'updated_at', 'category_product')

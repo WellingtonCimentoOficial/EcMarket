@@ -1,11 +1,19 @@
-from django.db.models import Avg, Q
+from django.db.models import Avg, Q, Value, DecimalField
 from django.db.models.functions import Coalesce
 from .exceptions import ProductFilterError
 from uuid import uuid4
 import re
 
-def apply_product_filters(product_instance, search, rating, random, relevance, categories, brands, min_price, max_price):
-
+def apply_product_filters(productfather_instance, request):
+    search = request.query_params.get('search')
+    random = request.query_params.get('random')
+    rating = request.query_params.get('rating')
+    relevance = request.query_params.get('relevance')
+    categories = request.query_params.get('categories')
+    brands = request.query_params.get('brands')
+    min_price = request.query_params.get('minPrice')
+    max_price = request.query_params.get('maxPrice')
+    
     # verifing if search param exists and if his value is true 
     if search is not None:
         keywords = re.sub(r'[^A-Za-z0-9\s]+', '', search).split()
@@ -15,11 +23,11 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
             for keyword in keywords[1:]:
                 query &= Q(name__icontains=keyword)
 
-            products = product_instance.objects.filter(query).all()
+            products = productfather_instance.objects.filter(query).all()
         else:
-            products = product_instance.objects.filter(Q(name__icontains=search)).all()
+            products = productfather_instance.objects.filter(Q(name__icontains=search)).all()
     else:
-        products = product_instance.objects.all()
+        products = productfather_instance.objects.all()
 
 
     # filtering by categories
@@ -52,7 +60,7 @@ def apply_product_filters(product_instance, search, rating, random, relevance, c
             if hasattr(products.first(), 'average_rating'):
                 products = products.order_by('-average_rating')
             else:
-                products = products.annotate(average_rating=Avg('comments__rating')).order_by('-average_rating')
+                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
         elif int(relevance) == 1:
             products = products.annotate(ordering_price=Coalesce('children__discount_price', 'children__default_price')).order_by('-ordering_price')
         elif int(relevance) == 2:

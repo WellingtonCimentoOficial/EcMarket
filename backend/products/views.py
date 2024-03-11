@@ -17,27 +17,8 @@ import re
 @api_view(['GET'])
 def get_products(request):
     try:
-        search = request.query_params.get('search')
-        random = request.query_params.get('random')
-        rating = request.query_params.get('rating')
-        relevance = request.query_params.get('relevance')
-        categories = request.query_params.get('categories')
-        brands = request.query_params.get('brands')
-        min_price = request.query_params.get('minPrice')
-        max_price = request.query_params.get('maxPrice')
-
         #applying some filters
-        products = apply_product_filters(
-            ProductFather, 
-            search=search, 
-            random=random, 
-            rating=rating, 
-            relevance=relevance, 
-            categories=categories, 
-            brands=brands, 
-            min_price=min_price, 
-            max_price=max_price
-        )
+        products = apply_product_filters(productfather_instance=ProductFather, request=request)
         
         #making a pagination
         paginator = CustomPagination()
@@ -99,13 +80,29 @@ def get_product(request, pk):
 @api_view(['GET']) 
 def get_product_filters(request):
     try:
-        categories = CategoryProduct.objects.all()
-        brands = ProductBrand.objects.all()
+        #applying some filters
+        products = apply_product_filters(productfather_instance=ProductFather, request=request)
 
+        categories_id = set()
+        brands_id = set()
+
+        for product in products.all():
+            for category in product.categories.all():
+                categories_id.add(category.id)
+            brands_id.add(product.brand.id)
+
+        categories = CategoryProduct.objects.filter(id__in=list(categories_id))
+        brands = ProductBrand.objects.filter(id__in=list(brands_id))
+    
         filters_data = mount_product_filters(categories_query_set=categories, brands_query_set=brands)
-
+        
+        #returning 404 if no product is found
+        if products.count() == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(filters_data)
-    except:
+    except Exception as e:
+        if hasattr(e, "detail") and hasattr(e, "status_code"):
+            return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -171,6 +168,5 @@ def get_product_delivery(request, pk, zip_code):
             'price': float(str(price.get('pcFinal')).replace(',', '.'))
         }
         return Response(data)
-    except Exception as e:
-        print(e)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

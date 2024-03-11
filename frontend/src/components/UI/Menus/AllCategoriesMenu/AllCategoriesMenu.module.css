@@ -6,15 +6,16 @@
     left: 0;
     height: 100vh;
     z-index: 2;
+    box-shadow: 5px 0px 15px -3px rgba(0,0,0,0.1);
 }
 .containerFather {
 }
 .title {
-    display: block;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+    text-decoration: none;
 }
 .iconTitle {
     margin: 0px 30px;

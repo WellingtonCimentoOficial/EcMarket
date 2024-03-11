@@ -42,7 +42,7 @@ const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) =
         const get_categories = async () => {
             setIsLoading(true)
             try {
-                const response = await axios.get('/categories/name/?limit=20')
+                const response = await axios.get('/categories/name/?limit=20&include_default=false&include_subcategories=true&max_subcategories_count=20')
                 if(response.status === 200){
                     setCategories(response.data.results)
                 }
@@ -59,12 +59,17 @@ const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) =
             <div className={styles.container}>
                 {categories && categories.map(category => (
                     <div className={styles.containerFather} key={category.id}>
-                        <span className={styles.title} onClick={(): void => setHoveredIndex(category.id)}>
-                            {category.name}
-                            <PiCaretRightLight className={styles.iconTitle} />
-                        </span>
+                        {category.sub_categories && category.sub_categories.length > 0 ? (
+                            <span className={styles.title} onClick={() => setHoveredIndex(category.id)}>
+                                {category.name}
+                                <PiCaretRightLight className={styles.iconTitle} />
+                            </span>
+                        ):(
+                            <a className={styles.title} href={`/search?q=&categories=${category.id}`}>
+                                {category.name}
+                            </a>
+                        )}
                         <div className={`${styles.containerChild} ${hoveredIndex === category.id ? styles.showEffect : styles.hideEffect}`}>
-                            
                             <div className={styles.containerChildBody}>
                                 <ul className={styles.ulChild}>
                                     <div className={styles.containerChildHeader} onClick={(): void => setHoveredIndex(-1)}>
@@ -73,66 +78,11 @@ const AllCategoriesMenu: React.FC<Props> = ({ show, setShow, triggerElement }) =
                                         </div>
                                         <span className={styles.containerChildHeaderText}>Voltar</span>
                                     </div>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
-                                    <li className={styles.liChild}>
-                                        <a href="/" className={styles.aChild}>{category.name + category.id}</a>
-                                    </li>
+                                    {category.sub_categories?.map(subCategory => (
+                                        <li className={styles.liChild} key={subCategory.id}>
+                                            <a href={`/search?q=&sub_categories=${subCategory.id}`} className={styles.aChild}>{subCategory.name}</a>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>

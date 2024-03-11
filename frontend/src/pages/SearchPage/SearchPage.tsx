@@ -159,7 +159,11 @@ const SearchPage = () => {
         setIsLoading(true)
         try {
             const offset = typeof itemsPerPage.value === "number" ? currentPage * itemsPerPage.value : 0
-            const dynamicFilters = filters?.map(filter => filter.param && `&${filter.param}=${Object.entries(checkBoxValues[filter.id] ? checkBoxValues[filter.id] : "").filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`).join('')
+            const dynamicFilters = filters?.map(
+                filter => filter.param && `&${filter.param}=${Object.entries(
+                    checkBoxValues[filter.id] ? checkBoxValues[filter.id] : ""
+                ).filter(([_, value]) => value === true).map(([itemId]) => itemId).join(",")}`
+            ).join('')
             
             const path = `/products/` +
             `?search=${queryParam}` +
@@ -171,14 +175,13 @@ const SearchPage = () => {
             `&maxPrice=${priceFilter[1]}` +
             `${dynamicFilters}`
 
-            if(dynamicFilters){
-                const response = await axios.get(path)
-                if(response.status === 200){
-                    setProducts(response.data.results)
-                    setTotalPageCount(response.data.total_page_count)
-                    setTotalProductCount(response.data.total_item_count)
-                    window.scrollTo({top: 0, behavior: 'smooth'})
-                }
+            const response = await axios.get(path)
+            if(response.status === 200){
+                const data: Product[] = response.data.results
+                setProducts(data)
+                setTotalPageCount(response.data.total_page_count)
+                setTotalProductCount(response.data.total_item_count)
+                window.scrollTo({top: 0, behavior: 'smooth'})
             }
         } catch (error) {
             setTotalPageCount(0)
@@ -193,6 +196,21 @@ const SearchPage = () => {
         setProducts, setTotalPageCount, setTotalProductCount
     ])
     
+    const get_filters = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            const path = `/products/filters/?search=${queryParam}`
+            const response = await axios.get(path)
+            if(response.status === 200){
+                const data: Filter[] = response.data
+                setFilters(data)
+            }
+        } catch (error) {
+
+        }
+        setIsLoading(false)
+    }, [queryParam, setIsLoading, setFilters])
+    
     const get_categories = useCallback(async () => {
         setIsLoading(true)
         try {
@@ -206,20 +224,8 @@ const SearchPage = () => {
         setIsLoading(false)
     }, [setIsLoading, setCategoriesData])
 
-    const get_filters = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            const response = await axios.get('/products/filters/')
-            if(response.status === 200){
-                setFilters(response.data)
-            }
-        } catch (error) {
-            setFilters([])
-        }
-        setIsLoading(false)
-    }, [setIsLoading, setFilters])
 
-    useEffect(() => setCheckBoxValues(checkBoxInitialValues()), [setCheckBoxValues, checkBoxInitialValues])
+    useEffect(() => {filters.length > 0 && setCheckBoxValues(checkBoxInitialValues())}, [setCheckBoxValues, checkBoxInitialValues, filters])
     useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
     useEffect(() => handleLimit(), [handleLimit]) // calls a function whenever the page is loaded
     //useEffect(() => setCurrentPage(0), [itemsPerPage, setCurrentPage]) // resets currentPage whenever itemsPerPage updates
@@ -227,9 +233,9 @@ const SearchPage = () => {
     useEffect(() => handleRating(ratingFilter), [ratingFilter, handleRating]) // calls a function whenever ratingFilter updates
     useEffect(() => handleRelevance(relevanceFilter), [relevanceFilter, handleRelevance]) // calls a function whenever relevanceFilter updates
     useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle]) // update page title whenever queryParam and totalProductCount update
-    useEffect(() => {get_products()}, [get_products]) // calls a function whenever the page is loaded
+    useEffect(() => {get_filters()}, [get_filters]) // calls a function whenever the products state is updated with new products
+    useEffect(() => {filters.length > 0 && get_products()}, [get_products, filters]) // calls a function whenever the page is loaded
     useEffect(() => {get_categories()}, [get_categories]) // calls a function whenever the page is loaded
-    useEffect(() => {get_filters()}, [get_filters]) // calls a function whenever the page is loaded
 
     return (
         <WidthLayout width={90}>
@@ -245,90 +251,83 @@ const SearchPage = () => {
                                 <span>Frete grátis</span>
                                 <ToggleSwitchCheckBox onChange={setFreeShipping} value={freeShipping} />
                             </div>
-                            {filters && filters.map((filter, index) => {
-                                const adjustedIndex  = index + 1
-                                return (
-                                    <div className={styles.filtersWrapper} key={filter.id}>
-                                        <div className={styles.flexFilter}>
-                                            <div className={styles.flexFilterHeader}>
-                                                <h3 className={styles.flexFilterTitle}>{filter.name}</h3>
-                                            </div>
-                                            <div className={`${styles.flexFilterBody} ${styles.flexFilterBodyScroll}`}>
-                                                {filter.data.map((item) => {
-                                                    return (
-                                                        <div className={styles.flexFilterItem} key={item.id} onClick={(e) => handleFilter(filter, item, e)}>
-                                                            <SimpleCheckBox value={checkBoxValues[filter.id]?.[item.id] || false} />
-                                                            <span className={styles.flexFilterDescription}>{`${item.name} (${item.count})`}</span>
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                            <div className={styles.flexFilterFooter}>
-                                                <div className={styles.flexFilterSeparator}></div>
-                                            </div>
-                                        </div>
-                                        {adjustedIndex === 1 && (
-                                            <div className={styles.flexFilter}>
-                                                <div className={styles.flexFilterHeader}>
-                                                    <h3 className={styles.flexFilterTitle}>Preço</h3>
-                                                </div>
-                                                <div className={styles.flexFilterBody}>
-                                                    <div className={styles.flexFilterItem}>
-                                                        <div className={styles.flexPriceFilter}>
-                                                            <div className={styles.flexPriceFilterHeader}>
-                                                                <div className={styles.flexPriceFilterHeaderA}>
-                                                                    <div className={styles.flexPriceFilterHeaderAItem}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Mínimo:</span>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(minPrice)}</span>
-                                                                    </div>
-                                                                    <div className={styles.flexPriceFilterHeaderAItem}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Máximo:</span>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(maxPrice)}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className={`${styles.flexPriceFilterHeaderA} ${styles.flexPriceFilterHeaderB}`}>
-                                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[0])}</span>
-                                                                    </div>
-                                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
-                                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[1])}</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.flexPriceFilterBody}>
-                                                                <NickRangeSlider min={minPrice} max={maxPrice} value={priceFilter} onAfterChange={setPriceFilter} onChange={setPriceFilterText} />
-                                                            </div>
-                                                        </div>
+                            <div className={styles.flexFilter}>
+                                <div className={styles.flexFilterHeader}>
+                                    <h3 className={styles.flexFilterTitle}>Preço</h3>
+                                </div>
+                                <div className={styles.flexFilterBody}>
+                                    <div className={styles.flexFilterItem}>
+                                        <div className={styles.flexPriceFilter}>
+                                            <div className={styles.flexPriceFilterHeader}>
+                                                <div className={styles.flexPriceFilterHeaderA}>
+                                                    <div className={styles.flexPriceFilterHeaderAItem}>
+                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Mínimo:</span>
+                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(minPrice)}</span>
+                                                    </div>
+                                                    <div className={styles.flexPriceFilterHeaderAItem}>
+                                                        <span className={styles.flexPriceFilterHeaderAItemText}>Máximo:</span>
+                                                        <span className={styles.flexPriceFilterHeaderAItemText}>{CurrencyFormatter(maxPrice)}</span>
                                                     </div>
                                                 </div>
-                                                <div className={styles.flexFilterFooter}>
-                                                    {/* {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>} */}
-                                                    <div className={styles.flexFilterSeparator}></div>
+                                                <div className={`${styles.flexPriceFilterHeaderA} ${styles.flexPriceFilterHeaderB}`}>
+                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
+                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[0])}</span>
+                                                    </div>
+                                                    <div className={`${styles.flexPriceFilterHeaderAItem} ${styles.flexPriceFilterHeaderBItem}`}>
+                                                        <span className={styles.flexPriceFilterHeaderAItemTextB}>{CurrencyFormatter(priceFilterText[1])}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        )}
-                                        {adjustedIndex === 2 && (
-                                            <div className={styles.flexFilter}>
-                                                <div className={styles.flexFilterHeader}>
-                                                    <h3 className={styles.flexFilterTitle}>Avaliações</h3>
-                                                </div>
-                                                <div className={styles.flexFilterBody}>
-                                                    {Array.from(Array(4), (_, index) => index + 1).map((index) => (
-                                                        <div className={styles.flexFilterItem} key={index} onClick={() => handleRating(index)}>
-                                                            <StarRating rate={index} />
-                                                            <span className={styles.flexFilterDescription}>e acima</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className={styles.flexFilterFooter}>
-                                                    {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>}
-                                                    {adjustedIndex !== filters.length && <div className={styles.flexFilterSeparator}></div>}
-                                                </div>
+                                            <div className={styles.flexPriceFilterBody}>
+                                                <NickRangeSlider min={minPrice} max={maxPrice} value={priceFilter} onAfterChange={setPriceFilter} onChange={setPriceFilterText} />
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
-                                )
-                            })}
+                                </div>
+                                <div className={styles.flexFilterFooter}>
+                                    {/* {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>} */}
+                                    <div className={styles.flexFilterSeparator}></div>
+                                </div>
+                            </div>
+                            <div className={styles.flexFilter}>
+                                <div className={styles.flexFilterHeader}>
+                                    <h3 className={styles.flexFilterTitle}>Avaliações</h3>
+                                </div>
+                                <div className={styles.flexFilterBody}>
+                                    {Array.from(Array(4), (_, index) => index + 1).map((index) => (
+                                        <div className={styles.flexFilterItem} key={index} onClick={() => handleRating(index)}>
+                                            <StarRating rate={index} />
+                                            <span className={styles.flexFilterDescription}>e acima</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className={styles.flexFilterFooter}>
+                                    {ratingFilter && <div className={styles.flexFilterWidth} onClick={() => handleRating(null)}><BtnB01 autoWidth={true}>Limpar</BtnB01></div>}
+                                    <div className={styles.flexFilterSeparator}></div>
+                                </div>
+                            </div>
+                            {filters.map((filter, index) => (
+                                <div className={styles.filtersWrapper} key={filter.id}>
+                                    <div className={styles.flexFilter}>
+                                        <div className={styles.flexFilterHeader}>
+                                            <h3 className={styles.flexFilterTitle}>{filter.name}</h3>
+                                        </div>
+                                        <div className={`${styles.flexFilterBody} ${styles.flexFilterBodyScroll}`}>
+                                            {filter.data.map((item) => {
+                                                return (
+                                                    <div className={styles.flexFilterItem} key={item.id} onClick={(e) => handleFilter(filter, item, e)}>
+                                                        <SimpleCheckBox value={checkBoxValues[filter.id]?.[item.id] || false} />
+                                                        <span className={styles.flexFilterDescription}>{`${item.name} (${item.count})`}</span>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                        <div className={styles.flexFilterFooter}>
+                                            {index + 1 < filters.length && <div className={styles.flexFilterSeparator}></div>}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         {products.length > 0 ? (
                             <div className={styles.containerProducts}>

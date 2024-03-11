@@ -10,37 +10,96 @@
       content="Web site created using create-react-app"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <style>
+      @keyframes lds-ellipsis1 {
+          0% {
+              transform: scale(0);
+          }
+          100% {
+              transform: scale(1);
+          }
+      }
+      @keyframes lds-ellipsis3 {
+          0% {
+              transform: scale(1);
+          }
+          100% {
+              transform: scale(0);
+          }
+      }
+      @keyframes lds-ellipsis2 {
+          0% {
+              transform: translate(0, 0);
+          }
+          100% {
+              transform: translate(34px, 0);
+          }
+      }
+      .wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loader {
+          display: inline-block;
+          position: relative;
+          width: 68px;
+          height: 20px;
+          background-color: transparent;
+          display: flex;
+          align-items: center;
+      }
+      .loaderChild {
+          position: absolute;
+          top: 0;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #FF4000;
+          animation-timing-function: cubic-bezier(0, 1, 1, 0);
+      }
+      .loaderChild:nth-child(1) {
+          left: 0px;
+          animation: lds-ellipsis1 0.6s infinite;
+      }
+      .loaderChild:nth-child(2) {
+          left: 0px;
+          animation: lds-ellipsis2 0.6s infinite;
+      }
+      .loaderChild:nth-child(3) {
+          left: 34px;
+          animation: lds-ellipsis2 0.6s infinite;
+      }
+      .loaderChild:nth-child(4) {
+          left: 68px;
+          animation: lds-ellipsis3 0.6s infinite;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    <div id="root">
+      <section class="wrapper">
+        <div class="container">
+            <div class=loader>
+                <div class="loaderChild"></div>
+                <div class="loaderChild"></div>
+                <div class="loaderChild"></div>
+                <div class="loaderChild"></div>
+            </div>
+        </div>
+      </section>
+    </div>
   </body>
 </html>

@@ -1,5 +1,7 @@
 import { Product } from "./ProductType"
 
+
+
 export type Category = {
     id: number
     name: string
@@ -9,4 +11,8 @@ export type Category = {
 export type CategoryName = {
     id: number,
     name: string
+    sub_categories: {
+        id: number,
+        name: string
+    }[] | null
 }

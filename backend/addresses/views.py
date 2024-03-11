@@ -359,6 +359,5 @@ def get_cep_info(request, zip_code):
     
     except InvalidZipCodeError:
         return Response({'cod': 48, 'error': 'The zip code is invalid'}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        print(e)
+    except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

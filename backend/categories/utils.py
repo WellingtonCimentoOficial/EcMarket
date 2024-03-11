@@ -1,7 +1,11 @@
 from django.db.models import OuterRef, Count, Q, Subquery
 from .exceptions import CategoryFilterError
+from .models import SubCategoryProduct
 
-def apply_category_filters(productfather_instance, categoryproduct_instance, search_param=None, min_product_count_param=None, max_product_count_param=None, random_param=None):
+def apply_category_filters(
+        productfather_instance, categoryproduct_instance, search_param=None, 
+        min_product_count_param=None, max_product_count_param=None, random_param=None, 
+        include_default_param=None, include_subcategories_param=None, max_subcategories_count=None):
     # filtering all categories
     categories = categoryproduct_instance.objects.all().order_by('-id')
 
@@ -11,7 +15,15 @@ def apply_category_filters(productfather_instance, categoryproduct_instance, sea
             categories = categoryproduct_instance.objects.filter(Q(name__icontains=search_param)).order_by('-id')
         else:
             raise CategoryFilterError()
-    
+        
+    if include_default_param is not None:
+        if include_default_param.lower() == 'true':
+            categories = categories.filter(is_default=True)
+        elif include_default_param.lower() == 'false':
+            categories = categories.filter(is_default=False)
+        else:
+            raise CategoryFilterError()
+
     # limiting products to the reported value
     if max_product_count_param is not None:
         if max_product_count_param.isdigit():

@@ -11,7 +11,7 @@ import {
     PiCardholderLight,
     PiSealCheckFill
 } from 'react-icons/pi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import FullLogo from '../../Logos/FullLogo/FullLogo';
 import { axios } from '../../../../services/api';
 import { CategoryName } from '../../../../types/CategoryType';
@@ -39,8 +39,9 @@ type MenuConfigType = {
 }
 
 const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
+    const [searchParams] = useSearchParams()
     const { setShow, zipCodeContextData, setZipCodeContextData } = useContext(ZipCodeContext)
-    const [searchText, setSearchText] = useState<string>("")
+    const [searchText, setSearchText] = useState<string>(searchParams.get('q') || '')
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)

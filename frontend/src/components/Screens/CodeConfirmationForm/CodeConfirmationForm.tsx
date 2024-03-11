@@ -528,7 +528,7 @@ const CodeConfirmationForm = (props: Props) => {
                                             <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
                                                 <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
                                             </div>
-                                            <span className={styles.containerBodyFormInputContainerLabel}>Confirmar senha</span>
+                                            <span className={styles.containerBodyFormInputContainerLabel}>Confirm password</span>
                                             <input 
                                                 ref={element => inputsRef.current['confirmPassword'] = element}
                                                 className={`${styles.containerBodyFormInputContainerInput} ${!confirmPasswordIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 

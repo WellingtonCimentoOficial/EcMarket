@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import CategoryProduct
-from .serializers import CategoryProductSerializer
+from .models import CategoryProduct, SubCategoryProduct
+from .serializers import CategoryProductSerializer, SubCategoryProductSerializer
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from products.models import ProductFather
@@ -54,16 +54,34 @@ def get_categories_name(request):
     try:
         search_param = request.query_params.get('search')
         random_param = request.query_params.get('random')
+        include_default_param = request.query_params.get('include_default')
+        include_subcategories_param = request.query_params.get('include_subcategories')
+        max_subcategories_count = request.query_params.get('max_subcategories_count')
 
         # applying filters
         categories = apply_category_filters(
             productfather_instance=ProductFather, 
             categoryproduct_instance=CategoryProduct,
             search_param=search_param,
-            random_param=random_param
-        ).values_list('name', 'id')
+            random_param=random_param,
+            include_default_param=include_default_param,
+            include_subcategories_param=include_subcategories_param,
+            max_subcategories_count=max_subcategories_count
+        )
+        
+        categories_formatted = []
 
-        categories_formatted = [{'id': id, 'name': str(name)} for name, id in categories]
+        for category in categories:
+            sub_categories = category.sub_categories.all()
+            sub_categories_serialized = SubCategoryProductSerializer(
+                sub_categories[:int(max_subcategories_count)] if max_subcategories_count is not None and max_subcategories_count.isdigit() else sub_categories[:sub_categories.count()], 
+                many=True
+            ).data
+            categories_formatted.append({
+                'id': category.id,
+                'name': category.name,
+                'sub_categories': sub_categories_serialized if include_subcategories_param is not None and include_subcategories_param.lower() == 'true' else None
+            })
 
         #making a pagination
         paginator = CategoriesPagination()
