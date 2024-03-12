@@ -11,78 +11,96 @@ import { SocialMediaInterface } from '../../../../types/SocialMediaType'
 const MainFooter = () => {
     const [socialMedias, setSocialMedias] = useState<SocialMediaInterface[] | null>(null)
 
-    const data = [
+    const initialData = [
         {
+            id: 0,
             title: "Sobre nós",
             data: [
                 {
+                    id: 0,
                     title: "Quem somos?",
                     path: "/"
                 },
                 {
+                    id: 1,
                     title: "Apresentação",
                     path: "/"
                 },
                 {
+                    id: 2,
                     title: "Equipe",
                     path: "/"
                 },
                 {
+                    id: 3,
                     title: "Participações",
                     path: "/"
                 }
             ]
         },
         {
+            id: 1,
             title: "Pagamentos",
             data: [
                 {
+                    id: 0,
                     title: "Bandeiras",
                     path: "/"
                 },
                 {
+                    id: 1,
                     title: "Cartão de débito",
                     path: "/"
                 },
                 {
+                    id: 2,
                     title: "Cartão de crédito",
                     path: "/"
                 },
                 {
+                    id: 3,
                     title: "Pix",
                     path: "/"
                 },
                 {
+                    id: 4,
                     title: "Segurança",
                     path: "/"
                 }
             ]
         },
         {
+            id: 2,
             title: "Contato",
             data: [
                 {
+                    id: 0,
                     title: "E-mail",
                     path: "/"
                 },
                 {
+                    id: 1,
                     title: "Whatsapp",
-                    path: "/"
+                    path: socialMedias?.find(item => item.id === 0)?.url || '/'
                 },
                 {
+                    id: 2,
                     title: "Formulário",
                     path: "/"
                 }
             ]
         },
         {
+            id: 3,
             title: "Termos",
             data: [
                 {
+                    id: 0,
                     title: "Política de Privacidade",
                     path: "/"
                 },
                 {
+                    id: 1,
                     title: "Termos de Uso",
                     path: "/"
                 }
@@ -90,12 +108,33 @@ const MainFooter = () => {
         }
     ]
 
+    const [data, setData] = useState<{id: Number, title: string, data: {id: number, title: string, path: string}[]}[]>(initialData)
+
     const getSocialMedia = useCallback(async () => {
         try {
             const response = await axios.get('/settings/socialmedia/')
             if(response.status === 200){
-                const data: SocialMediaInterface[] = response.data
-                setSocialMedias(data)
+                const responseData: SocialMediaInterface[] = response.data
+                setSocialMedias(responseData)
+                setData(oldValue => {
+                    const updated = oldValue.map(section => {
+                        if(section.id === 2){
+                            return {
+                                ...section, 
+                                data: section.data.map(item => {
+                                if(item.id === 1){
+                                    return {
+                                        ...item, 
+                                        path: String(responseData.find(responseItem => responseItem.company === 0)?.url || '/')
+                                    }
+                                }
+                                return item
+                            })}
+                        }
+                        return section
+                    })
+                    return updated
+                })
             }
         } catch (error) {
             setSocialMedias(null)
