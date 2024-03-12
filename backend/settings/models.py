@@ -15,22 +15,23 @@ class BasicSetting(models.Model):
         super().save(*args, **kwargs)
     
 class SocialMediaSetting(models.Model):
-    whatsapp_profile = models.CharField(max_length=255, null=True, blank=True)
-    whatsapp_url = models.CharField(max_length=255, null=True, blank=True)
-
-    instagram_profile = models.CharField(max_length=255, null=True, blank=True)
-    instagram_url = models.CharField(max_length=255, null=True, blank=True)
-
-    facebook_profile = models.CharField(max_length=255, null=True, blank=True)
-    facebook_url = models.CharField(max_length=255, null=True, blank=True)
-
-    twitter_profile = models.CharField(max_length=255, null=True, blank=True)
-    twitter_url = models.CharField(max_length=255, null=True, blank=True)
+    company_choices = (
+        (0, 'whatsapp'),
+        (1, 'instagram'),
+        (2, 'facebook'),
+        (3, 'twitter'),
+    )
+    company = models.IntegerField(null=True, choices=company_choices)
+    profile_name = models.CharField(max_length=255, null=True)
+    url = models.CharField(max_length=255, null=True)
 
     def __str__(self):
-        return self.instagram_profile
+        return dict(self.company_choices).get(self.company)
     
     def save(self, *args, **kwargs):
-        if SocialMediaSetting.objects.exists():
-            return
+        existing_item = SocialMediaSetting.objects.filter(company=self.company).first()
+        if existing_item:
+            self.pk = existing_item.pk
+            existing_item.delete()
+
         super().save(*args, **kwargs)
