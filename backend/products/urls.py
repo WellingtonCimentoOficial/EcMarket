@@ -7,4 +7,6 @@ urlpatterns = [
     path('name/', views.get_products_name),
     path('filters/', views.get_product_filters),
     path('delivery/<int:pk>/<str:zip_code>', views.get_product_delivery),
+    
+    path('<int:pk>/children', views.get_children),
 ]

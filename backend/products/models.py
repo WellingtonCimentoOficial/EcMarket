@@ -21,18 +21,49 @@ class ProductFather(models.Model):
 
     def __str__(self):
         return self.name
+    
+class ProductAttribute(models.Model):
+    name = models.CharField(max_length=255)
 
-class ProductChild(models.Model):
-    sku = models.CharField(max_length=255, null=True, blank=True)
-    product_father = models.ForeignKey(ProductFather, on_delete=models.CASCADE, related_name='children')
-    default_price = models.DecimalField(max_digits=10, decimal_places=2)
-    discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    quantity = models.IntegerField()
+    def __str__(self):
+        return self.name
+    
+class ProductVariant(models.Model):
+    product_father = models.ForeignKey(ProductFather, on_delete=models.CASCADE, null=True, related_name="variants")
+    attribute = models.ForeignKey(ProductAttribute, on_delete=models.CASCADE, null=True)
+    description = models.CharField(max_length=255)
+    is_primary = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.attribute} {self.description}"
+    
+    def save(self, *args, **kwargs):
+        if self.is_primary:
+            variants = self.product_father.variants.filter(is_primary=True)
+            if variants.exists():
+                variants.update(is_primary=False)
+        super().save(*args, **kwargs)
+    
+class ProductImage(models.Model):
+    name = models.CharField(max_length=255)
     principal_image = models.ImageField(upload_to='static/images/', null=True)
     image_2 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
     image_3 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
     image_4 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
     image_5 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+class ProductChild(models.Model):
+    sku = models.CharField(max_length=255, null=True, blank=True)
+    product_variant = models.ManyToManyField(ProductVariant, related_name="children")
+    default_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.IntegerField()
+    images = models.ForeignKey(ProductImage, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -43,7 +74,12 @@ class ProductChild(models.Model):
         return None
     
     def __str__(self):
-        return self.product_father.name
+        if self.product_variant.exists():
+            variants = self.product_variant.all()
+            attributes = list(variants.values_list('attribute__name', 'description'))
+            attributes_formated = ''.join([f'{item[0]}: {item[1]} | ' for item in attributes])
+            return f'{self.product_variant.first().product_father.name} - {attributes_formated}'
+        return "Empty Variant"
     
 @receiver(pre_delete, sender=ProductChild)
 def delete_product_child_images(sender, instance, **kwargs):

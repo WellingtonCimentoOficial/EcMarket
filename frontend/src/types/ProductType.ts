@@ -39,6 +39,18 @@ export type Presentation = {
     image10: string
 }
 
+export type Attribute = {
+    id: number,
+    name: string
+}
+
+export type Variant = {
+    id: number,
+    attribute: Attribute
+    description: string
+    is_primary: boolean
+}
+
 export type Children = {
     id: number
     default_price: number
@@ -48,6 +60,9 @@ export type Children = {
     images: Images
     sku: string
     quantity: number
+    product_variant: Variant[]
+    created_at: string
+    updated_at: string
 }
 
 export type Sales = {
@@ -59,7 +74,6 @@ export interface Product {
     name: string
     description: string | null
     rating: Rating
-    children: Children[]
     presentation: Presentation | null
     store: Store
     technical_informations: TechnicalInformation[]

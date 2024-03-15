@@ -12,7 +12,7 @@ const BoxBanner = ({ mainData, data }: Props) => {
     const { createSlug } = useSlug()
     return (
         <div className={styles.wrapper}>
-            <div className={styles.container}>
+            {/* <div className={styles.container}>
                 <div className={styles.containerBig}>
                     <div className={styles.flexBig}>
                         <a href={`/${createSlug(mainData.name)}/p/${mainData.id}`} className={styles.flexBigHeader} title={mainData.name}>
@@ -46,7 +46,7 @@ const BoxBanner = ({ mainData, data }: Props) => {
                         ))}
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

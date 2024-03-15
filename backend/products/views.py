@@ -1,5 +1,8 @@
-from .models import ProductFather
-from .serializers import ProductFatherMinimalSerializer, ProductFatherDetailSerializer
+from .models import ProductFather, ProductChild
+from .serializers import (
+    ProductFatherMinimalSerializer, ProductFatherDetailSerializer,
+    ProductChildDetailSerializer
+)
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -9,7 +12,6 @@ from brands.models import ProductBrand
 from categories.models import CategoryProduct
 from utils.custom_pagination import CustomPagination
 from utils.shipping_info import Correios, InvalidZipCodeError
-from rest_framework.request import Request
 import os
 import re
 
@@ -33,6 +35,7 @@ def get_products(request):
     except Exception as e:
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['GET'])
@@ -170,3 +173,16 @@ def get_product_delivery(request, pk, zip_code):
         return Response(data)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])    
+def get_children(request, pk):
+    product_father = ProductFather.objects.filter(id=pk).first()
+    
+    if product_father is None:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    variants = product_father.variants.all()
+    children = ProductChild.objects.filter(product_variant__in=variants)
+    children_serialized = ProductChildDetailSerializer(children, many=True, context={'request': request})
+
+    return Response(children_serialized.data)

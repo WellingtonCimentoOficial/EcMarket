@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styles from './HorizProductCard.module.css'
-import { Product } from '../../../../types/ProductType'
+import { Children, Product } from '../../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../../hooks/useCurrencyFormatter'
 import { useNavigate } from 'react-router-dom'
 import { useSlug } from '../../../../hooks/useSlug'
 import BtnB01 from '../../Buttons/BtnB01/BtnB01'
 import BtnB02 from '../../Buttons/BtnB02/BtnB02'
+import { LoadingContext } from '../../../../contexts/LoadingContext'
+import { useProductRequests } from '../../../../hooks/useBackendRequests'
 
 type Props = {
     data: Product
@@ -17,6 +19,21 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
     const navigate = useNavigate()
+
+    const { setIsLoading } = useContext(LoadingContext)
+    const [children, setChildren] = useState<Children | null>(null)
+    const { getProductChildren } = useProductRequests()
+
+    const handleChildren = (data: Children[] | null) => {
+        if(data){
+            const primary = data.find(child => child.product_variant.find(variant => variant.is_primary))
+            setChildren(primary || data[0])
+        }
+    }
+
+    useEffect(() => {
+        getProductChildren({productId: data.id, callback: handleChildren, setIsLoading: setIsLoading})
+    }, [setIsLoading, getProductChildren])
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
@@ -30,7 +47,7 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
                     <div className={styles.flexImage}>
                         <img 
                             className={styles.image}
-                            src={data.children[0].images.principal_image} 
+                            src={children?.images.principal_image} 
                             alt={data.name} 
                         />
                     </div>
@@ -42,12 +59,12 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
                     </div>
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>
-                            <span className={styles.price}>{CurrencyFormatter(data.children[0].default_price)}</span>
-                            {data.children[0].discount_price &&
-                                <span className={styles.discount_price}>{CurrencyFormatter(data.children[0].discount_price)}</span>
+                            <span className={styles.price}>{CurrencyFormatter(children?.default_price || 0)}</span>
+                            {children?.discount_price &&
+                                <span className={styles.discount_price}>{CurrencyFormatter(children?.discount_price || 0)}</span>
                             }
                         </div>
-                        <span className={styles.text}>ou 12x {CurrencyFormatter(data.children[0].installment_details.installment_price)} sem juros</span>
+                        <span className={styles.text}>ou 12x {CurrencyFormatter(children?.installment_details.installment_price || 0)} sem juros</span>
                     </div>
                 </div>
                 <div className={styles.containerControllers}>

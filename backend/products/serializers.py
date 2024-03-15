@@ -1,41 +1,58 @@
 from rest_framework import serializers
-from .models import ProductFather, ProductChild, ProductPresentation, ProductTechnicalInformation
+from .models import (
+    ProductFather, ProductChild, ProductPresentation, 
+    ProductTechnicalInformation, ProductImage, ProductAttribute,
+    ProductVariant
+)
 from django.db.models import Avg, Count
 from stores.serializers import StoreSerializer
 from transactions.models import Transaction
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    # images = serializers.SerializerMethodField()
+    
+    # def get_images(self, obj):
+    #     request = self.context.get('request')
+    #     image_fields = ['principal_image', 'image_2', 'image_3', 'image_4', 'image_5']
+    #     images = {}
+    #     for field_name in image_fields:
+    #         image = getattr(obj, field_name)
+    #         if image:
+    #             images[field_name] = request.build_absolute_uri(image.url)
+    #         else:
+    #             images[field_name] = None
+    #     return images 
+        
+    class Meta:
+        model = ProductImage
+        exclude = ['created_at', 'updated_at', 'id', 'name']
+
+class ProductAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttribute
+        fields = '__all__'
+
+class ProductVariantSerializer(serializers.ModelSerializer):
+    attribute = ProductAttributeSerializer()
+    
+    class Meta:
+        model = ProductVariant
+        exclude = ['product_father']
 
 class ProductChildDetailSerializer(serializers.ModelSerializer):
     default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_percentage = serializers.SerializerMethodField()
     installment_details = serializers.SerializerMethodField()
-    images = serializers.SerializerMethodField()
+    images = ProductImageSerializer()
+    product_variant = ProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductChild
-        exclude = [
-            'product_father',
-            'principal_image', 
-            'image_2', 
-            'image_3', 
-            'image_4', 
-            'image_5',
-        ] 
+        fields = '__all__'
 
     def get_discount_percentage(self, obj):
         return obj.discount_percentage()
-    
-    def get_images(self, obj):
-        request = self.context.get('request')
-        image_fields = ['principal_image', 'image_2', 'image_3', 'image_4', 'image_5']
-        images = {}
-        for field_name in image_fields:
-            image = getattr(obj, field_name)
-            if image:
-                images[field_name] = request.build_absolute_uri(image.url)
-            else:
-                images[field_name] = None
-        return images 
     
     def get_installment_details(self, obj):
         max_installments = 12
@@ -45,30 +62,17 @@ class ProductChildDetailSerializer(serializers.ModelSerializer):
             "installment_price": installment_price
         }
         return data
-
-
 
 class ProductChildMinimalSerializer(serializers.ModelSerializer):
     default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_percentage = serializers.SerializerMethodField()
     installment_details = serializers.SerializerMethodField()
-    images = serializers.SerializerMethodField()
+    images = ProductImageSerializer()
+    product_variant = ProductVariantSerializer(many=True, read_only=True)
 
     def get_discount_percentage(self, obj):
         return obj.discount_percentage()
-    
-    def get_images(self, obj):
-        request = self.context.get('request')
-        image_fields = ['principal_image', 'image_2', 'image_3', 'image_4', 'image_5']
-        images = {}
-        for field_name in image_fields:
-            image = getattr(obj, field_name)
-            if image:
-                images[field_name] = request.build_absolute_uri(image.url)
-            else:
-                images[field_name] = None
-        return images 
     
     def get_installment_details(self, obj):
         max_installments = 12
@@ -82,16 +86,10 @@ class ProductChildMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductChild
         exclude = [
-            'product_father', 
             'sku', 
             'quantity', 
             'created_at', 
             'updated_at', 
-            'principal_image', 
-            'image_2', 
-            'image_3', 
-            'image_4', 
-            'image_5'
         ]
 
 class ProductPresentationSerializer(serializers.ModelSerializer):
@@ -109,13 +107,18 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     width = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     height = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     length = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
-    children = ProductChildDetailSerializer(many=True, read_only=True)
     presentation = serializers.SerializerMethodField()
     technical_informations = serializers.SerializerMethodField()
     rating = serializers.SerializerMethodField()
     store = StoreSerializer()
     sales = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
+
+    def get_children(self, obj):
+        variants = obj.variants.all().values_list('pk', flat=True)
+        variants_children = ProductChild.objects.filter(product_variant__in=variants)
+        variants_children_serialized = ProductChildDetailSerializer(variants_children, many=True)
+        return variants_children_serialized.data
     
     def get_is_favorite(self, obj):
         user = self.context['request'].user
@@ -167,7 +170,6 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
 
 
 class ProductFatherMinimalSerializer(serializers.ModelSerializer):
-    children = ProductChildMinimalSerializer(many=True, read_only=True)
     rating = serializers.SerializerMethodField()
 
     def get_rating(self, obj):

@@ -3,6 +3,8 @@ import { useAxiosPrivate } from './useAxiosPrivate'
 import { LoadingContext } from '../contexts/LoadingContext'
 import * as originalAxios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { axios } from '../services/api';
+import { Children } from '../types/ProductType';
 
 type FavoritesProps = {
     productId: number
@@ -75,4 +77,29 @@ export const useAccountRequests = () => {
     }, [axiosPrivate, setIsLoading])
 
     return { sendAccountVerificationCode }
+}
+
+type GetProductChildrenArgs = { 
+    productId: number, 
+    callback: (data: Children[] | null) => void | React.Dispatch<React.SetStateAction<Children[] | null>> 
+    setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const useProductRequests = () => {
+
+    const getProductChildren = useCallback(async ({ productId, callback, setIsLoading }: GetProductChildrenArgs) => {
+        setIsLoading && setIsLoading(true)
+        try {
+            const response = await axios.get(`/products/${productId}/children`)
+            if(response.status === 200){
+                const data: Children[] = response.data
+                callback(data)
+            }
+        } catch (error) {
+            callback(null)
+        }
+        setIsLoading && setIsLoading(false)
+    }, [])
+
+    return { getProductChildren }
 }

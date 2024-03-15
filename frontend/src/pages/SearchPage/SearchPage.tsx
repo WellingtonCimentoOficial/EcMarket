@@ -182,6 +182,7 @@ const SearchPage = () => {
                 setTotalPageCount(response.data.total_page_count)
                 setTotalProductCount(response.data.total_item_count)
                 window.scrollTo({top: 0, behavior: 'smooth'})
+                console.log(data)
             }
         } catch (error) {
             setTotalPageCount(0)

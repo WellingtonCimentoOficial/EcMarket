@@ -35,11 +35,11 @@ import { FaShippingFast } from 'react-icons/fa';
 // TYPES
 import { Delivery } from '../../types/DeliveryType'
 import { Category } from '../../types/CategoryType'
-import { Product } from '../../types/ProductType'
+import { Attribute, Children, Product, Variant } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { AuthContext } from '../../contexts/AuthContext'
-import { useFavoritesRequests } from '../../hooks/useBackendRequests'
+import { useFavoritesRequests, useProductRequests } from '../../hooks/useBackendRequests'
 import StyledSectionA from '../../styles/StyledSectionA'
 
 type Props = {}
@@ -76,6 +76,7 @@ const ProductPage = (props: Props) => {
     const { createSlug } = useSlug()
 
     const [product, setProduct] = useState<Product | null>(null)
+    const [children, setChildren] = useState<Children[] | null>(null)
     const [currentImage, setCurrentImage] = useState<string>('')
     const [deliveryInfo, setDeliveryInfo] = useState<Delivery | null>(null)
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
@@ -88,6 +89,7 @@ const ProductPage = (props: Props) => {
     const [shouldScroll, setShouldScroll] = useState<boolean>(false)
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const [isFavorite, setIsFavorite] = useState<boolean>(false)
+    const [currentVariant, setCurrentVariant] = useState<Children | null>(null)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
@@ -101,6 +103,7 @@ const ProductPage = (props: Props) => {
     const { tokens } = useContext(AuthContext)
 
     const { addToFavorites, removeFromFavorites } = useFavoritesRequests()
+    const { getProductChildren } = useProductRequests()
 
     const handleAddToFavorites = () => {
         setIsFavorite(true)
@@ -119,7 +122,6 @@ const ProductPage = (props: Props) => {
                 const data: Product = await response.data
                 setProduct(data)
                 setIsFavorite(data.is_favorite)
-                setCurrentImage(data.children[0].images.principal_image)
                 updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
                 navigate(location.pathname.replace(String(productName), createSlug(data.name)), { replace: true })
             }
@@ -189,12 +191,40 @@ const ProductPage = (props: Props) => {
         }
     }
 
+    const handleChildren = (data: Children[] | null) => {
+        if(data){
+            const primaryChild = data.find(child => child.product_variant.find(variant => variant.is_primary))
+            setChildren(data)
+            setCurrentVariant(primaryChild || data[0])
+            setCurrentImage(primaryChild?.images.principal_image || '')
+            const formatted: Attribute[] = []
+            const variantsFromatted: Variant[] = []
+            data.map(child => child.product_variant.map(variant => {
+                if(!formatted.some(item => item.id === variant.attribute.id)){
+                    formatted.push(variant.attribute)
+                }
+            }))
+            data.map(child => child.product_variant.map(variant => {
+                if(!variantsFromatted.some(item => item.id === variant.id)){
+                    variantsFromatted.push(variant)
+                }
+            }))
+            console.log(variantsFromatted)
+        }
+    }
+    
     useEffect(() => {get_product({ isAuthenticated: !!tokens.refresh })}, [tokens.refresh, get_product])
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
     useEffect(() => {get_categories()}, [get_categories])
     useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
 
+    useEffect(() => {
+        if(productId){
+            getProductChildren({productId: Number(productId), callback: handleChildren, setIsLoading: setIsLoading})
+        } 
+    }, [productId, getProductChildren, setIsLoading])
+    
     useEffect(() => {
         if(product && comments){
             setProductDetails([
@@ -225,14 +255,14 @@ const ProductPage = (props: Props) => {
             ])
         }
     }, [product, comments, setProductDetails])
-
+    
     useEffect(() => {
         if(productDetails && !currentProductDetailId){
             const firstItemId = productDetails.find(item => item.show)?.id
             setCurrentProductDetailId(firstItemId)
         }
     }, [productDetails, currentProductDetailId])
-
+    
     useEffect(() => {
         if(sectionToScrollRef.current && shouldScroll){
             sectionToScrollRef.current.scrollIntoView({
@@ -254,7 +284,7 @@ const ProductPage = (props: Props) => {
                         <div className={`${styles.containerMain} ${styles.default}`}>
                             <div className={styles.containerMainImages}>
                                 <div className={styles.flexMainImagesThumbs}>
-                                    {Object.values(product.children[0].images).filter(value => value !== null).map((img, index) => (
+                                    {currentVariant && Object.values(currentVariant.images).filter(value => typeof value === 'string').map((img, index) => (
                                         <div className={`${styles.flexMainImagesThumb} ${currentImage === img ? styles.flexMainImagesThumbActive : null}`} key={index} onMouseOver={() => setCurrentImage(img || '')}>
                                             <img className={styles.flexMainImagesThumbImg} src={img || ''} alt="" />
                                         </div>
@@ -271,7 +301,7 @@ const ProductPage = (props: Props) => {
                                 <div className={styles.containerMainInfoHeader}>
                                     <div className={styles.containerMainInfoHeaderTitle}>
                                         <div className={styles.containerMainInfoHeaderTitleSubOne}>
-                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {product.children[0].sku || `00000`}</span>
+                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {currentVariant?.sku || `00000`}</span>
                                             <div 
                                                 className={styles.favoriteButton} 
                                                 onClick={() => isFavorite ? 
@@ -285,7 +315,9 @@ const ProductPage = (props: Props) => {
                                                 )}
                                             </div>
                                         </div>
-                                        <span className={styles.containerMainInfoHeaderTitleText}>{product?.name}</span>
+                                        <span className={styles.containerMainInfoHeaderTitleText}>
+                                            {product?.name} - {currentVariant?.product_variant.map((variant, index) => index + 1 !== currentVariant?.product_variant.length ? `${variant.description} ` : `(${variant.description})`)}
+                                        </span>
                                     </div>
                                     <div className={styles.containerMainInfoHeaderRating}>
                                         <div className={styles.containerMainInfoHeaderRatingSubOne} >
@@ -319,35 +351,37 @@ const ProductPage = (props: Props) => {
                                     </div>
                                 </div>
                                 <div className={styles.containerMainInfoBody}>
-                                    <div className={styles.containerMainInfoBodyPrice}>
-                                        <div className={styles.containerMainInfoBodyPricePrice}>
-                                            {product?.children[0].discount_price &&
-                                                <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(product.children[0].default_price)}</span>
-                                            }
-                                            <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
-                                                <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(product.children[0].discount_price || product.children[0].default_price)}</span>
-                                                {product?.children[0].discount_percentage && 
-                                                    <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(product.children[0].discount_percentage)}%</span>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div className={styles.containerMainInfoBodyPriceInstallments}>
-                                            <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {product?.children[0].installment_details.installments}x de {CurrencyFormatter(product?.children[0].installment_details.installment_price)} sem juros</span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.containerMainInfoBodyChildren}>
-                                        {product?.children.map((child) => (
-                                            <div className={styles.containerMainInfoBodyChildrenChild} key={child.id}>
-                                                <div className={styles.containerMainInfoBodyChildrenChildHeader}>
-                                                    <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>Opção:</span>
-                                                    <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>{product?.children[0].id}</span>
+                                    {currentVariant &&
+                                        <>
+                                            <div className={styles.containerMainInfoBodyPrice}>
+                                                <div className={styles.containerMainInfoBodyPricePrice}>
+                                                    {currentVariant.discount_price &&
+                                                        <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(currentVariant.default_price)}</span>
+                                                    }
+                                                    <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
+                                                        <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(currentVariant.discount_price || currentVariant.default_price)}</span>
+                                                        {currentVariant.discount_percentage && 
+                                                            <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(currentVariant.discount_percentage)}%</span>
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <div className={styles.containerMainInfoBodyChildrenChildBody}>
-                                                    <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={child.images.principal_image} alt="" />
+                                                <div className={styles.containerMainInfoBodyPriceInstallments}>
+                                                    <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {currentVariant.installment_details.installments}x de {CurrencyFormatter(currentVariant.installment_details.installment_price)} sem juros</span>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className={styles.containerMainInfoBodyChildren}>
+                                                <div className={styles.containerMainInfoBodyChildrenChild} key={0}>
+                                                    <div className={styles.containerMainInfoBodyChildrenChildHeader}>
+                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>aaaa:</span>
+                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>AAAA</span>
+                                                    </div>
+                                                    <div className={styles.containerMainInfoBodyChildrenChildBody}>
+                                                        <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={currentVariant.images.principal_image} alt="" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    }
                                     <div className={styles.containerMainInfoBodyShipping}>
                                         <div className={styles.containerMainInfoBodyShippingHeader}>
                                             <FaShippingFast className={styles.containerMainInfoBodyShippingIcon} />
@@ -398,8 +432,8 @@ const ProductPage = (props: Props) => {
                                     </div>
                                     <div className={styles.containerMainInfoBodyStock}>
                                         <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
-                                        <QuantitySelect min={1} max={product.children[0].quantity || 1} />
-                                        <span className={styles.containerMainInfoBodyStockText}>restam {product?.children[0].quantity} disponíveis</span>
+                                        <QuantitySelect min={1} max={currentVariant?.quantity || 1} />
+                                        <span className={styles.containerMainInfoBodyStockText}>restam {currentVariant?.quantity} disponíveis</span>
                                     </div>
                                     <div ref={sectionToScrollRef} className={styles.containerMainInfoBodyActions}>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
