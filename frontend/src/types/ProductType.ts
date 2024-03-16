@@ -42,6 +42,7 @@ export type Presentation = {
 export type Attribute = {
     id: number,
     name: string
+    is_image_field: boolean
 }
 
 export type Variant = {

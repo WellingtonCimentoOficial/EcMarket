@@ -197,19 +197,7 @@ const ProductPage = (props: Props) => {
             setChildren(data)
             setCurrentVariant(primaryChild || data[0])
             setCurrentImage(primaryChild?.images.principal_image || '')
-            const formatted: Attribute[] = []
-            const variantsFromatted: Variant[] = []
-            data.map(child => child.product_variant.map(variant => {
-                if(!formatted.some(item => item.id === variant.attribute.id)){
-                    formatted.push(variant.attribute)
-                }
-            }))
-            data.map(child => child.product_variant.map(variant => {
-                if(!variantsFromatted.some(item => item.id === variant.id)){
-                    variantsFromatted.push(variant)
-                }
-            }))
-            console.log(variantsFromatted)
+
         }
     }
     
@@ -370,15 +358,69 @@ const ProductPage = (props: Props) => {
                                                 </div>
                                             </div>
                                             <div className={styles.containerMainInfoBodyChildren}>
-                                                <div className={styles.containerMainInfoBodyChildrenChild} key={0}>
-                                                    <div className={styles.containerMainInfoBodyChildrenChildHeader}>
-                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>aaaa:</span>
-                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>AAAA</span>
-                                                    </div>
-                                                    <div className={styles.containerMainInfoBodyChildrenChildBody}>
-                                                        <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={currentVariant.images.principal_image} alt="" />
-                                                    </div>
-                                                </div>
+                                                {(() => {
+                                                    if(children){
+                                                        const attributeFormatted: Attribute[] = []
+                                                        const variantsFormatted: Variant[] = [] 
+                                                        const variantsImgFormatted: string[] = [] 
+                                                        return children.map(child => child.product_variant.map(variant => {
+                                                            if(!attributeFormatted.some(item => item.id === variant.attribute.id)){
+                                                                attributeFormatted.push(variant.attribute)
+                                                                return (
+                                                                    <div className={styles.containerMainInfoBodyChildrenChild} key={variant.id}>
+                                                                        <div className={styles.containerMainInfoBodyChildrenChildHeader}>
+                                                                            <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>{variant.attribute.name}:</span>
+                                                                            <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>
+                                                                                {currentVariant.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className={styles.containerMainInfoBodyChildrenChildBodyContainer}>
+                                                                            {variant.attribute.is_image_field ? (() => {
+                                                                                return children.map(childImg => {
+                                                                                    if(!variantsImgFormatted.some(item => item === childImg.images.principal_image)){
+                                                                                        variantsImgFormatted.push(childImg.images.principal_image)
+                                                                                        return childImg.product_variant.filter(variantImg => variantImg.attribute.is_image_field).map(variantImg => {
+                                                                                            return (
+                                                                                                <div className={
+                                                                                                    `${styles.containerMainInfoBodyChildrenChildBody} ${
+                                                                                                        currentVariant.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
+                                                                                                        styles.containerMainInfoBodyChildrenChildBodyFocus : 
+                                                                                                        null
+                                                                                                    }`
+                                                                                                } key={childImg.id}>
+                                                                                                    <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={childImg.images.principal_image} alt="" />
+                                                                                                </div>
+                                                                                            )
+                                                                                        })
+                                                                                    }
+                                                                                    return null
+                                                                                })
+                                                                            })():(() => {
+                                                                                return children.map(childText => childText.product_variant.map(variantText => {
+                                                                                    if(!variantsFormatted.some(itemText => itemText.id === variantText.id) && variant.attribute.id === variantText.attribute.id){
+                                                                                        variantsFormatted.push(variantText)
+                                                                                        return (
+                                                                                            <div className={
+                                                                                                currentVariant.product_variant.some(currVariant => currVariant.id === variantText.id) ?
+                                                                                                `${styles.containerMainInfoBodyChildrenChildBodyText} ${styles.containerMainInfoBodyChildrenChildBodyTextFocus}` :
+                                                                                                styles.containerMainInfoBodyChildrenChildBodyText
+                                                                                            } key={variantText.id}>
+                                                                                                <span>{variantText.description}</span>
+                                                                                            </div>
+                                                                                        )
+                                                                                    }
+                                                                                    return null
+                                                                                }))
+                                                                            })()}
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                            return null
+                                                        }))
+                                                    }
+                                                    return null
+                                                })()}
                                             </div>
                                         </>
                                     }
@@ -408,7 +450,6 @@ const ProductPage = (props: Props) => {
                                                 )
                                             })()}
                                         </div>
-
                                     </div>
                                     <div className={styles.containerMainInfoBodyAdditionalPositives}>
                                         <div className={styles.containerMainInfoBodyAdditionalPositiveItem}>
@@ -622,9 +663,8 @@ const ProductPage = (props: Props) => {
                                                     </div>
                                                 </div>
                                             )
-                                        }else{
-                                            return null
                                         }
+                                        return null
                                     })}
                                 </div>
                             </div>
