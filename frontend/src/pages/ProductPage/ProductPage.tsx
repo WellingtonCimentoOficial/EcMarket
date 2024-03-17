@@ -89,7 +89,7 @@ const ProductPage = (props: Props) => {
     const [shouldScroll, setShouldScroll] = useState<boolean>(false)
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const [isFavorite, setIsFavorite] = useState<boolean>(false)
-    const [currentVariant, setCurrentVariant] = useState<Children | null>(null)
+    const [currentChild, setCurrentChild] = useState<Children | null>(null)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
@@ -191,14 +191,26 @@ const ProductPage = (props: Props) => {
         }
     }
 
-    const handleChildren = (data: Children[] | null) => {
+    const handleChildren = (data: Children[] | null, childId?: number) => {
         if(data){
-            const primaryChild = data.find(child => child.product_variant.find(variant => variant.is_primary))
+            const primaryChild = childId ? data.find(child => child.id === childId) : data.find(child => child.product_variant.find(variant => variant.is_primary))
             setChildren(data)
-            setCurrentVariant(primaryChild || data[0])
+            setCurrentChild(primaryChild || data[0])
             setCurrentImage(primaryChild?.images.principal_image || '')
-
         }
+    }
+
+    const handleVariant = (variantId: number, attributeId: number) => {
+        const anotherVariant = currentChild?.product_variant.find(currVar => currVar.attribute.id !== attributeId)
+        const newVariant = children?.find(child => 
+            child.product_variant.some(variant => 
+                variant.id === anotherVariant?.id
+            ) && child.product_variant.some(variant => variant.id === variantId))
+        newVariant && getProductChildren({
+            productId: Number(productId), 
+            callback: (data: Children[] | null) => handleChildren(data, newVariant.id), 
+            setIsLoading: setIsLoading
+        })
     }
     
     useEffect(() => {get_product({ isAuthenticated: !!tokens.refresh })}, [tokens.refresh, get_product])
@@ -272,7 +284,7 @@ const ProductPage = (props: Props) => {
                         <div className={`${styles.containerMain} ${styles.default}`}>
                             <div className={styles.containerMainImages}>
                                 <div className={styles.flexMainImagesThumbs}>
-                                    {currentVariant && Object.values(currentVariant.images).filter(value => typeof value === 'string').map((img, index) => (
+                                    {currentChild && Object.values(currentChild.images).filter(value => typeof value === 'string').map((img, index) => (
                                         <div className={`${styles.flexMainImagesThumb} ${currentImage === img ? styles.flexMainImagesThumbActive : null}`} key={index} onMouseOver={() => setCurrentImage(img || '')}>
                                             <img className={styles.flexMainImagesThumbImg} src={img || ''} alt="" />
                                         </div>
@@ -289,7 +301,7 @@ const ProductPage = (props: Props) => {
                                 <div className={styles.containerMainInfoHeader}>
                                     <div className={styles.containerMainInfoHeaderTitle}>
                                         <div className={styles.containerMainInfoHeaderTitleSubOne}>
-                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {currentVariant?.sku || `00000`}</span>
+                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {currentChild?.sku || `00000`}</span>
                                             <div 
                                                 className={styles.favoriteButton} 
                                                 onClick={() => isFavorite ? 
@@ -304,7 +316,7 @@ const ProductPage = (props: Props) => {
                                             </div>
                                         </div>
                                         <span className={styles.containerMainInfoHeaderTitleText}>
-                                            {product?.name} - {currentVariant?.product_variant.map((variant, index) => index + 1 !== currentVariant?.product_variant.length ? `${variant.description} ` : `(${variant.description})`)}
+                                            {product?.name} - {currentChild?.product_variant.map((variant, index) => index + 1 !== currentChild?.product_variant.length ? `${variant.description} ` : `(${variant.description})`)}
                                         </span>
                                     </div>
                                     <div className={styles.containerMainInfoHeaderRating}>
@@ -339,22 +351,22 @@ const ProductPage = (props: Props) => {
                                     </div>
                                 </div>
                                 <div className={styles.containerMainInfoBody}>
-                                    {currentVariant &&
+                                    {currentChild &&
                                         <>
                                             <div className={styles.containerMainInfoBodyPrice}>
                                                 <div className={styles.containerMainInfoBodyPricePrice}>
-                                                    {currentVariant.discount_price &&
-                                                        <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(currentVariant.default_price)}</span>
+                                                    {currentChild.discount_price &&
+                                                        <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(currentChild.default_price)}</span>
                                                     }
                                                     <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
-                                                        <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(currentVariant.discount_price || currentVariant.default_price)}</span>
-                                                        {currentVariant.discount_percentage && 
-                                                            <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(currentVariant.discount_percentage)}%</span>
+                                                        <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(currentChild.discount_price || currentChild.default_price)}</span>
+                                                        {currentChild.discount_percentage && 
+                                                            <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(currentChild.discount_percentage)}%</span>
                                                         }
                                                     </div>
                                                 </div>
                                                 <div className={styles.containerMainInfoBodyPriceInstallments}>
-                                                    <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {currentVariant.installment_details.installments}x de {CurrencyFormatter(currentVariant.installment_details.installment_price)} sem juros</span>
+                                                    <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {currentChild.installment_details.installments}x de {CurrencyFormatter(currentChild.installment_details.installment_price)} sem juros</span>
                                                 </div>
                                             </div>
                                             <div className={styles.containerMainInfoBodyChildren}>
@@ -371,7 +383,7 @@ const ProductPage = (props: Props) => {
                                                                         <div className={styles.containerMainInfoBodyChildrenChildHeader}>
                                                                             <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>{variant.attribute.name}:</span>
                                                                             <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>
-                                                                                {currentVariant.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
+                                                                                {currentChild.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
                                                                             </span>
                                                                         </div>
                                                                         <div className={styles.containerMainInfoBodyChildrenChildBodyContainer}>
@@ -383,11 +395,12 @@ const ProductPage = (props: Props) => {
                                                                                             return (
                                                                                                 <div className={
                                                                                                     `${styles.containerMainInfoBodyChildrenChildBody} ${
-                                                                                                        currentVariant.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
+                                                                                                        currentChild.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
                                                                                                         styles.containerMainInfoBodyChildrenChildBodyFocus : 
                                                                                                         null
                                                                                                     }`
-                                                                                                } key={childImg.id}>
+                                                                                                } key={childImg.id}
+                                                                                                onClick={() => handleVariant(variantImg.id, variantImg.attribute.id)}>
                                                                                                     <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={childImg.images.principal_image} alt="" />
                                                                                                 </div>
                                                                                             )
@@ -401,10 +414,11 @@ const ProductPage = (props: Props) => {
                                                                                         variantsFormatted.push(variantText)
                                                                                         return (
                                                                                             <div className={
-                                                                                                currentVariant.product_variant.some(currVariant => currVariant.id === variantText.id) ?
+                                                                                                currentChild.product_variant.some(currVariant => currVariant.id === variantText.id) ?
                                                                                                 `${styles.containerMainInfoBodyChildrenChildBodyText} ${styles.containerMainInfoBodyChildrenChildBodyTextFocus}` :
                                                                                                 styles.containerMainInfoBodyChildrenChildBodyText
-                                                                                            } key={variantText.id}>
+                                                                                            } key={variantText.id}
+                                                                                            onClick={() => handleVariant(variantText.id, variantText.attribute.id)}>
                                                                                                 <span>{variantText.description}</span>
                                                                                             </div>
                                                                                         )
@@ -473,8 +487,8 @@ const ProductPage = (props: Props) => {
                                     </div>
                                     <div className={styles.containerMainInfoBodyStock}>
                                         <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
-                                        <QuantitySelect min={1} max={currentVariant?.quantity || 1} />
-                                        <span className={styles.containerMainInfoBodyStockText}>restam {currentVariant?.quantity} disponíveis</span>
+                                        <QuantitySelect min={1} max={currentChild?.quantity || 1} />
+                                        <span className={styles.containerMainInfoBodyStockText}>restam {currentChild?.quantity} disponíveis</span>
                                     </div>
                                     <div ref={sectionToScrollRef} className={styles.containerMainInfoBodyActions}>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
