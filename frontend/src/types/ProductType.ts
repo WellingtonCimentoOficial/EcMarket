@@ -52,15 +52,18 @@ export type Variant = {
     is_primary: boolean
 }
 
-export type Children = {
-    id: number
+type ProductInfo = {
     default_price: number
     discount_price: number | null
     discount_percentage: number | null
-    installment_details: InstallmentDetails
+    installment_details: InstallmentDetails | null
     images: Images
     sku: string
     quantity: number
+}
+
+export type Children = ProductInfo & {
+    id: number
     product_variant: Variant[]
     created_at: string
     updated_at: string
@@ -70,7 +73,7 @@ export type Sales = {
     count: number
 }
 
-export interface Product {
+export interface Product extends ProductInfo {
     id: number
     name: string
     description: string | null
@@ -80,4 +83,5 @@ export interface Product {
     technical_informations: TechnicalInformation[]
     sales: Sales
     is_favorite: boolean
+    has_variations: boolean
 }

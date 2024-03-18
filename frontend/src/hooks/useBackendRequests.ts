@@ -39,7 +39,7 @@ export const useFavoritesRequests = () => {
             }
         }   
         setIsLoading(false)
-    }, [axiosPrivate, setIsLoading])
+    }, [axiosPrivate, navigate, setIsLoading])
     
     const removeFromFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
@@ -69,9 +69,9 @@ export const useAccountRequests = () => {
             }
         } catch (error) {
             callback({ sent: false })
-            if(originalAxios.isAxiosError(error)){
-                console.log(error)
-            }
+            // if(originalAxios.isAxiosError(error)){
+            //     console.log(error)
+            // }
         }
         setIsLoading(false)
     }, [axiosPrivate, setIsLoading])

@@ -77,7 +77,8 @@ def get_product(request, pk):
         product = ProductFather.objects.get(id=pk)
         serializer = ProductFatherDetailSerializer(product, many=False, context={'request': request})
         return Response(serializer.data)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET']) 

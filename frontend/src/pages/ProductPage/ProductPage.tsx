@@ -124,6 +124,7 @@ const ProductPage = (props: Props) => {
                 setIsFavorite(data.is_favorite)
                 updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
                 navigate(location.pathname.replace(String(productName), createSlug(data.name)), { replace: true })
+                !data.has_variations && setCurrentImage(data.images.principal_image)
             }
         } catch (error) {
             setProduct(null)
@@ -220,10 +221,10 @@ const ProductPage = (props: Props) => {
     useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
 
     useEffect(() => {
-        if(productId){
+        if(productId && product?.has_variations){
             getProductChildren({productId: Number(productId), callback: handleChildren, setIsLoading: setIsLoading})
         } 
-    }, [productId, getProductChildren, setIsLoading])
+    }, [productId, product?.has_variations, getProductChildren, setIsLoading])
     
     useEffect(() => {
         if(product && comments){
@@ -284,7 +285,7 @@ const ProductPage = (props: Props) => {
                         <div className={`${styles.containerMain} ${styles.default}`}>
                             <div className={styles.containerMainImages}>
                                 <div className={styles.flexMainImagesThumbs}>
-                                    {currentChild && Object.values(currentChild.images).filter(value => typeof value === 'string').map((img, index) => (
+                                    {Object.values((product.has_variations && currentChild) ? currentChild.images : (product.images || [])).filter(value => typeof value === 'string').map((img, index) => (
                                         <div className={`${styles.flexMainImagesThumb} ${currentImage === img ? styles.flexMainImagesThumbActive : null}`} key={index} onMouseOver={() => setCurrentImage(img || '')}>
                                             <img className={styles.flexMainImagesThumbImg} src={img || ''} alt="" />
                                         </div>
@@ -301,7 +302,7 @@ const ProductPage = (props: Props) => {
                                 <div className={styles.containerMainInfoHeader}>
                                     <div className={styles.containerMainInfoHeaderTitle}>
                                         <div className={styles.containerMainInfoHeaderTitleSubOne}>
-                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {currentChild?.sku || `00000`}</span>
+                                            <span className={styles.containerMainInfoHeaderDescriptionText}>SKU: {product.has_variations ? currentChild?.sku : product.sku}</span>
                                             <div 
                                                 className={styles.favoriteButton} 
                                                 onClick={() => isFavorite ? 
@@ -351,92 +352,113 @@ const ProductPage = (props: Props) => {
                                     </div>
                                 </div>
                                 <div className={styles.containerMainInfoBody}>
-                                    {currentChild &&
-                                        <>
-                                            <div className={styles.containerMainInfoBodyPrice}>
-                                                <div className={styles.containerMainInfoBodyPricePrice}>
-                                                    {currentChild.discount_price &&
-                                                        <span className={styles.containerMainInfoBodyPriceDefaultText}>{CurrencyFormatter(currentChild.default_price)}</span>
+                                    <div className={styles.containerMainInfoBodyPrice}>
+                                        <div className={styles.containerMainInfoBodyPricePrice}>
+                                            {(product.has_variations && currentChild?.discount_price) || product.discount_price ? (
+                                                <span className={styles.containerMainInfoBodyPriceDefaultText}>
+                                                    {CurrencyFormatter((product.has_variations && currentChild?.discount_price) ? currentChild.default_price : product.default_price)}
+                                                </span>
+                                            ) : null}
+                                            <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
+                                                <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>
+                                                    {
+                                                        CurrencyFormatter((product.has_variations && currentChild) ? 
+                                                        (currentChild.discount_price || currentChild.default_price) : 
+                                                        (product.discount_price || product.default_price || 0))
                                                     }
-                                                    <div className={styles.containerMainInfoBodyPriceDiscountFlex}>
-                                                        <span className={styles.containerMainInfoBodyPriceDiscountFlexText}>{CurrencyFormatter(currentChild.discount_price || currentChild.default_price)}</span>
-                                                        {currentChild.discount_percentage && 
-                                                            <span className={styles.containerMainInfoBodyPriceDiscountFlag}>{Math.floor(currentChild.discount_percentage)}%</span>
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div className={styles.containerMainInfoBodyPriceInstallments}>
-                                                    <span className={styles.containerMainInfoBodyPriceInstallmentsText}>ou {currentChild.installment_details.installments}x de {CurrencyFormatter(currentChild.installment_details.installment_price)} sem juros</span>
-                                                </div>
+                                                </span>
+                                                {(product.has_variations && currentChild?.discount_percentage) || product.discount_percentage ? (
+                                                    <span className={styles.containerMainInfoBodyPriceDiscountFlag}>
+                                                        {
+                                                            Math.floor((product.has_variations && currentChild?.discount_percentage) ? 
+                                                            currentChild.discount_percentage : 
+                                                            (product.discount_percentage || 0))
+                                                        }%
+                                                    </span>
+                                                ) : null}
                                             </div>
-                                            <div className={styles.containerMainInfoBodyChildren}>
-                                                {(() => {
-                                                    if(children){
-                                                        const attributeFormatted: Attribute[] = []
-                                                        const variantsFormatted: Variant[] = [] 
-                                                        const variantsImgFormatted: string[] = [] 
-                                                        return children.map(child => child.product_variant.map(variant => {
-                                                            if(!attributeFormatted.some(item => item.id === variant.attribute.id)){
-                                                                attributeFormatted.push(variant.attribute)
-                                                                return (
-                                                                    <div className={styles.containerMainInfoBodyChildrenChild} key={variant.id}>
-                                                                        <div className={styles.containerMainInfoBodyChildrenChildHeader}>
-                                                                            <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>{variant.attribute.name}:</span>
-                                                                            <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>
-                                                                                {currentChild.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
-                                                                            </span>
-                                                                        </div>
-                                                                        <div className={styles.containerMainInfoBodyChildrenChildBodyContainer}>
-                                                                            {variant.attribute.is_image_field ? (() => {
-                                                                                return children.map(childImg => {
-                                                                                    if(!variantsImgFormatted.some(item => item === childImg.images.principal_image)){
-                                                                                        variantsImgFormatted.push(childImg.images.principal_image)
-                                                                                        return childImg.product_variant.filter(variantImg => variantImg.attribute.is_image_field).map(variantImg => {
-                                                                                            return (
-                                                                                                <div className={
-                                                                                                    `${styles.containerMainInfoBodyChildrenChildBody} ${
-                                                                                                        currentChild.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
-                                                                                                        styles.containerMainInfoBodyChildrenChildBodyFocus : 
-                                                                                                        null
-                                                                                                    }`
-                                                                                                } key={childImg.id}
-                                                                                                onClick={() => handleVariant(variantImg.id, variantImg.attribute.id)}>
-                                                                                                    <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={childImg.images.principal_image} alt="" />
-                                                                                                </div>
-                                                                                            )
-                                                                                        })
-                                                                                    }
-                                                                                    return null
-                                                                                })
-                                                                            })():(() => {
-                                                                                return children.map(childText => childText.product_variant.map(variantText => {
-                                                                                    if(!variantsFormatted.some(itemText => itemText.id === variantText.id) && variant.attribute.id === variantText.attribute.id){
-                                                                                        variantsFormatted.push(variantText)
+                                        </div>
+                                        <div className={styles.containerMainInfoBodyPriceInstallments}>
+                                            <span className={styles.containerMainInfoBodyPriceInstallmentsText}>
+                                                ou {
+                                                    product.has_variations ? 
+                                                    currentChild?.installment_details?.installments : 
+                                                    product.installment_details?.installments}x de {
+                                                        CurrencyFormatter((product.has_variations && currentChild?.installment_details?.installment_price) ? 
+                                                        currentChild.installment_details.installment_price : 
+                                                        (product.installment_details?.installment_price || 0))
+                                                } sem juros
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {currentChild &&
+                                        <div className={styles.containerMainInfoBodyChildren}>
+                                            {(() => {
+                                                if(children){
+                                                    const attributeFormatted: Attribute[] = []
+                                                    const variantsFormatted: Variant[] = [] 
+                                                    const variantsImgFormatted: string[] = [] 
+                                                    return children.map(child => child.product_variant.map(variant => {
+                                                        if(!attributeFormatted.some(item => item.id === variant.attribute.id)){
+                                                            attributeFormatted.push(variant.attribute)
+                                                            return (
+                                                                <div className={styles.containerMainInfoBodyChildrenChild} key={variant.id}>
+                                                                    <div className={styles.containerMainInfoBodyChildrenChildHeader}>
+                                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>{variant.attribute.name}:</span>
+                                                                        <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>
+                                                                            {currentChild.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className={styles.containerMainInfoBodyChildrenChildBodyContainer}>
+                                                                        {variant.attribute.is_image_field ? (() => {
+                                                                            return children.map(childImg => {
+                                                                                if(!variantsImgFormatted.some(item => item === childImg.images.principal_image)){
+                                                                                    variantsImgFormatted.push(childImg.images.principal_image)
+                                                                                    return childImg.product_variant.filter(variantImg => variantImg.attribute.is_image_field).map(variantImg => {
                                                                                         return (
                                                                                             <div className={
-                                                                                                currentChild.product_variant.some(currVariant => currVariant.id === variantText.id) ?
-                                                                                                `${styles.containerMainInfoBodyChildrenChildBodyText} ${styles.containerMainInfoBodyChildrenChildBodyTextFocus}` :
-                                                                                                styles.containerMainInfoBodyChildrenChildBodyText
-                                                                                            } key={variantText.id}
-                                                                                            onClick={() => handleVariant(variantText.id, variantText.attribute.id)}>
-                                                                                                <span>{variantText.description}</span>
+                                                                                                `${styles.containerMainInfoBodyChildrenChildBody} ${
+                                                                                                    currentChild.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
+                                                                                                    styles.containerMainInfoBodyChildrenChildBodyFocus : 
+                                                                                                    null
+                                                                                                }`
+                                                                                            } key={childImg.id}
+                                                                                            onClick={() => handleVariant(variantImg.id, variantImg.attribute.id)}>
+                                                                                                <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={childImg.images.principal_image} alt="" />
                                                                                             </div>
                                                                                         )
-                                                                                    }
-                                                                                    return null
-                                                                                }))
-                                                                            })()}
-                                                                        </div>
+                                                                                    })
+                                                                                }
+                                                                                return null
+                                                                            })
+                                                                        })():(() => {
+                                                                            return children.map(childText => childText.product_variant.map(variantText => {
+                                                                                if(!variantsFormatted.some(itemText => itemText.id === variantText.id) && variant.attribute.id === variantText.attribute.id){
+                                                                                    variantsFormatted.push(variantText)
+                                                                                    return (
+                                                                                        <div className={
+                                                                                            currentChild.product_variant.some(currVariant => currVariant.id === variantText.id) ?
+                                                                                            `${styles.containerMainInfoBodyChildrenChildBodyText} ${styles.containerMainInfoBodyChildrenChildBodyTextFocus}` :
+                                                                                            styles.containerMainInfoBodyChildrenChildBodyText
+                                                                                        } key={variantText.id}
+                                                                                        onClick={() => handleVariant(variantText.id, variantText.attribute.id)}>
+                                                                                            <span>{variantText.description}</span>
+                                                                                        </div>
+                                                                                    )
+                                                                                }
+                                                                                return null
+                                                                            }))
+                                                                        })()}
                                                                     </div>
-                                                                )
-                                                            }
-                                                            return null
-                                                        }))
-                                                    }
-                                                    return null
-                                                })()}
-                                            </div>
-                                        </>
+                                                                </div>
+                                                            )
+                                                        }
+                                                        return null
+                                                    }))
+                                                }
+                                                return null
+                                            })()}
+                                        </div>
                                     }
                                     <div className={styles.containerMainInfoBodyShipping}>
                                         <div className={styles.containerMainInfoBodyShippingHeader}>
@@ -446,7 +468,6 @@ const ProductPage = (props: Props) => {
                                             {(() => {
                                                 if(deliveryInfo){
                                                     const date = new Date(deliveryInfo.max_date)
-
                                                     return (
                                                         <>
                                                             <span className={styles.containerMainInfoBodyShippingBodyTitle}>Prazo de entrega</span>

@@ -113,6 +113,11 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     store = StoreSerializer()
     sales = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
+    default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    discount_percentage = serializers.SerializerMethodField()
+    installment_details = serializers.SerializerMethodField()
+    images = ProductImageSerializer()
 
     def get_children(self, obj):
         variants = obj.variants.all().values_list('pk', flat=True)
@@ -163,6 +168,21 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
         except:
             sales_data = {'count': 0}
             return sales_data
+        
+    def get_discount_percentage(self, obj):
+        return obj.discount_percentage()
+    
+    def get_installment_details(self, obj):
+        try:
+            max_installments = 12
+            installment_price = obj.default_price / max_installments
+            data = {
+                "installments": max_installments,
+                "installment_price": installment_price
+            }
+            return data
+        except:
+            return None
 
     class Meta:
         model = ProductFather
@@ -171,6 +191,11 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
 
 class ProductFatherMinimalSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
+    default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    discount_percentage = serializers.SerializerMethodField()
+    installment_details = serializers.SerializerMethodField()
+    images = ProductImageSerializer()
 
     def get_rating(self, obj):
         average_rating = obj.comments.aggregate(Avg('rating'))['rating__avg']
@@ -180,6 +205,21 @@ class ProductFatherMinimalSerializer(serializers.ModelSerializer):
             "count": rating_count
         }
         return rating_data
+    
+    def get_discount_percentage(self, obj):
+        return obj.discount_percentage()
+    
+    def get_installment_details(self, obj):
+        try:
+            max_installments = 12
+            installment_price = obj.default_price / max_installments
+            data = {
+                "installments": max_installments,
+                "installment_price": installment_price
+            }
+            return data
+        except:
+            return None
 
     class Meta:
         model = ProductFather

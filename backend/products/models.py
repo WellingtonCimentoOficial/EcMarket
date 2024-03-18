@@ -6,6 +6,19 @@ from django.conf import settings
 import os
 
 # Create your models here.
+class ProductImage(models.Model):
+    name = models.CharField(max_length=255)
+    principal_image = models.ImageField(upload_to='static/images/', null=True)
+    image_2 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
+    image_3 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
+    image_4 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
+    image_5 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+    
 class ProductFather(models.Model):
     name = models.CharField(max_length=255)
     weight = models.DecimalField(max_digits=7, decimal_places=2, null=True)
@@ -16,11 +29,23 @@ class ProductFather(models.Model):
     description = models.TextField()
     categories = models.ManyToManyField('categories.CategoryProduct')
     brand = models.ForeignKey('brands.ProductBrand', on_delete=models.CASCADE, related_name="products", null=True, blank=True)
+    default_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.IntegerField(null=True, blank=True)
+    images = models.ForeignKey(ProductImage, on_delete=models.CASCADE, null=True, blank=True)
+    has_variations = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    
+    def discount_percentage(self):
+        if self.discount_price is not None and self.discount_price < self.default_price:
+            calc = ((self.default_price - self.discount_price) / self.default_price) * 100
+            return round(calc, 2)
+        return None
+    
     
 class ProductAttribute(models.Model):
     name = models.CharField(max_length=255)
@@ -45,18 +70,6 @@ class ProductVariant(models.Model):
                 variants.update(is_primary=False)
         super().save(*args, **kwargs)
     
-class ProductImage(models.Model):
-    name = models.CharField(max_length=255)
-    principal_image = models.ImageField(upload_to='static/images/', null=True)
-    image_2 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
-    image_3 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
-    image_4 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
-    image_5 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
 
 class ProductChild(models.Model):
     sku = models.CharField(max_length=255, null=True, blank=True)

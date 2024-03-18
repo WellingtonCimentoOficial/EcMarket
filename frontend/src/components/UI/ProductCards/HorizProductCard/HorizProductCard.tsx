@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import styles from './HorizProductCard.module.css'
 import { Children, Product } from '../../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../../hooks/useCurrencyFormatter'
@@ -32,8 +32,10 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
     }
 
     useEffect(() => {
-        getProductChildren({productId: data.id, callback: handleChildren, setIsLoading: setIsLoading})
-    }, [setIsLoading, getProductChildren])
+        if(data.has_variations){
+            getProductChildren({productId: data.id, callback: handleChildren, setIsLoading: setIsLoading})
+        }
+    }, [data.id, data.has_variations, setIsLoading, getProductChildren])
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
@@ -47,7 +49,7 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
                     <div className={styles.flexImage}>
                         <img 
                             className={styles.image}
-                            src={children?.images.principal_image} 
+                            src={data.has_variations ? children?.images.principal_image : data.images.principal_image} 
                             alt={data.name} 
                         />
                     </div>
@@ -59,12 +61,18 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
                     </div>
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>
-                            <span className={styles.price}>{CurrencyFormatter(children?.default_price || 0)}</span>
-                            {children?.discount_price &&
-                                <span className={styles.discount_price}>{CurrencyFormatter(children?.discount_price || 0)}</span>
-                            }
+                            <span className={styles.price}>
+                                {CurrencyFormatter((data.has_variations && children?.default_price) ? children.default_price : data.default_price)}
+                            </span>
+                            {(data.has_variations && children?.discount_price) || data.discount_price ? (
+                                <span className={styles.discount_price}>
+                                    {CurrencyFormatter((data.has_variations && children?.discount_price) ? children.discount_price : (data.discount_price || 0))}
+                                </span>
+                            ): null}
                         </div>
-                        <span className={styles.text}>ou 12x {CurrencyFormatter(children?.installment_details.installment_price || 0)} sem juros</span>
+                        <span className={styles.text}>
+                            ou 12x {CurrencyFormatter((data.has_variations && children?.installment_details?.installment_price) ? children.installment_details.installment_price : (data.installment_details?.installment_price || 0))} sem juros
+                        </span>
                     </div>
                 </div>
                 <div className={styles.containerControllers}>
