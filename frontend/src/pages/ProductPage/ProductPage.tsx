@@ -90,6 +90,7 @@ const ProductPage = (props: Props) => {
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const [isFavorite, setIsFavorite] = useState<boolean>(false)
     const [currentChild, setCurrentChild] = useState<Children | null>(null)
+    const [variantDescriptions, setVariantDescriptions] = useState<{id: number, description: string} | null>(null)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
@@ -176,7 +177,7 @@ const ProductPage = (props: Props) => {
 
     const get_delivery_info = useCallback(async () => {
         try {
-            const response = await axios.get(`/products/delivery/${productId}/${zipCodeContextData?.zip_code}`)
+            const response = await axios.get(`/products/${productId}/delivery/${zipCodeContextData?.zip_code}`)
             if(response.status === 200){
                 setDeliveryInfo(response.data)
             }
@@ -194,22 +195,28 @@ const ProductPage = (props: Props) => {
 
     const handleChildren = (data: Children[] | null, childId?: number) => {
         if(data){
-            const primaryChild = childId ? data.find(child => child.id === childId) : data.find(child => child.product_variant.find(variant => variant.is_primary))
+            const primaryChild = data.find(child => child.product_variant.find(variant => variant.is_primary))
+            const firstChildWithImage = data.find(child => child.product_variant.find(variant => variant.attribute.is_image_field))
+            const startChild = childId ? data.find(child => child.id === childId) : (primaryChild || firstChildWithImage)
             setChildren(data)
-            setCurrentChild(primaryChild || data[0])
-            setCurrentImage(primaryChild?.images.principal_image || '')
+            setCurrentChild(startChild || data[0])
+            setCurrentImage(startChild?.images.principal_image || '')
         }
     }
 
     const handleVariant = (variantId: number, attributeId: number) => {
         const anotherVariant = currentChild?.product_variant.find(currVar => currVar.attribute.id !== attributeId)
+
         const newVariant = children?.find(child => 
-            child.product_variant.some(variant => 
-                variant.id === anotherVariant?.id
-            ) && child.product_variant.some(variant => variant.id === variantId))
-        newVariant && getProductChildren({
+            child.product_variant.some(variant => variant.id === anotherVariant?.id) && 
+            child.product_variant.some(variant => variant.id === variantId)
+        )
+
+        const firstChildWithThisVariant = children?.find(child => child.product_variant.some(variant => variant.id === variantId))
+
+        getProductChildren({
             productId: Number(productId), 
-            callback: (data: Children[] | null) => handleChildren(data, newVariant.id), 
+            callback: (data: Children[] | null) => handleChildren(data, (newVariant?.id || firstChildWithThisVariant?.id)), 
             setIsLoading: setIsLoading
         })
     }
@@ -406,7 +413,10 @@ const ProductPage = (props: Props) => {
                                                                     <div className={styles.containerMainInfoBodyChildrenChildHeader}>
                                                                         <span className={styles.containerMainInfoBodyChildrenChildHeaderS}>{variant.attribute.name}:</span>
                                                                         <span className={styles.containerMainInfoBodyChildrenChildHeaderText}>
-                                                                            {currentChild.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description}
+                                                                            {variantDescriptions?.id === variant.id ? 
+                                                                                variantDescriptions.description :
+                                                                                currentChild.product_variant.find(currVariant => currVariant.attribute.id === variant.attribute.id)?.description 
+                                                                            }
                                                                         </span>
                                                                     </div>
                                                                     <div className={styles.containerMainInfoBodyChildrenChildBodyContainer}>
@@ -421,9 +431,21 @@ const ProductPage = (props: Props) => {
                                                                                                     currentChild.product_variant.some(varrItem => varrItem.id === variantImg.id) ? 
                                                                                                     styles.containerMainInfoBodyChildrenChildBodyFocus : 
                                                                                                     null
-                                                                                                }`
+                                                                                                } ${(() => {
+                                                                                                    const anotherVariant = currentChild.product_variant.find(currentChildStyle => currentChildStyle.attribute.id !== variantImg.attribute.id)
+                                                                                                    const has_variant = children.filter(
+                                                                                                        childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === variantImg.id)).some(
+                                                                                                            childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === anotherVariant?.id)
+                                                                                                        )
+                                                                                                    if(!has_variant){
+                                                                                                        return styles.containerMainInfoBodyChildrenChildBodyBlur
+                                                                                                    }
+                                                                                                    return null
+                                                                                                })()}`
                                                                                             } key={childImg.id}
-                                                                                            onClick={() => handleVariant(variantImg.id, variantImg.attribute.id)}>
+                                                                                            onClick={() => handleVariant(variantImg.id, variantImg.attribute.id)}
+                                                                                            onMouseEnter={() => setVariantDescriptions({id: variant.id, description: variantImg.description})}
+                                                                                            onMouseLeave={() => setVariantDescriptions(null)}>
                                                                                                 <img className={styles.containerMainInfoBodyChildrenChildBodyImage} src={childImg.images.principal_image} alt="" />
                                                                                             </div>
                                                                                         )
@@ -437,11 +459,25 @@ const ProductPage = (props: Props) => {
                                                                                     variantsFormatted.push(variantText)
                                                                                     return (
                                                                                         <div className={
-                                                                                            currentChild.product_variant.some(currVariant => currVariant.id === variantText.id) ?
-                                                                                            `${styles.containerMainInfoBodyChildrenChildBodyText} ${styles.containerMainInfoBodyChildrenChildBodyTextFocus}` :
-                                                                                            styles.containerMainInfoBodyChildrenChildBodyText
+                                                                                            `${styles.containerMainInfoBodyChildrenChildBodyText} ${
+                                                                                                currentChild.product_variant.some(currVariant => currVariant.id === variantText.id) ? 
+                                                                                                styles.containerMainInfoBodyChildrenChildBodyTextFocus : 
+                                                                                                null
+                                                                                            } ${(() => {
+                                                                                                const anotherVariant = currentChild.product_variant.find(currentChildStyle => currentChildStyle.attribute.id !== variantText.attribute.id)
+                                                                                                const has_variant = children.filter(
+                                                                                                    childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === variantText.id)).some(
+                                                                                                        childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === anotherVariant?.id)
+                                                                                                    )
+                                                                                                if(!has_variant){
+                                                                                                    return styles.containerMainInfoBodyChildrenChildBodyTextBlur
+                                                                                                }
+                                                                                                return null
+                                                                                            })()}`
                                                                                         } key={variantText.id}
-                                                                                        onClick={() => handleVariant(variantText.id, variantText.attribute.id)}>
+                                                                                        onClick={() => handleVariant(variantText.id, variantText.attribute.id)}
+                                                                                        onMouseEnter={() => setVariantDescriptions({id: variant.id, description: variantText.description})}
+                                                                                        onMouseLeave={() => setVariantDescriptions(null)}>
                                                                                             <span>{variantText.description}</span>
                                                                                         </div>
                                                                                     )
@@ -508,8 +544,13 @@ const ProductPage = (props: Props) => {
                                     </div>
                                     <div className={styles.containerMainInfoBodyStock}>
                                         <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
-                                        <QuantitySelect min={1} max={currentChild?.quantity || 1} />
-                                        <span className={styles.containerMainInfoBodyStockText}>restam {currentChild?.quantity} disponíveis</span>
+                                        <QuantitySelect 
+                                            min={(product.has_variations && currentChild?.quantity) || product.quantity ? 1 : 0} 
+                                            max={currentChild?.quantity || product.quantity || 0} 
+                                        />
+                                        <span className={styles.containerMainInfoBodyStockText} style={(product.has_variations && currentChild?.quantity) || product.quantity ? undefined : {color: 'red'}}>
+                                            restam {product.has_variations ? currentChild?.quantity : product.quantity} disponíveis
+                                        </span>
                                     </div>
                                     <div ref={sectionToScrollRef} className={styles.containerMainInfoBodyActions}>
                                         <div className={styles.containerMainInfoBodyActionsSubOne}>
@@ -517,7 +558,12 @@ const ProductPage = (props: Props) => {
                                             <BtnB02 autoWidth>Adicionar ao carrinho</BtnB02>
                                         </div>
                                         <div className={styles.containerMainInfoBodyActionsSubTwo}>
-                                            <BtnA01 href='' autoWidth>Comprar</BtnA01>
+                                            <BtnA01 
+                                                href='' 
+                                                autoWidth 
+                                                disabled={(product.has_variations && currentChild?.quantity) || product.quantity ? false : true}>
+                                                    Comprar
+                                            </BtnA01>
                                         </div>
                                     </div>
                                 </div>

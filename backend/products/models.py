@@ -31,7 +31,7 @@ class ProductFather(models.Model):
     brand = models.ForeignKey('brands.ProductBrand', on_delete=models.CASCADE, related_name="products", null=True, blank=True)
     default_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    quantity = models.IntegerField(null=True, blank=True)
+    quantity = models.IntegerField(default=0, blank=True)
     images = models.ForeignKey(ProductImage, on_delete=models.CASCADE, null=True, blank=True)
     has_variations = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,7 +61,7 @@ class ProductVariant(models.Model):
     is_primary = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.attribute} {self.description}"
+        return f"{self.product_father.name} - {self.attribute} {self.description}"
     
     def save(self, *args, **kwargs):
         if self.is_primary:
@@ -76,7 +76,7 @@ class ProductChild(models.Model):
     product_variant = models.ManyToManyField(ProductVariant, related_name="children")
     default_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(default=0)
     images = models.ForeignKey(ProductImage, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
