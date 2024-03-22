@@ -86,7 +86,7 @@ def apply_product_filters(productfather_instance, request):
     return products
 
 
-def mount_product_filters(categories_query_set, brands_query_set):
+def mount_product_filters(products_query_set, categories_query_set, brands_query_set):
     categories_data = {
         "id": uuid4(),
         "name": "Categorias",
@@ -104,14 +104,14 @@ def mount_product_filters(categories_query_set, brands_query_set):
         categories_data['data'].append({
             "id": category.id,
             "name": category.name,
-            "count": category.productfather_set.count()
+            "count": products_query_set.filter(categories__id=category.id).count()
         })
 
     for brand in brands_query_set:
         brands_data['data'].append({
             "id": brand.id,
             "name": brand.name,
-            "count": brand.products.count()
+            "count": products_query_set.filter(brand__id=brand.id).count()
         })
-
+    
     return [brands_data, categories_data]

@@ -197,7 +197,7 @@ const ProductPage = (props: Props) => {
         if(data){
             const primaryChild = data.find(child => child.product_variant.find(variant => variant.is_primary))
             const firstChildWithImage = data.find(child => child.product_variant.find(variant => variant.attribute.is_image_field))
-            const startChild = childId ? data.find(child => child.id === childId) : (primaryChild || firstChildWithImage)
+            const startChild = childId ? data.find(child => child.id === childId) : (primaryChild || firstChildWithImage || data[0])
             setChildren(data)
             setCurrentChild(startChild || data[0])
             setCurrentImage(startChild?.images.principal_image || '')
@@ -205,18 +205,21 @@ const ProductPage = (props: Props) => {
     }
 
     const handleVariant = (variantId: number, attributeId: number) => {
-        const anotherVariant = currentChild?.product_variant.find(currVar => currVar.attribute.id !== attributeId)
+        const anotherVariantIds = currentChild?.product_variant.filter(
+            currVar => currVar.attribute.id !== attributeId
+        ).map(varr => varr.id) || []
 
-        const newVariant = children?.find(child => 
-            child.product_variant.some(variant => variant.id === anotherVariant?.id) && 
-            child.product_variant.some(variant => variant.id === variantId)
+        anotherVariantIds.push(variantId)
+        
+        const newCurrentChild = children?.find(child => 
+            child.product_variant.every(variant => anotherVariantIds?.includes(variant.id))
         )
 
         const firstChildWithThisVariant = children?.find(child => child.product_variant.some(variant => variant.id === variantId))
 
         getProductChildren({
             productId: Number(productId), 
-            callback: (data: Children[] | null) => handleChildren(data, (newVariant?.id || firstChildWithThisVariant?.id)), 
+            callback: (data: Children[] | null) => handleChildren(data, (newCurrentChild?.id || firstChildWithThisVariant?.id)), 
             setIsLoading: setIsLoading
         })
     }
@@ -432,13 +435,21 @@ const ProductPage = (props: Props) => {
                                                                                                     styles.containerMainInfoBodyChildrenChildBodyFocus : 
                                                                                                     null
                                                                                                 } ${(() => {
-                                                                                                    const anotherVariant = currentChild.product_variant.find(currentChildStyle => currentChildStyle.attribute.id !== variantImg.attribute.id)
-                                                                                                    const has_variant = children.filter(
-                                                                                                        childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === variantImg.id)).some(
-                                                                                                            childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === anotherVariant?.id)
+                                                                                                    if(currentChild.product_variant.length > 1){
+                                                                                                        const anotherVariantIds = currentChild.product_variant.filter(
+                                                                                                            currentChildStyle => currentChildStyle.attribute.id !== variantImg.attribute.id
+                                                                                                        ).map(varr => varr.id)
+                                                                                                        
+                                                                                                        anotherVariantIds.push(variantImg.id)
+    
+                                                                                                        const has_variant = children.some(
+                                                                                                            childStyle => childStyle.product_variant.every(variantStyle => anotherVariantIds.includes(variantStyle.id))
                                                                                                         )
-                                                                                                    if(!has_variant){
-                                                                                                        return styles.containerMainInfoBodyChildrenChildBodyBlur
+    
+                                                                                                        if(!has_variant){
+                                                                                                            return styles.containerMainInfoBodyChildrenChildBodyBlur
+                                                                                                        }
+                                                                                                        return null
                                                                                                     }
                                                                                                     return null
                                                                                                 })()}`
@@ -464,13 +475,21 @@ const ProductPage = (props: Props) => {
                                                                                                 styles.containerMainInfoBodyChildrenChildBodyTextFocus : 
                                                                                                 null
                                                                                             } ${(() => {
-                                                                                                const anotherVariant = currentChild.product_variant.find(currentChildStyle => currentChildStyle.attribute.id !== variantText.attribute.id)
-                                                                                                const has_variant = children.filter(
-                                                                                                    childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === variantText.id)).some(
-                                                                                                        childStyle => childStyle.product_variant.some(variantStyle => variantStyle.id === anotherVariant?.id)
+                                                                                                if(currentChild.product_variant.length > 1){
+                                                                                                    const anotherVariantIds = currentChild.product_variant.filter(
+                                                                                                        currentChildStyle => currentChildStyle.attribute.id !== variantText.attribute.id
+                                                                                                    ).map(varr => varr.id)
+                                                                                                    
+                                                                                                    anotherVariantIds.push(variantText.id)
+
+                                                                                                    const has_variant = children.some(
+                                                                                                        childStyle => childStyle.product_variant.every(variantStyle => anotherVariantIds.includes(variantStyle.id))
                                                                                                     )
-                                                                                                if(!has_variant){
-                                                                                                    return styles.containerMainInfoBodyChildrenChildBodyTextBlur
+
+                                                                                                    if(!has_variant){
+                                                                                                        return styles.containerMainInfoBodyChildrenChildBodyTextBlur
+                                                                                                    }
+                                                                                                    return null
                                                                                                 }
                                                                                                 return null
                                                                                             })()}`
@@ -756,7 +775,7 @@ const ProductPage = (props: Props) => {
                             {categoriesData[0] && categoriesData[0].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
                                     {categoriesData[0].products.map((product) => (
-                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                        <SimpleProductCard key={product.id} product={product} showDiscountPercentage={true} />
                                     ))}
                                 </HeaderAndContentLayout>
                             )}
@@ -765,7 +784,7 @@ const ProductPage = (props: Props) => {
                             {categoriesData[1] && categoriesData[1].products.length > 0 && (
                                 <HeaderAndContentLayout title={categoriesData[1].name} href={`/search?q=&categories=${categoriesData[1].id}`} enableScroll={true} autoScroll={true}>
                                     {categoriesData[1].products.map((product) => (
-                                        <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                        <SimpleProductCard key={product.id} product={product} showDiscountPercentage={true} />
                                     ))}
                                 </HeaderAndContentLayout>
                             )}

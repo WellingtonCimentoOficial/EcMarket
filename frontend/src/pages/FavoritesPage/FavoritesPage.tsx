@@ -59,7 +59,7 @@ const FavoritesPage = (props: Props) => {
                             <div className={styles.item} key={product.id}>
                                 <HorizProductCard 
                                     key={product.id} 
-                                    data={product}
+                                    product={product}
                                     removeFromFavoritesCallback={() => removeFromFavorites({ 
                                         productId: product.id, 
                                         callback: handleRemoveFromFavorites, 

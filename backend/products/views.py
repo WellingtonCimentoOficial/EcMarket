@@ -98,7 +98,11 @@ def get_product_filters(request):
         categories = CategoryProduct.objects.filter(id__in=list(categories_id))
         brands = ProductBrand.objects.filter(id__in=list(brands_id))
     
-        filters_data = mount_product_filters(categories_query_set=categories, brands_query_set=brands)
+        filters_data = mount_product_filters(
+            products_query_set=products,
+            categories_query_set=categories, 
+            brands_query_set=brands
+        )
         
         #returning 404 if no product is found
         if products.count() == 0:
@@ -183,7 +187,7 @@ def get_children(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     variants = product_father.variants.all()
-    children = ProductChild.objects.filter(product_variant__in=variants)
+    children = ProductChild.objects.filter(product_variant__in=variants).distinct()
     children_serialized = ProductChildDetailSerializer(children, many=True, context={'request': request})
 
     return Response(children_serialized.data)

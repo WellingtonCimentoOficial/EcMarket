@@ -74,7 +74,7 @@ const ProfileLayout = ({ title, text, children, contentClassName }: Props) => {
                     {categoriesData[0] && categoriesData[0].products.length > 0 && (
                         <HeaderAndContentLayout title={categoriesData[0].name} href={`/search?q=&categories=${categoriesData[0].id}`} enableScroll={true} autoScroll={true}>
                             {categoriesData[0].products.map((product) => (
-                                <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} />
+                                <SimpleProductCard key={product.id} product={product} showDiscountPercentage={true} />
                             ))}
                         </HeaderAndContentLayout>
                     )}

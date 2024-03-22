@@ -334,7 +334,7 @@ const SearchPage = () => {
                                 <div className={styles.containerProductsBody}>
                                     {products.map((product) => (
                                         <SimpleProductCard 
-                                            data={product} 
+                                            product={product} 
                                             key={product.id} 
                                             showDiscountPercentage={true} 
                                             showRating={true}
@@ -363,7 +363,7 @@ const SearchPage = () => {
                         {categoriesData[0] && categoriesData[0].products.length > 0 && (
                             <HeaderAndContentLayout title={categoriesData[0].name} href='/' enableScroll={true} autoScroll={true}>
                                 {categoriesData[0].products.map((product) => (
-                                    <SimpleProductCard key={product.id} data={product} showDiscountPercentage={true} showRating={true} />
+                                    <SimpleProductCard key={product.id} product={product} showDiscountPercentage={true} showRating={true} />
                                 ))}
                             </HeaderAndContentLayout>
                         )}

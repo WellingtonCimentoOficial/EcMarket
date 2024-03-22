@@ -10,36 +10,39 @@ import { LoadingContext } from '../../../../contexts/LoadingContext'
 import { useProductRequests } from '../../../../hooks/useBackendRequests'
 
 type Props = {
-    data: Product
+    product: Product
     addToCartCallback?: () => void
     removeFromFavoritesCallback?: () => void
 }
 
-const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback }: Props) => {
+const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallback }: Props) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
     const navigate = useNavigate()
 
     const { setIsLoading } = useContext(LoadingContext)
-    const [children, setChildren] = useState<Children | null>(null)
+    const [child, setChild] = useState<Children | null>(null)
     const { getProductChildren } = useProductRequests()
 
     const handleChildren = (data: Children[] | null) => {
         if(data){
-            const primary = data.find(child => child.product_variant.find(variant => variant.is_primary))
-            setChildren(primary || data[0])
+            const childrenWithQuantityAvailable = data.filter(child => child.quantity > 0)
+            const childWithGreaterDiscount = childrenWithQuantityAvailable.reduce(
+                (previousChild, currentChild) => (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
+            )
+            setChild(childWithGreaterDiscount)
         }
     }
 
     useEffect(() => {
-        if(data.has_variations){
-            getProductChildren({productId: data.id, callback: handleChildren, setIsLoading: setIsLoading})
+        if(product.has_variations){
+            getProductChildren({productId: product.id, callback: handleChildren, setIsLoading: setIsLoading})
         }
-    }, [data.id, data.has_variations, setIsLoading, getProductChildren])
+    }, [product.id, product.has_variations, setIsLoading, getProductChildren])
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
-        navigate(`/${createSlug(data.name)}/p/${data.id}`)
+        navigate(`/${createSlug(product.name)}/p/${product.id}`)
     }
 
     return (
@@ -49,29 +52,40 @@ const HorizProductCard = ({ data, addToCartCallback, removeFromFavoritesCallback
                     <div className={styles.flexImage}>
                         <img 
                             className={styles.image}
-                            src={data.has_variations ? children?.images.principal_image : data.images.principal_image} 
-                            alt={data.name} 
+                            src={product.has_variations ? child?.images.principal_image : product.images.principal_image} 
+                            alt={product.name} 
                         />
                     </div>
                 </div>
                 <div className={styles.containerContent}>
                     <div className={styles.header}>
-                        <a className={styles.title} href='/' onClick={handleClick}>{data.name.length > 80 ? `${data.name.slice(0, 80)}...` : data.name}</a>
-                        <span className={styles.text}>{data.description?.slice(0, 20)}</span>
+                        <a className={styles.title} href='/' onClick={handleClick}>
+                            {(() => {
+                                const variantDescriptionsFormatted = child?.product_variant.map(
+                                    (variant, index) => (index + 1) !== child?.product_variant.length ? 
+                                    `${variant.description} ` : 
+                                    `(${variant.description})`
+                                )
+                                const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
+                                const shortenedName = formattedName.length > 80 ? `${formattedName.slice(0, 80)}...` : formattedName
+                                return shortenedName
+                            })()}
+                        </a>
+                        <span className={styles.text}>{product.description?.slice(0, 20)}</span>
                     </div>
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>
                             <span className={styles.price}>
-                                {CurrencyFormatter((data.has_variations && children?.default_price) ? children.default_price : data.default_price)}
+                                {CurrencyFormatter((product.has_variations && child?.default_price) ? child.default_price : product.default_price)}
                             </span>
-                            {(data.has_variations && children?.discount_price) || data.discount_price ? (
+                            {(product.has_variations && child?.discount_price) || product.discount_price ? (
                                 <span className={styles.discount_price}>
-                                    {CurrencyFormatter((data.has_variations && children?.discount_price) ? children.discount_price : (data.discount_price || 0))}
+                                    {CurrencyFormatter((product.has_variations && child?.discount_price) ? child.discount_price : (product.discount_price || 0))}
                                 </span>
                             ): null}
                         </div>
                         <span className={styles.text}>
-                            ou 12x {CurrencyFormatter((data.has_variations && children?.installment_details?.installment_price) ? children.installment_details.installment_price : (data.installment_details?.installment_price || 0))} sem juros
+                            ou 12x {CurrencyFormatter((product.has_variations && child?.installment_details?.installment_price) ? child.installment_details.installment_price : (product.installment_details?.installment_price || 0))} sem juros
                         </span>
                     </div>
                 </div>
