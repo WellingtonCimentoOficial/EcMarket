@@ -50,7 +50,7 @@ const SearchPage = () => {
     const maxPrice = 100000
     
     const [priceFilter, setPriceFilter] = useState<[number, number]>(minPriceParam !== null && /^[0-9]+$/.test(minPriceParam) && maxPriceParam !== null && /^[0-9]+$/.test(maxPriceParam) ? [parseFloat(minPriceParam), parseFloat(maxPriceParam)] : [minPrice, maxPrice])
-    const [priceFilterText, setPriceFilterText] = useState<[number, number]>([minPrice, maxPrice])
+    const [priceFilterText, setPriceFilterText] = useState<[number, number]>([Number(minPriceParam), Number(maxPriceParam)])
 
     
     const itemsPerPageData = [
@@ -338,6 +338,8 @@ const SearchPage = () => {
                                             key={product.id} 
                                             showDiscountPercentage={true} 
                                             showRating={true}
+                                            priceRange={priceFilter}
+                                            filterBy={relevanceFilter.value === 0 ? "biggestDiscount" : relevanceFilter.value === 1 ? "biggestPrice" : "lowestPrice"}
                                         />
                                     ))}
                                 </div>

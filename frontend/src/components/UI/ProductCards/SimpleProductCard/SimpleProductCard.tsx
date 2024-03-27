@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styles from "./SimpleProductCard.module.css"
 import { Children, Product } from '../../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../../hooks/useCurrencyFormatter'
@@ -12,34 +12,53 @@ type Props = {
     showDiscountPercentage?: boolean
     showRating?: boolean
     showRatingFixed?: boolean
+    priceRange?: [number,  number]
+    filterBy?: "biggestPrice" | "lowestPrice" | "biggestDiscount" | null
 }
 
-const SimpleProductCard: React.FC<Props> = ({ product, showDiscountPercentage = false, showRating = false, showRatingFixed = false }) => {
+const SimpleProductCard: React.FC<Props> = ({ 
+    product, showDiscountPercentage = false, showRating = false, 
+    showRatingFixed = false, priceRange, filterBy }) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
     const { setIsLoading } = useContext(LoadingContext)
     const [child, setChild] = useState<Children | null>(null)
+    const [children, setChildren]  = useState<Children[] | null>(null)
     const {  getProductChildren } = useProductRequests()
 
-    const handleChildren = (data: Children[] | null) => {
-        if(data){
-            const childrenWithQuantityAvailable = data.filter(child => child.quantity > 0)
-            const childWithGreaterDiscount = childrenWithQuantityAvailable.reduce(
-                (previousChild, currentChild) => (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
-            )
-            setChild(childWithGreaterDiscount)
-        }
-    }
+    const handleChildren = useCallback(() => {
+        const childrenWithQuantityAvailable = children?.filter(child => child.quantity > 0)
+        const minPrice = (priceRange ? priceRange[0] : 0)
+        const maxPrice = (priceRange ? priceRange[1] : 10**6)
+        const childWithGreaterDiscount = childrenWithQuantityAvailable?.reduce((previousChild, currentChild) => {
+            const currentChildRealPrice = currentChild.discount_price || currentChild.default_price
+            const previousChildRealPrice = previousChild.discount_price || previousChild.default_price
+            if(currentChildRealPrice >= minPrice && currentChildRealPrice <= maxPrice){
+                if(filterBy === "biggestDiscount"){
+                    return (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
+                }else if(filterBy === "biggestPrice"){
+                    return currentChildRealPrice > previousChildRealPrice ? currentChild : previousChild
+                }else if(filterBy === "lowestPrice"){
+                    return currentChildRealPrice < previousChildRealPrice ? currentChild : previousChild
+                }
+                return currentChild
+            }
+            return previousChild
+        })
+        setChild(childWithGreaterDiscount || null)
+    }, [priceRange, filterBy, children])
 
     useEffect(() => {
         if(product.has_variations){
-            getProductChildren({productId: product.id, callback: handleChildren, setIsLoading: setIsLoading})
+            getProductChildren({productId: product.id, callback: setChildren, setIsLoading: setIsLoading})
         }
     }, [product.id, product.has_variations, getProductChildren, setIsLoading])
 
+    useEffect(() => {children && handleChildren()}, [children, handleChildren])
+
     return (
         <div className={styles.wrapper}>
-            <a className={styles.container} href={`/${createSlug(product.name)}/p/${product.id}`}>
+            <a className={styles.container} href={`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`}>
                 <div className={styles.header}>
                     <div className={styles.containerImage}>
                         <img className={styles.image} src={product.has_variations ? child?.images.principal_image : product.images.principal_image} alt="" />
@@ -61,11 +80,13 @@ const SimpleProductCard: React.FC<Props> = ({ product, showDiscountPercentage = 
                             <p className={styles.description}>{product.description.length > 25 ? `${product.description.slice(0, 25)}...` : product.description}</p>
                         }
                         {showRating && 
-                            (product.rating.average || showRatingFixed) &&
+                            (product.rating.average || showRatingFixed) && (
+
                                 <div className={styles.containerRating}>
                                     <StarRating rate={product.rating.average} />
                                     <span className={styles.ratingText}>{`(${product.rating.count.toLocaleString('pt-BR')})`}</span>
                                 </div>
+                            )
                         }
                     </div>
                 </div>

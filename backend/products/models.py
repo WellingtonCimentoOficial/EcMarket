@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from django.db.models import ImageField
 from django.conf import settings
+from django.core.exceptions import ValidationError
 import os
 
 # Create your models here.
@@ -46,6 +47,11 @@ class ProductFather(models.Model):
             return round(calc, 2)
         return None
     
+    def save(self, *args, **kwargs):
+        if not self.has_variations and not self.default_price or self.images is None:
+            raise ValidationError("The fields default price and images are required")
+        super().save(*args, **kwargs)
+    
     
 class ProductAttribute(models.Model):
     name = models.CharField(max_length=255)
@@ -68,6 +74,12 @@ class ProductVariant(models.Model):
             variants = self.product_father.variants.filter(is_primary=True)
             if variants.exists():
                 variants.update(is_primary=False)
+        
+        products_variant_with_image = self.product_father.variants.filter(attribute__is_image_field=True)
+        if products_variant_with_image:
+            attribute_ids = list(set([variant.attribute.id for variant in products_variant_with_image]))
+            if self.attribute.is_image_field and products_variant_with_image.exists() and not self.attribute.id in attribute_ids:
+                return
         super().save(*args, **kwargs)
     
 

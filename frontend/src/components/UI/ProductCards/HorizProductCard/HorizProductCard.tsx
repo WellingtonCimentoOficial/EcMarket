@@ -42,7 +42,7 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
-        navigate(`/${createSlug(product.name)}/p/${product.id}`)
+        navigate(`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`)
     }
 
     return (

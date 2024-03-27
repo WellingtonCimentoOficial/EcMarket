@@ -32,7 +32,6 @@ const FavoritesPage = (props: Props) => {
             if(response?.status === 200){
                 const data: Product[] = response.data.products
                 setProducts(data.length > 0 ? data : null)
-                console.log(data)
             }
         } catch (error) {
             

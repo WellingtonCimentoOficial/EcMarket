@@ -35,7 +35,6 @@ def get_products(request):
     except Exception as e:
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
-        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['GET'])
@@ -77,8 +76,7 @@ def get_product(request, pk):
         product = ProductFather.objects.get(id=pk)
         serializer = ProductFatherDetailSerializer(product, many=False, context={'request': request})
         return Response(serializer.data)
-    except Exception as e:
-        print(e)
+    except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET']) 

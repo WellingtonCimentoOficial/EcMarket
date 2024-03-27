@@ -1,11 +1,10 @@
 // HOOKS
 import React, { useEffect, useState, useContext, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useLocation, useParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
 import { useDateTimeFormatter } from '../../hooks/useDateTimeFormatter'
-import { useSlug } from '../../hooks/useSlug'
 
 // STYLES
 import styles from "./ProductPage.module.css"
@@ -41,6 +40,7 @@ import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useFavoritesRequests, useProductRequests } from '../../hooks/useBackendRequests'
 import StyledSectionA from '../../styles/StyledSectionA'
+import { useQueryParam } from '../../hooks/useQueryParam'
 
 type Props = {}
 
@@ -67,13 +67,14 @@ type StarsRatingType = {
 type SectionNameType = "rating" | "description"
 
 const ProductPage = (props: Props) => {
-    const { productId, productName } = useParams()
+    const { productId } = useParams()
+    const [ searchParams ] = useSearchParams()
+    const  childParam = searchParams.get("child")
     const { setIsLoading } = useContext(LoadingContext)
     const { updateTitle } = usePageTitleChanger()
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { dateDifferenceFormat, getNameDay, getNameMonth } = useDateTimeFormatter()
     const { setShow, zipCodeContextData } = useContext(ZipCodeContext)
-    const { createSlug } = useSlug()
 
     const [product, setProduct] = useState<Product | null>(null)
     const [children, setChildren] = useState<Children[] | null>(null)
@@ -91,13 +92,10 @@ const ProductPage = (props: Props) => {
     const [isFavorite, setIsFavorite] = useState<boolean>(false)
     const [currentChild, setCurrentChild] = useState<Children | null>(null)
     const [variantDescriptions, setVariantDescriptions] = useState<{id: number, description: string} | null>(null)
+    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
-
-    const location = useLocation()
-
-    const navigate = useNavigate()
 
     const axiosPrivate = useAxiosPrivate()
 
@@ -105,6 +103,7 @@ const ProductPage = (props: Props) => {
 
     const { addToFavorites, removeFromFavorites } = useFavoritesRequests()
     const { getProductChildren } = useProductRequests()
+    const { addParam } = useQueryParam()
 
     const handleAddToFavorites = () => {
         setIsFavorite(true)
@@ -124,14 +123,13 @@ const ProductPage = (props: Props) => {
                 setProduct(data)
                 setIsFavorite(data.is_favorite)
                 updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
-                navigate(location.pathname.replace(String(productName), createSlug(data.name)), { replace: true })
                 !data.has_variations && setCurrentImage(data.images.principal_image)
             }
         } catch (error) {
             setProduct(null)
         }
         setIsLoading(false)
-    }, [productId, location.pathname, productName, axiosPrivate, createSlug, navigate, setIsLoading, updateTitle])
+    }, [productId, axiosPrivate, setIsLoading, updateTitle])
     
     const get_rating_statistics = useCallback(async () => {
         setIsLoading(true)
@@ -193,16 +191,19 @@ const ProductPage = (props: Props) => {
         }
     }
 
-    const handleChildren = (data: Children[] | null, childId?: number) => {
+    const handleChildren = useCallback((data: Children[] | null, childId?: number) => {
         if(data){
             const primaryChild = data.find(child => child.product_variant.find(variant => variant.is_primary))
             const firstChildWithImage = data.find(child => child.product_variant.find(variant => variant.attribute.is_image_field))
-            const startChild = childId ? data.find(child => child.id === childId) : (primaryChild || firstChildWithImage || data[0])
+            const childWithChosenId = data.find(child => child.id === childId)
+            const startChild = childWithChosenId || primaryChild || firstChildWithImage || data[0]
             setChildren(data)
-            setCurrentChild(startChild || data[0])
+            setCurrentChild(startChild)
             setCurrentImage(startChild?.images.principal_image || '')
+            setIsFirstRender(false)
+            addParam("child", String(startChild.id))
         }
-    }
+    }, [addParam])
 
     const handleVariant = (variantId: number, attributeId: number) => {
         const anotherVariantIds = currentChild?.product_variant.filter(
@@ -217,13 +218,15 @@ const ProductPage = (props: Props) => {
 
         const firstChildWithThisVariant = children?.find(child => child.product_variant.some(variant => variant.id === variantId))
 
+        const chosenChildId = newCurrentChild?.id || firstChildWithThisVariant?.id
+
         getProductChildren({
             productId: Number(productId), 
-            callback: (data: Children[] | null) => handleChildren(data, (newCurrentChild?.id || firstChildWithThisVariant?.id)), 
+            callback: (data: Children[] | null) => handleChildren(data, chosenChildId), 
             setIsLoading: setIsLoading
         })
     }
-    
+
     useEffect(() => {get_product({ isAuthenticated: !!tokens.refresh })}, [tokens.refresh, get_product])
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
@@ -231,10 +234,13 @@ const ProductPage = (props: Props) => {
     useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
 
     useEffect(() => {
-        if(productId && product?.has_variations){
-            getProductChildren({productId: Number(productId), callback: handleChildren, setIsLoading: setIsLoading})
-        } 
-    }, [productId, product?.has_variations, getProductChildren, setIsLoading])
+        if(productId && product?.has_variations && isFirstRender)
+            getProductChildren({
+                productId: Number(productId), 
+                callback: (data) => handleChildren(data, Number(childParam)), 
+                setIsLoading: setIsLoading
+            })
+    }, [productId, product?.has_variations, childParam, isFirstRender, handleChildren, getProductChildren, setIsLoading])
     
     useEffect(() => {
         if(product && comments){

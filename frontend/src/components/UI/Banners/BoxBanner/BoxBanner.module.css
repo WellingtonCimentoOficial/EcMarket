@@ -15,6 +15,7 @@
     height: 100%;
 }
 .flexBigHeader {
+    position: relative;
     width: 420px;
     height: 420px;
     display: flex;
@@ -61,6 +62,7 @@
     flex-grow: 1;
     position: relative;
     text-decoration: none;
+    padding: 15px;
 }
 .flexSmall:hover {
     transform: scale(1.01);
@@ -93,6 +95,5 @@
 /* conjuntos */
 .flexSmall, .flexBig {
     border-radius: 10px;
-    padding: 15px;
     box-shadow: 0px 0px 15px -3px rgba(0,0,0,0.1);
 }

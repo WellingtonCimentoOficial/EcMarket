@@ -1,7 +1,8 @@
-from django.db.models import Avg, Q, Value, DecimalField
+from django.db.models import Avg, Q, Value, DecimalField, F, ExpressionWrapper
 from django.db.models.functions import Coalesce
 from .exceptions import ProductFilterError
 from uuid import uuid4
+from .models import ProductChild
 import re
 
 def apply_product_filters(productfather_instance, request):
@@ -55,27 +56,42 @@ def apply_product_filters(productfather_instance, request):
             raise ProductFilterError()
 
     # filtering by relevance
-    # if relevance is not None and relevance.isdigit():
-    #     if int(relevance) == 0:
-    #         if hasattr(products.first(), 'average_rating'):
-    #             products = products.order_by('-average_rating')
-    #         else:
-    #             products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
-    #     elif int(relevance) == 1:
-    #         products = products.annotate(ordering_price=Coalesce('children__discount_price', 'children__default_price')).order_by('-ordering_price')
-    #     elif int(relevance) == 2:
-    #         products = products.annotate(ordering_price=Coalesce('children__discount_price', 'children__default_price')).order_by('ordering_price')
-    #     else:
-    #         raise ProductFilterError()
+    if relevance is not None and relevance.isdigit():
+        if int(relevance) == 0:
+            if hasattr(products.first(), 'average_rating'):
+                products = products.order_by('-average_rating')
+            else:
+                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
+        elif int(relevance) == 1:
+            # products = products.annotate(ordering_price=Coalesce('discount_price', 'default_price')).order_by('-ordering_price')
+            if hasattr(products.first(), 'average_rating'):
+                products = products.order_by('-average_rating')
+            else:
+                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
+        elif int(relevance) == 2:
+            # products = products.annotate(ordering_price=Coalesce('discount_price', 'default_price')).order_by('ordering_price')
+            if hasattr(products.first(), 'average_rating'):
+                products = products.order_by('-average_rating')
+            else:
+                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
+        else:
+            raise ProductFilterError()
         
-    # # filtering by price
-    # if min_price is not None and max_price is not None:
-    #     if min_price.replace('.', '').replace(',', '').isdigit() and max_price.replace('.', '').replace(',', '').isdigit():
-    #         products = products.annotate(
-    #             price_to_filter=Coalesce('children__discount_price', 'children__default_price')
-    #         ).filter(price_to_filter__range=(float(min_price), float(max_price)))
-    #     else:
-    #         raise ProductFilterError()
+    # filtering by price
+    if min_price is not None and max_price is not None:
+        if min_price.replace('.', '').replace(',', '').isdigit() and max_price.replace('.', '').replace(',', '').isdigit():
+            product_to_filter_ids = []
+            for product in products:
+                if product.has_variations:
+                    variant_ids = list(product.variants.values_list("id", flat=True))
+                    childs = ProductChild.objects.filter(product_variant__id__in=variant_ids, quantity__gte=1).distinct()
+                    if childs.annotate(price_to_filter=Coalesce("discount_price", "default_price")).filter(price_to_filter__range=(float(min_price), float(max_price))).exists():
+                        product_to_filter_ids.append(product.id)
+                elif (product.discount_price or product.default_price) >= float(min_price) and (product.discount_price or product.default_price) <= float(max_price):
+                    product_to_filter_ids.append(product.id)
+            products = products.filter(id__in=product_to_filter_ids)
+        else:
+            raise ProductFilterError()
         
     # verifing if random param is true and then organizing
     if random is not None and random.lower() == 'true':

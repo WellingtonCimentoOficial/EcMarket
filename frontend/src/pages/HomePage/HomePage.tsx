@@ -125,7 +125,7 @@ const HomePage = (): JSX.Element => {
                 <StyledSectionA>
                     {categoriesData[3] && categoriesData[3].products.length >= 6 && (
                         <HeaderAndContentLayout title={categoriesData[3].name} href={`/search?q=&categories=${categoriesData[3].id}`}>
-                            <BoxBanner mainData={categoriesData[3].products[0]} data={categoriesData[3].products} />
+                            <BoxBanner products={categoriesData[3].products} />
                         </HeaderAndContentLayout>
                     )}
                 </StyledSectionA>
