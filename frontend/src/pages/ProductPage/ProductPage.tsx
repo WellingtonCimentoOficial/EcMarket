@@ -323,7 +323,11 @@ const ProductPage = (props: Props) => {
                                                 className={styles.favoriteButton} 
                                                 onClick={() => isFavorite ? 
                                                 removeFromFavorites({ productId: product.id, callback: handleRemoveFromFavorites }) : 
-                                                addToFavorites({ productId: product.id, callback: handleAddToFavorites })}
+                                                addToFavorites({
+                                                    productId: product.id, 
+                                                    childId: product.has_variations ? currentChild?.id : null, 
+                                                    callback: handleAddToFavorites 
+                                                })}
                                             >
                                                 {isFavorite ? (
                                                     <PiHeartFill className={styles.favoriteIcon} />

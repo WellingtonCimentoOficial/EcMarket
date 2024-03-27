@@ -188,7 +188,7 @@
     max-height: 100%;
 }
 .containerMainInfoBodyChildrenChildBodyText {
-    padding: 5px;
+    padding: 5px 10px;
 }
 .containerMainInfoBodyShipping {
     display: flex;

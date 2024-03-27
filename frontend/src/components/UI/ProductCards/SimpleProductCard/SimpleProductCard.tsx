@@ -66,14 +66,17 @@ const SimpleProductCard: React.FC<Props> = ({
                     <div className={styles.containerText}>
                         <h3 className={styles.title}>
                             {(() => {
-                                const variantDescriptionsFormatted = child?.product_variant.map(
-                                    (variant, index) => (index + 1) !== child?.product_variant.length ? 
-                                    `${variant.description} ` : 
-                                    `(${variant.description})`
-                                )
-                                const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
-                                const shortenedName = formattedName.length > 40 ? `${formattedName.slice(0, 40)}...` : formattedName
-                                return shortenedName
+                                if(product.has_variations){
+                                    const variantDescriptionsFormatted = child?.product_variant.map(
+                                        (variant, index) => (index + 1) !== child?.product_variant.length ? 
+                                        `${variant.description} ` : 
+                                        `(${variant.description})`
+                                    )
+                                    const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
+                                    const shortenedName = formattedName.length > 40 ? `${formattedName.slice(0, 40)}...` : formattedName
+                                    return shortenedName
+                                }
+                                return product.name
                             })()}
                         </h3>
                         {product.description && 

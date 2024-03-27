@@ -61,14 +61,17 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
                     <div className={styles.header}>
                         <a className={styles.title} href='/' onClick={handleClick}>
                             {(() => {
-                                const variantDescriptionsFormatted = child?.product_variant.map(
-                                    (variant, index) => (index + 1) !== child?.product_variant.length ? 
-                                    `${variant.description} ` : 
-                                    `(${variant.description})`
-                                )
-                                const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
-                                const shortenedName = formattedName.length > 80 ? `${formattedName.slice(0, 80)}...` : formattedName
-                                return shortenedName
+                                if(product.has_variations){
+                                    const variantDescriptionsFormatted = child?.product_variant.map(
+                                        (variant, index) => (index + 1) !== child?.product_variant.length ? 
+                                        `${variant.description} ` : 
+                                        `(${variant.description})`
+                                    )
+                                    const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
+                                    const shortenedName = formattedName.length > 80 ? `${formattedName.slice(0, 80)}...` : formattedName
+                                    return shortenedName
+                                }
+                                return product.name
                             })()}
                         </a>
                         <span className={styles.text}>{product.description?.slice(0, 20)}</span>
@@ -76,7 +79,7 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>
                             <span className={styles.price}>
-                                {CurrencyFormatter((product.has_variations && child?.default_price) ? child.default_price : product.default_price)}
+                                {CurrencyFormatter((product.has_variations && child?.default_price) ? child.default_price : (product.default_price || 0))}
                             </span>
                             {(product.has_variations && child?.discount_price) || product.discount_price ? (
                                 <span className={styles.discount_price}>

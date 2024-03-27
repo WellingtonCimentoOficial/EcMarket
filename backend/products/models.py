@@ -48,7 +48,7 @@ class ProductFather(models.Model):
         return None
     
     def save(self, *args, **kwargs):
-        if not self.has_variations and not self.default_price or self.images is None:
+        if not self.has_variations and (self.default_price is None or self.images is None):
             raise ValidationError("The fields default price and images are required")
         super().save(*args, **kwargs)
     

@@ -8,6 +8,7 @@ import { Children } from '../types/ProductType';
 
 type FavoritesProps = {
     productId: number
+    childId?: number | null
     callback: ({ productId } : { productId?: number }) => void
     callbackArgs?: {
         productId: number
@@ -24,10 +25,11 @@ export const useFavoritesRequests = () => {
 
     const navigate = useNavigate()
 
-    const addToFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
+    const addToFavorites = useCallback(async ({ productId, childId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
         try {
-            const response = await axiosPrivate.post(`/favorites/create/${productId}`)
+            const URL = `/favorites/create/${productId}`
+            const response = await axiosPrivate.post(URL)
             if(response.status === 200){
                 callback({ productId: callbackArgs?.productId })
             }
