@@ -339,7 +339,7 @@ const SearchPage = () => {
                                             showDiscountPercentage={true} 
                                             showRating={true}
                                             priceRange={priceFilter}
-                                            filterBy={relevanceFilter.value === 0 ? "biggestDiscount" : relevanceFilter.value === 1 ? "biggestPrice" : "lowestPrice"}
+                                            filterBy={relevanceFilter.value === 1 ? "biggestPrice" : relevanceFilter.value === 2 ? "lowestPrice" : null}
                                         />
                                     ))}
                                 </div>

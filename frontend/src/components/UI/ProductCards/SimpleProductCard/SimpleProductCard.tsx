@@ -13,7 +13,7 @@ type Props = {
     showRating?: boolean
     showRatingFixed?: boolean
     priceRange?: [number,  number]
-    filterBy?: "biggestPrice" | "lowestPrice" | "biggestDiscount" | null
+    filterBy?: "biggestPrice" | "lowestPrice" | null
 }
 
 const SimpleProductCard: React.FC<Props> = ({ 
@@ -34,14 +34,12 @@ const SimpleProductCard: React.FC<Props> = ({
             const currentChildRealPrice = currentChild.discount_price || currentChild.default_price
             const previousChildRealPrice = previousChild.discount_price || previousChild.default_price
             if(currentChildRealPrice >= minPrice && currentChildRealPrice <= maxPrice){
-                if(filterBy === "biggestDiscount"){
-                    return (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
-                }else if(filterBy === "biggestPrice"){
+                if(filterBy === "biggestPrice"){
                     return currentChildRealPrice > previousChildRealPrice ? currentChild : previousChild
                 }else if(filterBy === "lowestPrice"){
                     return currentChildRealPrice < previousChildRealPrice ? currentChild : previousChild
                 }
-                return currentChild
+                return (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
             }
             return previousChild
         })
