@@ -1,4 +1,4 @@
-from django.db.models import Avg, Q, Value, DecimalField, F, ExpressionWrapper
+from django.db.models import Avg, Q, Value, DecimalField, When, Case, IntegerField
 from django.db.models.functions import Coalesce
 from .exceptions import ProductFilterError
 from uuid import uuid4
@@ -57,25 +57,36 @@ def apply_product_filters(productfather_instance, request):
 
     # filtering by relevance
     if relevance is not None and relevance.isdigit():
-        if int(relevance) == 0:
+        if int(relevance) == 0: # biggest rating
             if hasattr(products.first(), 'average_rating'):
                 products = products.order_by('-average_rating')
             else:
                 products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
-        elif int(relevance) == 1:
-            # products = products.annotate(ordering_price=Coalesce('discount_price', 'default_price')).order_by('-ordering_price')
-            if hasattr(products.first(), 'average_rating'):
-                products = products.order_by('-average_rating')
-            else:
-                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
-        elif int(relevance) == 2:
-            # products = products.annotate(ordering_price=Coalesce('discount_price', 'default_price')).order_by('ordering_price')
-            if hasattr(products.first(), 'average_rating'):
-                products = products.order_by('-average_rating')
-            else:
-                products = products.annotate(average_rating=Coalesce(Avg('comments__rating'), Value(0.0, output_field=DecimalField()))).order_by('-average_rating')
+        elif int(relevance) == 1 or int(relevance) == 2: # biggest price
+            data = []
+            for product in products:
+                if product.has_variations:
+                    variations_id = list(product.variants.values_list("pk", flat=True))
+                    childs = list(ProductChild.objects.filter(product_variant__in=variations_id, quantity__gte=1).annotate(
+                        true_price=Coalesce("discount_price", "default_price")
+                    ).order_by("-true_price").values_list("true_price", flat=True))
+                    data.append({"id": product.id, "price": max(childs)})
+                else:
+                    price = product.discount_price or product.default_price
+                    data.append({"id": product.id, "price": price})
+
+            # if relevance is 1 then it will be in descending order if not in ascending order
+            ordered_ids = [product['id'] for product in sorted(data, key=lambda x: x['price'], reverse=True if int(relevance) == 1 else False)]
+
+            conditional_expression = Case(
+                *[When(id=id, then=posicao) for posicao, id in enumerate(ordered_ids)],
+                output_field=IntegerField(),
+            )
+            products = products.annotate(ordering=conditional_expression).order_by('ordering')
         else:
             raise ProductFilterError()
+    else:
+        products = products.order_by('-id')
         
     # filtering by price
     if min_price is not None and max_price is not None:
@@ -96,8 +107,6 @@ def apply_product_filters(productfather_instance, request):
     # verifing if random param is true and then organizing
     if random is not None and random.lower() == 'true':
         products = products.order_by('?')
-    elif not hasattr(products.first(), 'average_rating') and not hasattr(products.first(), 'ordering_price'):
-        products = products.order_by('-id')
     
     return products
 

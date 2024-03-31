@@ -59,7 +59,7 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
                 </div>
                 <div className={styles.containerContent}>
                     <div className={styles.header}>
-                        <a className={styles.title} href='/' onClick={handleClick}>
+                        <a className={styles.title} href={`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`} onClick={handleClick}>
                             {(() => {
                                 if(product.has_variations){
                                     const variantDescriptionsFormatted = child?.product_variant.map(
@@ -74,7 +74,9 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
                                 return product.name
                             })()}
                         </a>
-                        <span className={styles.text}>{product.description?.slice(0, 20)}</span>
+                        <span className={styles.text}>
+                            {product.description && product.description.length > 90 ? `${product.description?.slice(0, 90)}...` : product.description}
+                        </span>
                     </div>
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>

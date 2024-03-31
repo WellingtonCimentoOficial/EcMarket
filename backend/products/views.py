@@ -33,6 +33,7 @@ def get_products(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
         return paginator.get_paginated_response(serializer.data)
     except Exception as e:
+        print(e)
         if hasattr(e, "detail") and hasattr(e, "status_code"):
             return Response({'error': e.detail}, status=e.status_code)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
