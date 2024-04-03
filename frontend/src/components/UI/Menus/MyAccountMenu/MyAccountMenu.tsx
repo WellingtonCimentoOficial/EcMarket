@@ -50,7 +50,7 @@ const MyAccountMenu = ({ shadow }: Props) => {
         },
         {
             name: 'Trocar senha',
-            href: '/account/password/reset',
+            href: '/account/password/change',
             icon: <PiKeyLight />,
             iconFill: <PiKeyFill />
         },

@@ -1,6 +1,5 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useContext, useEffect } from 'react'
 import styles from './LoginForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
@@ -13,6 +12,7 @@ import { emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { INVALID_AUTHENTICATION_APPLE_ERROR, INVALID_AUTHENTICATION_GOOGLE_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
+import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
 
 const LoginForm = () => {
     const [rememberMe, setRememberMe] = useState<boolean>(false)
@@ -20,13 +20,15 @@ const LoginForm = () => {
     const [password, setPassword] = useState<string>('')
     const [emailIsValid, setEmailIsValid] = useState<boolean>(true)
     const [passwordIsValid, setPasswordIsValid] = useState<boolean>(true)
-    const [showPassword, setShowPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [message, setMessage] = useState<MessageErrorType | null>(null)
 
-    const inputEmailRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
-    const inputPasswordRef: MutableRefObject<HTMLInputElement | null> = useRef(null)
     const oAuthButtonsRef: MutableRefObject<{google: HTMLDivElement | null, apple: HTMLDivElement | null}> = useRef({google: null, apple: null})
+
+    const [inputsFocus, setInputsFocus] = useState<{id: string, value: boolean}[]>([
+        {id: 'email', value: false},
+        {id: 'password', value: false}
+    ])
     
     const navigate = useNavigate()
     
@@ -46,6 +48,18 @@ const LoginForm = () => {
             text: 'signin_with'
         }
     })
+
+    const handleInputFocus = (id: string) => {
+        setInputsFocus(prevValues => {
+            const updatedValues = prevValues.map(input => {
+                if(input.id === id){
+                    return {...input, value: true}
+                }
+                return {...input, value: false}
+            })
+            return updatedValues
+        })
+    }
 
     const post_data = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
@@ -83,7 +97,7 @@ const LoginForm = () => {
                     setEmailIsValid(false)
                     setPasswordIsValid(false)
                     setMessage(null)
-                    inputEmailRef.current?.focus()
+                    handleInputFocus("email")
                 }else{
                     setMessage({
                         title: REQUEST_ERROR.title,
@@ -127,10 +141,10 @@ const LoginForm = () => {
                 setIsLoading(true)
                 getCaptchaToken(post_data)
             }else{
-                inputPasswordRef.current?.focus()
+                handleInputFocus("password")
             }
         }else{
-            inputEmailRef.current?.focus()
+            handleInputFocus("email")
         }
     }
 
@@ -162,55 +176,32 @@ const LoginForm = () => {
                         <div className={styles.separatorBar}></div>
                     </div>
                     <form className={styles.containerBodyForm} onSubmit={handleSubmit}>
-                        <div className={styles.containerBodyFormInputContainer}>
-                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                <PiEnvelope className={styles.containerBodyFormInputContainerIconIcon} />
-                            </div>
-                            <span className={styles.containerBodyFormInputContainerLabel}>E-mail</span>
-                            <input 
-                                ref={inputEmailRef}
-                                className={`${styles.containerBodyFormInputContainerInput} ${!emailIsValid ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                type="email" 
-                                name="email" 
-                                id="email" 
-                                placeholder='Digite seu e-mail'
-                                required
-                                value={email}
-                                disabled={isLoading ? true : false}
-                                onChange={handleEmail}
-                            />
-                        </div>
-                        <div className={styles.containerBodyFormInputContainer}>
-                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
-                            </div>
-                            <span className={styles.containerBodyFormInputContainerLabel}>Password</span>
-                            <input 
-                                ref={inputPasswordRef}
-                                className={`${styles.containerBodyFormInputContainerInput} ${!passwordIsValid ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                type={showPassword ? 'text' : 'password'} 
-                                name="password" 
-                                id="password" 
-                                placeholder='**********'
-                                minLength={8}
-                                value={password}
-                                disabled={isLoading ? true : false}
-                                onChange={handlePassword}
-                            />
-                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
-                                {showPassword ? (
-                                    <PiEyeSlashBold 
-                                        className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                        onClick={() => setShowPassword(oldValue => !oldValue)}
-                                    />
-                                ) : (
-                                    <PiEyeBold 
-                                    className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                    onClick={() => setShowPassword(oldValue => !oldValue)}
-                                    />
-                                )}
-                            </div>
-                        </div>
+                        <StandardInput 
+                            label='E-mail'
+                            type="email" 
+                            name="email" 
+                            id="email" 
+                            placeholder='Digite seu e-mail'
+                            required
+                            value={email}
+                            disabled={isLoading}
+                            isValid={emailIsValid}
+                            focus={inputsFocus.find(input => input.id === "email")?.value}
+                            onChange={handleEmail}
+                        />
+                        <StandardInput 
+                            type='password'
+                            label='Password'
+                            isValid={passwordIsValid}
+                            name='password'
+                            id='password'
+                            placeholder='**********'
+                            minLength={8}
+                            value={password}
+                            disabled={isLoading}
+                            focus={inputsFocus.find(input => input.id === "password")?.value}
+                            onChange={handlePassword}
+                        />
                         <div className={styles.containerBodyFormInputContainer}>
                             <div className={styles.containerBodyFormInputContainerRemember}>
                                 <SimpleCheckBox 

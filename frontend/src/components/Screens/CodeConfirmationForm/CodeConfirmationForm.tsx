@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './CodeConfirmationForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
+import { PiEnvelope } from "react-icons/pi";
 import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
@@ -10,6 +10,7 @@ import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { EXPIRED_CODE_ERROR, INVALID_THIRD_PARTY_AUTHENTICATION_ERROR, INVALID_CODE_ERROR, INVALID_CODE_FORMAT_ERROR, INVALID_EMAIL_ERROR, INVALID_PASSWORD_ERROR, NEW_PASSWORD_SAME_AS_CURRENT_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
 import { PASSWORD_CHANGED_SUCCESS } from '../../../constants/successMessages';
+import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
 
 type Props = {}
 
@@ -20,8 +21,6 @@ const CodeConfirmationForm = (props: Props) => {
     const [emailIsValid, setEmailIsValid] = useState<boolean>(false)
     const [passwordIsValid, setPasswordIsValid] = useState<boolean>(false)
     const [confirmPasswordIsValid, setConfirmPasswordIsValid] = useState<boolean>(false)
-    const [showPassword, setShowPassword] = useState<boolean>(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [message, setMessage] = useState<MessageErrorType | null>(null)
     const [success, setSuccess] = useState<boolean>(false)
@@ -41,21 +40,25 @@ const CodeConfirmationForm = (props: Props) => {
         thirdCode: HTMLInputElement | null,
         fourthCode: HTMLInputElement | null,
         fifthCode: HTMLInputElement | null,
-        email: HTMLInputElement | null, 
-        password: HTMLInputElement | null, 
-        confirmPassword: HTMLInputElement | null
     }> = useRef({
         firstCode: null, 
         secondCode: null,
         thirdCode: null,
         fourthCode: null,
         fifthCode: null, 
-        email: null, 
-        password: null, 
-        confirmPassword: null
     })
     const [leftTime, setLeftTime] = useState('00:00')
     const [codeExp, setCodeExp] = useState<string>('')
+    const [inputsFocus, setInputsFocus] = useState<{id: string, value: boolean}[]>([
+        {id: 'firstCode', value: false},
+        {id: 'secondCode', value: false},
+        {id: 'thirdCode', value: false},
+        {id: 'fourthCode', value: false},
+        {id: 'fifthCode', value: false},
+        {id: 'email', value: false},
+        {id: 'password', value: false},
+        {id: 'confirmPassword', value: false},
+    ])
 
     const { getCaptchaToken } = useReCaptchaToken()
     
@@ -255,6 +258,30 @@ const CodeConfirmationForm = (props: Props) => {
         setIsLoading(false)
     }
 
+    const handleInputFocus = (id: string) => {
+        if(id === "password" || id === "confirmPassword" || id === "email" ){
+            setInputsFocus(prevValues => {
+                const updatedValues = prevValues.map(input => {
+                    if(input.id === id){
+                        return {...input, value: true}
+                    }
+                    return {...input, value: false}
+                })
+                return updatedValues
+            })
+        }else if(id === "firstCode"){
+            inputsRef.current.firstCode?.focus()
+        }else if(id === "secondCode"){
+            inputsRef.current.secondCode?.focus()
+        }else if(id === "thirdCode"){
+            inputsRef.current.thirdCode?.focus()
+        }else if(id === "fourthCode"){
+            inputsRef.current.fourthCode?.focus()
+        }else if(id === "fifthCode"){
+            inputsRef.current.fifthCode?.focus()
+        }
+    }
+
     const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newEmailRegex = new RegExp(emailRegex)
         const value = e.target.value
@@ -271,6 +298,11 @@ const CodeConfirmationForm = (props: Props) => {
         const newPasswordRegex = new RegExp(passwordRegex)
         const value = e.target.value
         if(value.length >= 8 && newPasswordRegex.test(value)){
+            if(confirmPassword === value){
+                setConfirmPasswordIsValid(true)
+            }else{
+                setConfirmPasswordIsValid(false)
+            }
             setPasswordIsValid(true)
         }else{
             setPasswordIsValid(false)
@@ -284,22 +316,22 @@ const CodeConfirmationForm = (props: Props) => {
             setCode(prev => {
                 return {...prev, first: !isNaN(value) ? value : prev.first}
             })
-            !isNaN(value) && inputsRef.current.secondCode?.focus()
+            !isNaN(value) && handleInputFocus("secondCode")
         }else if(code === 2){
             setCode(prev => {
                 return {...prev, second: !isNaN(value) ? value : prev.second}
             })
-            !isNaN(value) && inputsRef.current.thirdCode?.focus()
+            !isNaN(value) && handleInputFocus("thirdCode")
         }else if(code === 3){
             setCode(prev => {
                 return {...prev, third: !isNaN(value) ? value : prev.third}
             })
-            !isNaN(value) && inputsRef.current.fourthCode?.focus()
+            !isNaN(value) && handleInputFocus("fourthCode")
         }else if(code === 4){
             setCode(prev => {
                 return {...prev, fourth: !isNaN(value) ? value : prev.fourth}
             })
-            !isNaN(value) && inputsRef.current.fifthCode?.focus()
+            !isNaN(value) && handleInputFocus("fifthCode")
         }else if(code === 5){
             setCode(prev => {
                 return {...prev, fifth: !isNaN(value) ? value : prev.fifth}
@@ -339,29 +371,29 @@ const CodeConfirmationForm = (props: Props) => {
                                         }
                                     }else{
                                         setConfirmPasswordIsValid(false)
-                                        inputsRef.current.confirmPassword?.focus()
+                                        handleInputFocus("confirmPassword")
                                     }
                                 }else{
-                                    inputsRef.current.password?.focus()
+                                    handleInputFocus("password")
                                 }
                             }else{
-                                inputsRef.current.fifthCode?.focus()
+                                handleInputFocus("fifthCode")
                             }
                         }else{
-                            inputsRef.current.fourthCode?.focus()
+                            handleInputFocus("fourthCode")
                         }
                     }else{
-                        inputsRef.current.thirdCode?.focus()
+                        handleInputFocus("thirdCode")
                     }
                 }else{
-                    inputsRef.current.secondCode?.focus()
+                    handleInputFocus("secondCode")
                 }
             }else{
-                inputsRef.current.firstCode?.focus()
+                handleInputFocus("firstCode")
             }
 
         }else{
-            inputsRef.current.email?.focus()
+            handleInputFocus("email")
         }
     }
 
@@ -395,10 +427,6 @@ const CodeConfirmationForm = (props: Props) => {
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
-                <div className={styles.containerHeader}>
-                    <h3 className={styles.containerHeaderTitle}>Trocar de senha</h3>
-                    <p className={styles.containerHeaderDescription}>Esqueceu a senha? fique tranquilo(a) que em poucos minutos ela será redefinida.</p>
-                </div>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
                     {message && 
                         <SimpleError title={message.title} text={message.text} isError={message.isError} />
@@ -407,25 +435,20 @@ const CodeConfirmationForm = (props: Props) => {
                         <>
                             <form className={styles.containerBodyForm} onSubmit={handleSubmit}>
                                 {stage === 1 &&
-                                    <div className={styles.containerBodyFormInputContainer}>
-                                        <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                            <PiEnvelope className={styles.containerBodyFormInputContainerIconIcon} />
-                                        </div>
-                                        <span className={styles.containerBodyFormInputContainerLabel}>E-mail</span>
-                                        <input 
-                                            ref={element => inputsRef.current['email'] = element}
-                                            className={`${styles.containerBodyFormInputContainerInput} ${!emailIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                            type="email" 
-                                            name="email" 
-                                            id="email" 
-                                            placeholder='Digite seu e-mail'
-                                            required
-                                            minLength={1}
-                                            value={email}
-                                            disabled={isLoading ? true : false}
-                                            onChange={handleEmail}
-                                        />
-                                    </div>
+                                    <StandardInput 
+                                        label='E-mail'
+                                        type="email" 
+                                        name="email" 
+                                        id="email" 
+                                        placeholder='Digite seu e-mail'
+                                        required
+                                        minLength={1}
+                                        value={email}
+                                        disabled={isLoading}
+                                        isValid={!emailIsValid && !isFirstRender ? false : true}
+                                        focus={inputsFocus.find(input => input.id === "email")?.value}
+                                        onChange={handleEmail}
+                                    />
                                 }
                                 {stage === 2 &&
                                     <>
@@ -492,76 +515,40 @@ const CodeConfirmationForm = (props: Props) => {
                                 }
                                 {stage === 3 &&
                                     <>
-                                        <div className={styles.containerBodyFormInputContainer}>
-                                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                                <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                            </div>
-                                            <span className={styles.containerBodyFormInputContainerLabel}>Password</span>
-                                            <input 
-                                                ref={element => inputsRef.current['password'] = element}
-                                                className={`${styles.containerBodyFormInputContainerInput} ${!passwordIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                                type={showPassword ? 'text' : 'password'} 
-                                                name="password" 
-                                                id="password" 
-                                                placeholder='**********'
-                                                minLength={8}
-                                                value={password}
-                                                required
-                                                disabled={isLoading ? true : false}
-                                                onChange={handlePassword}
-                                            />
-                                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
-                                                {showPassword ? (
-                                                    <PiEyeSlashBold 
-                                                        className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                        onClick={() => setShowPassword(oldValue => !oldValue)}
-                                                    />
-                                                ) : (
-                                                    <PiEyeBold 
-                                                    className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                    onClick={() => setShowPassword(oldValue => !oldValue)}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className={styles.containerBodyFormInputContainer}>
-                                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                                <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                            </div>
-                                            <span className={styles.containerBodyFormInputContainerLabel}>Confirm password</span>
-                                            <input 
-                                                ref={element => inputsRef.current['confirmPassword'] = element}
-                                                className={`${styles.containerBodyFormInputContainerInput} ${!confirmPasswordIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                                type={showConfirmPassword ? 'text' : 'password'} 
-                                                name="confirm_password" 
-                                                id="confirm_password" 
-                                                placeholder='**********'
-                                                minLength={8}
-                                                value={confirmPassword}
-                                                required
-                                                disabled={isLoading ? true : false}
-                                                onChange={handleConfirmPassword}
-                                            />
-                                            <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
-                                                {showConfirmPassword ? (
-                                                    <PiEyeSlashBold 
-                                                        className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                        onClick={() => setShowConfirmPassword(oldValue => !oldValue)}
-                                                    />
-                                                ) : (
-                                                    <PiEyeBold 
-                                                    className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                    onClick={() => setShowConfirmPassword(oldValue => !oldValue)}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
+                                        <StandardInput 
+                                            type='password'
+                                            isValid={!passwordIsValid && !isFirstRender ? false : true} 
+                                            onChange={handlePassword}
+                                            name='password'
+                                            id='password'
+                                            placeholder='**********'
+                                            minLength={8}
+                                            value={password}
+                                            required
+                                            disabled={isLoading}
+                                            label='Password'
+                                            focus={inputsFocus.find(input => input.id === "password")?.value}
+                                        />
+                                        <StandardInput 
+                                            type='password'
+                                            isValid={!confirmPasswordIsValid && !isFirstRender ? false : true} 
+                                            onChange={handleConfirmPassword}
+                                            name='confirm_password'
+                                            id='confirm_password'
+                                            placeholder='**********'
+                                            minLength={8}
+                                            value={confirmPassword}
+                                            required
+                                            disabled={isLoading}
+                                            label='Confirm password'
+                                            focus={inputsFocus.find(input => input.id === "confirmPassword")?.value}
+                                        />
                                     </>
                                 }
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <BtnB01 
                                         autoWidth 
-                                        disabled={isLoading ? true : false}
+                                        disabled={isLoading}
                                         isLoading={isLoading}>
                                         {stage === 3 ? 'Enviar' : 'Próximo'}
                                     </BtnB01>

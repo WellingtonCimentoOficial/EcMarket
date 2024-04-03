@@ -1,6 +1,5 @@
 import React, { FormEvent, useState, useRef, MutableRefObject, useEffect } from 'react'
 import styles from './RegisterForm.module.css'
-import { PiEnvelope, PiKeyBold, PiEyeBold, PiEyeSlashBold, PiUserBold } from "react-icons/pi";
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import SimpleCheckBox from '../../UI/Checkboxes/SimpleCheckBox/SimpleCheckBox';
 import { axios } from '../../../services/api';
@@ -12,6 +11,7 @@ import { MessageErrorType } from '../../../types/ErrorType';
 import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
 import { ACCOUNT_CREATED_SUCCESS } from '../../../constants/successMessages';
 import { EMAIL_ALREADY_USED_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR, TERMS_NOT_ACCEPTED_ERROR } from '../../../constants/errorMessages';
+import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
 
 const RegisterForm = () => {
     const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
@@ -25,20 +25,18 @@ const RegisterForm = () => {
     const [emailIsValid, setEmailIsValid] = useState<boolean>(false)
     const [passwordIsValid, setPasswordIsValid] = useState<boolean>(false)
     const [confirmPasswordIsValid, setConfirmPasswordIsValid] = useState<boolean>(false)
-    const [showPassword, setShowPassword] = useState<boolean>(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [message, setMessage] = useState<MessageErrorType | null>(null)
     const [created, setCreated] = useState<boolean>(false)
     const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
 
-    const inputsRef: MutableRefObject<{ 
-        firstName: HTMLInputElement | null, 
-        lastName: HTMLInputElement | null, 
-        email: HTMLInputElement | null, 
-        password: HTMLInputElement | null, 
-        confirmPassword: HTMLInputElement | null
-    }> = useRef({firstName: null, lastName: null, email: null, password: null, confirmPassword: null})
+    const [inputsFocus, setInputsFocus] = useState<{id: string, value: boolean}[]>([
+        {id: 'firstName', value: false},
+        {id: 'lastName', value: false},
+        {id: 'email', value: false},
+        {id: 'password', value: false},
+        {id: 'confirmPassword', value: false},
+    ])
 
     const oAuthButtonsRef: MutableRefObject<{google: HTMLDivElement | null, apple: HTMLDivElement | null}> = useRef({google: null, apple: null})
     
@@ -56,6 +54,18 @@ const RegisterForm = () => {
 
     const { getCaptchaToken } = useReCaptchaToken()
 
+    const handleInputFocus = (id: string) => {
+        setInputsFocus(prevValues => {
+            const updatedValues = prevValues.map(input => {
+                if(input.id === id){
+                    return {...input, value: true}
+                }
+                return {...input, value: false}
+            })
+            return updatedValues
+        })
+    }
+    
     const post_data = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
         try {
@@ -85,19 +95,19 @@ const RegisterForm = () => {
             if(originalAxios.isAxiosError(error)){
                 if(error.response?.status === 400 && error.response.data.cod === 5){
                     setFirstNameIsValid(false)
-                    inputsRef.current.firstName?.focus()
+                    handleInputFocus("firstName")
                 }else if(error.response?.status === 400 && error.response.data.cod === 6){
                     setLastNameIsValid(false)
-                    inputsRef.current.lastName?.focus()
+                    handleInputFocus("lastName")
                 }else if(error.response?.status === 400 && error.response.data.cod === 7){
                     setEmailIsValid(false)
-                    inputsRef.current.email?.focus()
+                    handleInputFocus("email")
                 }else if(error.response?.status === 400 && error.response.data.cod === 8){
                     setPasswordIsValid(false)
-                    inputsRef.current.password?.focus()
+                    handleInputFocus("password")
                 }else if(error.response?.status === 400 && error.response.data.cod === 9){
                     setEmailIsValid(false)
-                    inputsRef.current.email?.focus()
+                    handleInputFocus("email")
                     setMessage({
                         title: EMAIL_ALREADY_USED_ERROR.title,
                         text: EMAIL_ALREADY_USED_ERROR.text,
@@ -127,6 +137,7 @@ const RegisterForm = () => {
         }
         setIsLoading(false)
     }
+
 
     const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
@@ -175,7 +186,6 @@ const RegisterForm = () => {
         const value = e.target.value
         if(password === value){
             setConfirmPasswordIsValid(true)
-            inputsRef.current.confirmPassword?.blur()
         }else{
             setConfirmPasswordIsValid(false)
         }
@@ -203,19 +213,19 @@ const RegisterForm = () => {
                             }
                         }else{
                             setConfirmPasswordIsValid(false)
-                            inputsRef.current.confirmPassword?.focus()
+                            handleInputFocus("confirmPassword")
                         }
                     }else{
-                        inputsRef.current.password?.focus()
+                        handleInputFocus("password")
                     }
                 }else{
-                    inputsRef.current.email?.focus()
+                    handleInputFocus("email")
                 }
             }else{
-                inputsRef.current.lastName?.focus()
+                handleInputFocus("lastName")
             }
         }else{
-            inputsRef.current.firstName?.focus()
+            handleInputFocus("firstName")
         }
     }
 
@@ -249,127 +259,76 @@ const RegisterForm = () => {
                                 <div className={styles.separatorBar}></div>
                             </div>
                             <form className={styles.containerBodyForm} onSubmit={handleSubmit}>
-                                <div className={styles.containerBodyFormInputContainer}>
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                        <PiUserBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                    </div>
-                                    <span className={styles.containerBodyFormInputContainerLabel}>Nome</span>
-                                    <input 
-                                        ref={element => inputsRef.current['firstName'] = element}
-                                        className={`${styles.containerBodyFormInputContainerInput} ${!firstNameIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                        type="text" 
-                                        name="first_name" 
-                                        id="first_name" 
-                                        placeholder='Digite seu nome'
-                                        required
-                                        value={firstName}
-                                        minLength={1}
-                                        disabled={isLoading ? true : false}
-                                        onChange={handleFirstName}
-                                    />
-                                </div>
-                                <div className={styles.containerBodyFormInputContainer}>
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                        <PiUserBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                    </div>
-                                    <span className={styles.containerBodyFormInputContainerLabel}>Sobrenome</span>
-                                    <input 
-                                        ref={element => inputsRef.current['lastName'] = element}
-                                        className={`${styles.containerBodyFormInputContainerInput} ${!lastNameIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                        type="text" 
-                                        name="last_name" 
-                                        id="last_name" 
-                                        placeholder='Digite seu sobrenome'
-                                        required
-                                        minLength={1}
-                                        value={lastName}
-                                        disabled={isLoading ? true : false}
-                                        onChange={handleLastName}
-                                    />
-                                </div>
-                                <div className={styles.containerBodyFormInputContainer}>
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                        <PiEnvelope className={styles.containerBodyFormInputContainerIconIcon} />
-                                    </div>
-                                    <span className={styles.containerBodyFormInputContainerLabel}>E-mail</span>
-                                    <input 
-                                        ref={element => inputsRef.current['email'] = element}
-                                        className={`${styles.containerBodyFormInputContainerInput} ${!emailIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                        type="email" 
-                                        name="email" 
-                                        id="email" 
-                                        placeholder='Digite seu e-mail'
-                                        required
-                                        minLength={1}
-                                        value={email}
-                                        disabled={isLoading ? true : false}
-                                        onChange={handleEmail}
-                                    />
-                                </div>
-                                <div className={styles.containerBodyFormInputContainer}>
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                        <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                    </div>
-                                    <span className={styles.containerBodyFormInputContainerLabel}>Password</span>
-                                    <input 
-                                        ref={element => inputsRef.current['password'] = element}
-                                        className={`${styles.containerBodyFormInputContainerInput} ${!passwordIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                        type={showPassword ? 'text' : 'password'} 
-                                        name="password" 
-                                        id="password" 
-                                        placeholder='**********'
-                                        minLength={8}
-                                        value={password}
-                                        required
-                                        disabled={isLoading ? true : false}
-                                        onChange={handlePassword}
-                                    />
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
-                                        {showPassword ? (
-                                            <PiEyeSlashBold 
-                                                className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                onClick={() => setShowPassword(oldValue => !oldValue)}
-                                            />
-                                        ) : (
-                                            <PiEyeBold 
-                                            className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                            onClick={() => setShowPassword(oldValue => !oldValue)}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className={styles.containerBodyFormInputContainer}>
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconLeft}`}>
-                                        <PiKeyBold className={styles.containerBodyFormInputContainerIconIcon} />
-                                    </div>
-                                    <span className={styles.containerBodyFormInputContainerLabel}>Confirmar senha</span>
-                                    <input 
-                                        ref={element => inputsRef.current['confirmPassword'] = element}
-                                        className={`${styles.containerBodyFormInputContainerInput} ${!confirmPasswordIsValid && !isFirstRender ? styles.containerBodyFormInputContainerInputError : null}`} 
-                                        type={showConfirmPassword ? 'text' : 'password'} 
-                                        name="confirm_password" 
-                                        id="confirm_password" 
-                                        placeholder='**********'
-                                        minLength={8}
-                                        value={confirmPassword}
-                                        required
-                                        disabled={isLoading ? true : false}
-                                        onChange={handleConfirmPassword}
-                                    />
-                                    <div className={`${styles.containerBodyFormInputContainerIcon} ${styles.containerBodyFormInputContainerIconRight}`}>
-                                        {showConfirmPassword ? (
-                                            <PiEyeSlashBold 
-                                                className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                                onClick={() => setShowConfirmPassword(oldValue => !oldValue)}
-                                            />
-                                        ) : (
-                                            <PiEyeBold 
-                                            className={`${styles.containerBodyFormInputContainerIconIcon} ${styles.containerBodyFormInputContainerIconIconF}`} 
-                                            onClick={() => setShowConfirmPassword(oldValue => !oldValue)}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
+                                <StandardInput 
+                                    label='Nome'
+                                    type="username" 
+                                    name="first_name" 
+                                    id="first_name" 
+                                    placeholder='Digite seu nome'
+                                    required
+                                    minLength={1}
+                                    value={firstName}
+                                    disabled={isLoading}
+                                    isValid={!firstNameIsValid && !isFirstRender ? false : true}
+                                    focus={inputsFocus.find(input => input.id === "firstName")?.value}
+                                    onChange={handleFirstName}
+                                />
+                                <StandardInput 
+                                    label='Sobrenome'
+                                    type="username" 
+                                    name="last_name" 
+                                    id="last_name" 
+                                    placeholder='Digite seu sobrenome'
+                                    required
+                                    minLength={1}
+                                    value={lastName}
+                                    disabled={isLoading}
+                                    isValid={!lastNameIsValid && !isFirstRender ? false : true}
+                                    focus={inputsFocus.find(input => input.id === "lastName")?.value}
+                                    onChange={handleLastName}
+                                />
+                                <StandardInput 
+                                    label='E-mail'
+                                    type="email" 
+                                    name="email" 
+                                    id="email" 
+                                    placeholder='Digite seu e-mail'
+                                    required
+                                    minLength={1}
+                                    value={email}
+                                    disabled={isLoading}
+                                    isValid={!emailIsValid && !isFirstRender ? false : true}
+                                    focus={inputsFocus.find(input => input.id === "email")?.value}
+                                    onChange={handleEmail}
+                                />
+                                <StandardInput 
+                                    type='password'
+                                    label='Password'
+                                    name="password" 
+                                    id="password" 
+                                    placeholder='**********'
+                                    minLength={8}
+                                    value={password}
+                                    required
+                                    disabled={isLoading}
+                                    isValid={!passwordIsValid && !isFirstRender ? false : true}
+                                    focus={inputsFocus.find(input => input.id === "password")?.value}
+                                    onChange={handlePassword}
+                                />
+                                <StandardInput 
+                                    type='password'
+                                    label='Confirm password'
+                                    name="confirm_password" 
+                                    id="confirm_password" 
+                                    placeholder='**********'
+                                    minLength={8}
+                                    value={confirmPassword}
+                                    required
+                                    disabled={isLoading}
+                                    isValid={!confirmPasswordIsValid && !isFirstRender ? false : true}
+                                    focus={inputsFocus.find(input => input.id === "confirmPassword")?.value}
+                                    onChange={handleConfirmPassword}
+                                />
                                 <div className={styles.containerBodyFormInputContainer}>
                                     <div className={styles.containerBodyFormInputContainerRemember}>
                                         <SimpleCheckBox 

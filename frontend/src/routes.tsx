@@ -12,6 +12,7 @@ import VerifyAccountPage from './pages/VerifyAccountPage/VerifyAccountPage'
 import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import AddressesPage from './pages/AddressesPage/AddressesPage'
+import ChangePasswordPage from './pages/ChangePasswordPage/ChangePasswordPage'
 
 const Routes = (): JSX.Element => {
     return (
@@ -39,6 +40,7 @@ const Routes = (): JSX.Element => {
                         <Route path='wishlist' element={<FavoritesPage />} />
                         <Route path='cart' element={<ProfilePage />} />
                         <Route path='cards' element={<ProfilePage />} />
+                        <Route path='password/change' element={<ChangePasswordPage />} />
                     </Route>
                 </Route>
             </Route>

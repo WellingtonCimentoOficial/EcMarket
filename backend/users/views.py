@@ -22,6 +22,8 @@ from .utils import (
 from . import exceptions
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
+from datetime import timedelta
+from django.utils import timezone
 
 # Create your views here.
 class TokenObtainPairView(TokenObtainPairViewOriginal):
@@ -179,7 +181,7 @@ def send_reset_password_code(request):
 
                 return Response({'exp': password_reset_code.expiration}, status=status.HTTP_200_OK)
             raise exceptions.InvalidAuthenticationMethod()
-        raise exceptions.UserNotFound()
+        return Response({'exp': (timezone.now() + timedelta(minutes=10)).isoformat()}, status=status.HTTP_200_OK)
     except exceptions.InvalidEmailFormat:
         return Response({'cod': 17, 'error': 'The email format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
     except InvalidReCaptchaToken:

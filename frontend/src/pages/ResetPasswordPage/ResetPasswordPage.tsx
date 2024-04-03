@@ -29,6 +29,10 @@ const ResetPasswordPage = (props: Props) => {
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
+                <div className={styles.containerHeader}>
+                    <h3 className={styles.containerHeaderTitle}>Trocar de senha</h3>
+                    <p className={styles.containerHeaderDescription}>Esqueceu a senha? fique tranquilo(a) que em poucos minutos ela será redefinida.</p>
+                </div>
                 <CodeConfirmationForm />
             </div>
         </div>
