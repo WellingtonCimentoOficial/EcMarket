@@ -8,7 +8,7 @@ import { useGoogleOAuth } from '../../../hooks/useGoogleOAuth';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 import { onlyUpperCaseLowerCaseAndSpaceLettersRegex, emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
-import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
+import SimpleErrorResponseMessage from '../../UI/ResponseMessages/SimpleErrorResponseMessage/SimpleErrorResponseMessage';
 import { ACCOUNT_CREATED_SUCCESS } from '../../../constants/successMessages';
 import { EMAIL_ALREADY_USED_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR, TERMS_NOT_ACCEPTED_ERROR } from '../../../constants/errorMessages';
 import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
@@ -242,7 +242,7 @@ const RegisterForm = () => {
                 </div>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
                     {message && 
-                        <SimpleError title={message.title} text={message.text} isError={message.isError} />
+                        <SimpleErrorResponseMessage title={message.title} text={message.text} isError={message.isError} />
                     }
                     {!created && 
                         <>

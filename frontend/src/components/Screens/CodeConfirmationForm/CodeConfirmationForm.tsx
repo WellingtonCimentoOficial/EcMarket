@@ -1,21 +1,23 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './CodeConfirmationForm.module.css'
-import { PiEnvelope } from "react-icons/pi";
 import * as originalAxios from 'axios';
 import { axios } from '../../../services/api';
 import BtnB01 from '../../UI/Buttons/BtnB01/BtnB01';
 import { useReCaptchaToken } from '../../../hooks/useReCaptchaToken';
 import { emailRegex, passwordRegex } from '../../../constants/regexPatterns';
 import { MessageErrorType } from '../../../types/ErrorType';
-import SimpleError from '../../UI/Errors/SimpleError/SimpleError';
+import SimpleErrorResponseMessage from '../../UI/ResponseMessages/SimpleErrorResponseMessage/SimpleErrorResponseMessage';
 import { EXPIRED_CODE_ERROR, INVALID_THIRD_PARTY_AUTHENTICATION_ERROR, INVALID_CODE_ERROR, INVALID_CODE_FORMAT_ERROR, INVALID_EMAIL_ERROR, INVALID_PASSWORD_ERROR, NEW_PASSWORD_SAME_AS_CURRENT_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR } from '../../../constants/errorMessages';
 import { PASSWORD_CHANGED_SUCCESS } from '../../../constants/successMessages';
 import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
+import RedirectErrorResponseMessage from '../../UI/ResponseMessages/RedirectErrorResponseMessage/RedirectErrorResponseMessage';
 
-type Props = {}
+type Props = {
+    userEmail?: string | null
+}
 
-const CodeConfirmationForm = (props: Props) => {
-    const [email, setEmail] = useState<string>('')
+const CodeConfirmationForm = ({ userEmail }: Props) => {
+    const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>('')
     const [confirmPassword, setConfirmPassword] = useState<string>('')
     const [emailIsValid, setEmailIsValid] = useState<boolean>(false)
@@ -61,53 +63,55 @@ const CodeConfirmationForm = (props: Props) => {
     ])
 
     const { getCaptchaToken } = useReCaptchaToken()
-    
-    const send_reset_password_code = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
-        setIsLoading(true)
-        try {
-            const response = await axios.post('/accounts/reset/password/code', {
-                email: email,
-                "g-recaptcha-response": RecaptchaToken
-            })
-            if(response.status === 200){
-                setCodeExp(response.data.exp)
-                setStage(2)
-                setMessage(null)
-            }
-        } catch (error) {
-            if(originalAxios.isAxiosError(error)){
-                if(error?.response?.data.cod === 17){
-                    setIsFirstRender(false)
-                    setEmailIsValid(false)
-                    setMessage({
-                        title: INVALID_EMAIL_ERROR.title,
-                        text: INVALID_EMAIL_ERROR.text,
-                        isError: true
-                    })
-                }else if(error?.response?.data.cod === 23){
-                    setMessage({
-                        title: RECAPTCHA_ERROR.title,
-                        text: RECAPTCHA_ERROR.text,
-                        isError: true
-                    })
-                }else if(error?.response?.data.cod === 26){
-                    setMessage({
-                        title: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.title,
-                        text: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.text,
-                        isError: true
-                    })
-                }else{
-                    setMessage({
-                        title: REQUEST_ERROR.title,
-                        text: REQUEST_ERROR.text,
-                        isError: true
-                    })
-                    setEmailIsValid(false)
+
+    const send_reset_password_code = useCallback(async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
+        if(emailIsValid){
+            setIsLoading(true)
+            try {
+                const response = await axios.post('/accounts/reset/password/code', {
+                    email: email,
+                    "g-recaptcha-response": RecaptchaToken
+                })
+                if(response.status === 200){
+                    setCodeExp(response.data.exp)
+                    setStage(2)
+                    setMessage(null)
+                }
+            } catch (error) {
+                if(originalAxios.isAxiosError(error)){
+                    if(error?.response?.data.cod === 17){
+                        setIsFirstRender(false)
+                        setEmailIsValid(false)
+                        setMessage({
+                            title: INVALID_EMAIL_ERROR.title,
+                            text: INVALID_EMAIL_ERROR.text,
+                            isError: true
+                        })
+                    }else if(error?.response?.data.cod === 23){
+                        setMessage({
+                            title: RECAPTCHA_ERROR.title,
+                            text: RECAPTCHA_ERROR.text,
+                            isError: true
+                        })
+                    }else if(error?.response?.data.cod === 26){
+                        setMessage({
+                            title: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.title,
+                            text: INVALID_THIRD_PARTY_AUTHENTICATION_ERROR.text,
+                            isError: true
+                        })
+                    }else{
+                        setMessage({
+                            title: REQUEST_ERROR.title,
+                            text: REQUEST_ERROR.text,
+                            isError: true
+                        })
+                        setEmailIsValid(false)
+                    }
                 }
             }
+            setIsLoading(false)
         }
-        setIsLoading(false)
-    }
+    }, [email, emailIsValid])
 
     const confirm_reset_password_code = async ({ RecaptchaToken }: { RecaptchaToken: string }) => {
         setIsLoading(true)
@@ -282,9 +286,9 @@ const CodeConfirmationForm = (props: Props) => {
         }
     }
 
-    const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleEmail = (e: React.ChangeEvent<HTMLInputElement> | string) => {
         const newEmailRegex = new RegExp(emailRegex)
-        const value = e.target.value
+        const value = typeof e === "string" ? e : e.target.value
         if(newEmailRegex.test(value)){
             setEmailIsValid(true)
         }else{
@@ -413,6 +417,13 @@ const CodeConfirmationForm = (props: Props) => {
     }, [codeExp])
 
     useEffect(() => {
+        if(userEmail){
+            handleEmail(userEmail)
+            getCaptchaToken(send_reset_password_code)
+        }
+    }, [userEmail, getCaptchaToken, send_reset_password_code])
+
+    useEffect(() => {
         if(codeExp){
             const interval = setInterval(() => {
                 stopWatch()
@@ -428,8 +439,14 @@ const CodeConfirmationForm = (props: Props) => {
         <div className={styles.wrapper}>
             <div className={styles.container}>
                 <div className={`${styles.containerBody} ${isLoading ? styles.loading : null}`}>
-                    {message && 
-                        <SimpleError title={message.title} text={message.text} isError={message.isError} />
+                    {message &&
+                        <>
+                            {success ? (
+                                <RedirectErrorResponseMessage title={message.title} text={message.text} seconds={10} path='/account/sign-in' />
+                            ):(
+                                <SimpleErrorResponseMessage title={message.title} text={message.text} isError={message.isError} />
+                            )}
+                        </>
                     }
                     {!success && 
                         <>

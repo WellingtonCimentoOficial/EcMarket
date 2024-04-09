@@ -21,11 +21,12 @@
 .containerBodyFormCodeInputs {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 .containerBodyFormCodeInputsInput {
-    width: calc(100% / 5);
-    padding: 8px 0px;
+    width: 50px;
+    aspect-ratio: 1;
+    flex-grow: 1;
     border-radius: 8px;
     font-size: 20pt;
     background-color: rgba(0, 0, 0, 0.068);
@@ -46,6 +47,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    user-select: none;
 }
 .containerFooterResend {
     text-decoration: underline;

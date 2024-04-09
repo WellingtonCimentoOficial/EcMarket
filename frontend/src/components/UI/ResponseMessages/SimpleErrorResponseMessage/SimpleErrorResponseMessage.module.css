@@ -1,5 +1,5 @@
 .wrapper {
-    border: 1px solid transparent;
+    border: 2px dashed transparent;
     padding: 20px;
     border-radius: 10px;
     display: flex;
@@ -22,7 +22,7 @@
     display: block;
 }
 .success {
-    color: green;
+    color: var(--primary-color);
 }
 .failure {
     color: red;

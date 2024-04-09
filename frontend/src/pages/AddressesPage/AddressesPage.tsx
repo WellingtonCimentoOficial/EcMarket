@@ -17,7 +17,7 @@ import SimpleSelect from '../../components/UI/Selects/SimpleSelect/SimpleSelect'
 import { SelectType } from '../../types/SelectType'
 import { axios } from '../../services/api'
 import { MessageErrorType } from '../../types/ErrorType'
-import SimpleError from '../../components/UI/Errors/SimpleError/SimpleError'
+import SimpleErrorResponseMessage from '../../components/UI/ResponseMessages/SimpleErrorResponseMessage/SimpleErrorResponseMessage'
 import { 
     DELIVERY_ADDRESS_NOT_FOUND, INVALID_ADDRESS_ERROR, 
     INVALID_DELIVERY_ADDRESS_COMPLEMENT_FIELD, 
@@ -437,7 +437,7 @@ const AddressesPage = (props: Props) => {
             <ProfileLayout title='Seus endereços' text='Informações relacionadas ao seu endereço pessoal e endereços de entrega.'>
                 <div className={styles.wrapper}>
                     <div className={styles.container}>
-                        {message && <SimpleError title={message.title} text={message.text} isError={message.isError} />}
+                        {message && <SimpleErrorResponseMessage title={message.title} text={message.text} isError={message.isError} />}
                         {showForm.show ? (
                             <form className={styles.form} onSubmit={handleSubmit}>
                                 <SimpleSelect 

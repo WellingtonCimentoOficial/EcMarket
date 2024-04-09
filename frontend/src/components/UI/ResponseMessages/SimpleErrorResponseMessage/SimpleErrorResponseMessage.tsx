@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './SimpleError.module.css'
+import styles from './SimpleErrorResponseMessage.module.css'
 import { PiSealWarning, PiCheck } from 'react-icons/pi'
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
     text: string
 }
 
-const SimpleError = ({ isError, title, text }: Props) => {
+const SimpleErrorResponseMessage = ({ isError, title, text }: Props) => {
     return (
         <div className={styles.wrapper} style={{ borderColor: isError ? 'red' : 'green' }}>
             <div className={styles.header}>
@@ -25,4 +25,4 @@ const SimpleError = ({ isError, title, text }: Props) => {
     )
 }
 
-export default SimpleError
+export default SimpleErrorResponseMessage

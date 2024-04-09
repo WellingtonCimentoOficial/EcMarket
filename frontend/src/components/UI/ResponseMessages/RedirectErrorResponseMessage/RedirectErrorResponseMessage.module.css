@@ -1,0 +1,30 @@
+.wrapper {
+    border: 2px dashed var(--primary-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+.container {
+    display: flex;
+    gap: 10px;
+}
+.flexIcon {
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+}
+.icon {
+    font-size: 23pt;
+    color: var(--primary-color);
+}
+.flexItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.title {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+.text {
+
+}

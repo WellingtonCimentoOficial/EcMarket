@@ -3,8 +3,10 @@ import styles from './ResetPasswordPage.module.css'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import CodeConfirmationForm from '../../components/Screens/CodeConfirmationForm/CodeConfirmationForm'
 import { AuthContext } from '../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useReCaptchaToken } from '../../hooks/useReCaptchaToken'
+import { UserContext } from '../../contexts/UserContext'
+import { useQueryParam } from '../../hooks/useQueryParam'
 
 type Props = {}
 
@@ -12,15 +14,21 @@ const ResetPasswordPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
     const { tokens } = useContext(AuthContext)
     const { initializeRecaptchaScript } = useReCaptchaToken()
+    const [searchParams] = useSearchParams()
+    const emailParam = searchParams.get("email")
+    const { user } = useContext(UserContext)
 
     const navigate = useNavigate()
+    const { removeParam } = useQueryParam()
 
     useEffect(() => {
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Reset Password`)
-        if(tokens.refresh){
-            navigate('/')
+        if((tokens.refresh && !emailParam) || (tokens.refresh && emailParam !== user.email)){
+            navigate('/account/password/change')
+        }else if(!tokens.refresh && emailParam){
+            removeParam("email")
         }
-    }, [tokens.refresh, updateTitle, navigate])
+    }, [tokens.refresh, emailParam, removeParam, user.email, updateTitle, navigate])
 
     useEffect(() => {
         initializeRecaptchaScript()
@@ -33,7 +41,7 @@ const ResetPasswordPage = (props: Props) => {
                     <h3 className={styles.containerHeaderTitle}>Trocar de senha</h3>
                     <p className={styles.containerHeaderDescription}>Esqueceu a senha? fique tranquilo(a) que em poucos minutos ela será redefinida.</p>
                 </div>
-                <CodeConfirmationForm />
+                <CodeConfirmationForm userEmail={emailParam} />
             </div>
         </div>
     )

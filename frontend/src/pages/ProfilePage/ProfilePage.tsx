@@ -11,7 +11,7 @@ import * as originalAxios from 'axios'
 import { UserProfileType } from '../../types/UserType'
 import { UserContext } from '../../contexts/UserContext'
 import { MessageErrorType } from '../../types/ErrorType'
-import SimpleError from '../../components/UI/Errors/SimpleError/SimpleError'
+import SimpleErrorResponseMessage from '../../components/UI/ResponseMessages/SimpleErrorResponseMessage/SimpleErrorResponseMessage'
 import { RECAPTCHA_ERROR, REQUEST_ERROR } from '../../constants/errorMessages'
 import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
 import LabelInput from '../../components/UI/Inputs/LabelInput/LabelInput'
@@ -226,7 +226,7 @@ const ProfilePage = (props: Props) => {
                 <div className={styles.wrapper}>
                     <div className={styles.container}>
                         {message &&
-                            <SimpleError title={message.title} text={message.text} isError={message.isError} />
+                            <SimpleErrorResponseMessage title={message.title} text={message.text} isError={message.isError} />
                         }
                         <form className={styles.bodyForm} onSubmit={handleSubmit}>
                             <LabelInput 

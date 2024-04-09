@@ -1,37 +1,42 @@
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 import styles from './ChangePasswordPage.module.css'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
-import StandardInput from '../../components/UI/Inputs/PasswordInput/StandardInput'
-import CodeConfirmationForm from '../../components/Screens/CodeConfirmationForm/CodeConfirmationForm'
+import { UserContext } from '../../contexts/UserContext'
+import { PiShieldFill, PiKeyDuotone } from "react-icons/pi";
+import BtnB01 from '../../components/UI/Buttons/BtnB01/BtnB01'
+import { useNavigate } from 'react-router-dom'
+
 
 type Props = {}
 
 const ChangePasswordPage = (props: Props) => {
-    const [password, setPassword] = useState<string>("")
-    const [passwordIsValid, setPasswordIsValid] = useState<boolean>(false)
-    const [confirmPassword, setConfirmPassword] = useState<string>("")
-    const [confirmPasswordIsValid, setConfirmPasswordIsValid] = useState<boolean>(false)
-    const [stage, setStage] = useState<number>(0)
-    const [inputsFocus, setInputsFocus] = useState<{id: string, value: boolean}[]>([
-        {id: 'password', value: false},
-        {id: 'confirmPassword', value: false},
-    ])
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
+    const { user } = useContext(UserContext)
+    const navigate = useNavigate()
 
-    const handlePassword = () => {
-
-    }
-
-    const handleConfirmPassword = () => {
-
+    const handleClick = () => {
+        navigate(`/account/reset/password?email=${user.email}`)
     }
 
     return (
         <WidthLayout width={90}>
             <ProfileLayout title='Trocar senha' text='Para a segurança da sua conta, não compartilhe sua senha com mais ninguém'>
-                <CodeConfirmationForm />
+                <div className={styles.container}>
+                    <div className={styles.item}>
+                        <div className={styles.iconContainer}>
+                            <PiShieldFill className={styles.icon} />
+                            <PiKeyDuotone className={styles.iconOn} />
+                        </div>
+                    </div>
+                    <div className={styles.item2}>
+                        <span className={styles.text}>
+                            Para redefinir seu acesso, clique no botão abaixo. Lembre-se de não compartilhar suas credenciais com ninguém. Após clicar no botão, será necessário fornecer o código que será enviado para:
+                            <strong className={styles.email}>{user.email}</strong> 
+                            Para concluir o processo de atualização da senha, clique em alterar minha senha.
+                        </span>
+                        <BtnB01 autoWidth onClick={handleClick}>Alterar minha senha</BtnB01>
+                    </div>
+                </div>
             </ProfileLayout>
         </WidthLayout>
     )
