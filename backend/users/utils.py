@@ -89,6 +89,7 @@ def get_or_create_user_in_google(user_info):
                 email=user_info['email'],
                 first_name=user_info['given_name'],
                 last_name=user_info['family_name'],
+                google_password=make_password(userid),
                 password=make_password(userid)
             )
             return True, new_user

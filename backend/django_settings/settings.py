@@ -158,6 +158,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #django custom auth model
 AUTH_USER_MODEL = 'users.User'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'users.backends.GooglePasswordBackend',
+]
+
 #Cors configurations
 CORS_ALLOWED_ORIGINS = [
     os.getenv('DOMAIN_URL'), # change to mercado pago

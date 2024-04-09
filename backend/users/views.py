@@ -33,8 +33,8 @@ class TokenObtainPairView(TokenObtainPairViewOriginal):
             recaptcha = ReCaptcha(token=recaptcha_token)
             recaptcha.validate_token()
             
-            if google_user_id_exists(request.data.get('email')):
-                return Response({'cod': 4, 'error': "Authenticate via Google"}, status=status.HTTP_401_UNAUTHORIZED)
+            # if google_user_id_exists(request.data.get('email')):
+            #     return Response({'cod': 4, 'error': "Authenticate via Google"}, status=status.HTTP_401_UNAUTHORIZED)
             
             if apple_user_id_exists(request.data.get('email')):
                 return Response({'cod': 27, 'error': "Authenticate via Apple"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -176,11 +176,9 @@ def send_reset_password_code(request):
         user = User.objects.filter(email=email).first()
 
         if user is not None:
-            if not user.google_user_id and not user.apple_user_id:
-                password_reset_code = create_new_password_reset_code(user=user)
+            password_reset_code = create_new_password_reset_code(user=user)
 
-                return Response({'exp': password_reset_code.expiration}, status=status.HTTP_200_OK)
-            raise exceptions.InvalidAuthenticationMethod()
+            return Response({'exp': password_reset_code.expiration}, status=status.HTTP_200_OK)
         return Response({'exp': (timezone.now() + timedelta(minutes=10)).isoformat()}, status=status.HTTP_200_OK)
     except exceptions.InvalidEmailFormat:
         return Response({'cod': 17, 'error': 'The email format is invalid'}, status=status.HTTP_400_BAD_REQUEST)
@@ -188,8 +186,6 @@ def send_reset_password_code(request):
         return Response({'cod': 23, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
     except exceptions.UserNotFound:
         return Response({'cod': 25, 'error': 'The user was not found'}, status=status.HTTP_404_NOT_FOUND)
-    except exceptions.InvalidAuthenticationMethod:
-        return Response({'cod': 26, 'error': 'The authentication method is invalid'}, status=status.HTTP_404_NOT_FOUND)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -246,12 +242,10 @@ def reset_password(request):
             if user.password_reset_code.code == code:
                 if not user.password_reset_code.is_expired():
                     if not check_password(new_password, user.password):
-                        if not user.google_user_id and not user.apple_user_id:
-                            user.set_password(new_password)
-                            user.save()
-                            send_password_changed_notification(user)
-                            return Response(status=status.HTTP_200_OK)
-                        raise exceptions.InvalidAuthenticationMethod()
+                        user.set_password(new_password)
+                        user.save()
+                        send_password_changed_notification(user)
+                        return Response(status=status.HTTP_200_OK)
                     raise exceptions.ErrorSamePasswords()
                 raise exceptions.ExpiredPasswordResetCode()
             raise exceptions.InvalidPasswordResetCodeFormat()
@@ -264,8 +258,6 @@ def reset_password(request):
         return Response({'cod': 29, 'error': 'Validation failure of reCAPTCHA'}, status=status.HTTP_400_BAD_REQUEST)
     except exceptions.UserNotFound:
         return Response({'cod': 30, 'error': 'The user was not found'}, status=status.HTTP_404_NOT_FOUND)
-    except exceptions.InvalidAuthenticationMethod:
-        return Response({'cod': 31, 'error': 'The authentication method is invalid'}, status=status.HTTP_401_UNAUTHORIZED)
     except exceptions.ExpiredPasswordResetCode:
         return Response({'cod': 33, 'error': 'The password reset code is expired'}, status=status.HTTP_401_UNAUTHORIZED)
     except exceptions.ErrorSamePasswords:
