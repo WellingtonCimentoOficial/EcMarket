@@ -17,7 +17,6 @@ import { axios } from '../../../../services/api';
 import { CategoryName } from '../../../../types/CategoryType';
 import { ZipCodeContext } from '../../../../contexts/ZipCodeContext';
 import { AuthContext } from '../../../../contexts/AuthContext';
-import { useAxiosPrivate } from '../../../../hooks/useAxiosPrivate';
 import BtnA01 from '../../Buttons/BtnA01/BtnA01';
 import { UserContext } from '../../../../contexts/UserContext';
 import { useAddressRequests } from '../../../../hooks/useAddressRequests';
@@ -45,14 +44,11 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
-    const [cartNumberOfItems, setCartNumberOfItems] = useState<number>(0)
     const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
 
     const { tokens, logout } = useContext(AuthContext)
-
-    const axiosPrivate = useAxiosPrivate()
 
     const { user } = useContext(UserContext)
 
@@ -130,17 +126,6 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         }
     }, [searchText])
 
-    const get_cart = useCallback(async () => {
-        try {
-            const response = await axiosPrivate.get('/cart/')
-            if(response.status === 200){
-                setCartNumberOfItems(response.data.products.length)
-            }
-        } catch (error) {
-            // ERROR IN TRY TO ACCESS .STATUS
-        }
-    }, [axiosPrivate, setCartNumberOfItems])
-
     useEffect(() => {
         const timeout = setTimeout(() => {
             get_categories_name()
@@ -151,16 +136,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
         }
     }, [get_categories_name])
 
-    useEffect(() => { // GET CART QUANTITY OF ITEMS
+    useEffect(() => {
         (async () => {
             if(tokens.refresh){
-                await get_cart()
                 await getUserAddress({ setData: setZipCodeContextData })
-            }else{
-                setCartNumberOfItems(0)
             }
         })()
-    }, [tokens.refresh, get_cart, getUserAddress, setZipCodeContextData])
+    }, [tokens.refresh, getUserAddress, setZipCodeContextData])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
@@ -294,12 +276,13 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                     <div className={styles.flexUtil}>
                         <a href="/account/wishlist" className={styles.utilIconContainer} >
                             <PiHeartLight className={styles.utilIcon} />
+                            <div className={styles.tagNumberContainer}>{user.wishlist_quantity}</div>
                         </a>
                     </div>
                     <div className={styles.flexUtil}>
                         <a href="/account/cart" className={styles.utilIconContainer} >
                             <PiShoppingCartLight className={styles.utilIcon} />
-                            {tokens.refresh && <div className={styles.tagNumberContainer}>{cartNumberOfItems}</div>}
+                            <div className={styles.tagNumberContainer}>{user.cart_quantity}</div>
                         </a>
                     </div>
                 </div>

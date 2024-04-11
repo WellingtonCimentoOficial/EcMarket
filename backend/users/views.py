@@ -334,7 +334,8 @@ def get_user_profile(request):
         serializer = UserProfileSerializer(user, context={'request': request})
 
         return Response(serializer.data)
-    except:
+    except Exception as e:
+        print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['PATCH'])

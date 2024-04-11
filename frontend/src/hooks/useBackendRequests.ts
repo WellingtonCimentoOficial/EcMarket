@@ -5,6 +5,7 @@ import * as originalAxios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { axios } from '../services/api';
 import { Children } from '../types/ProductType';
+import { UserContext } from '../contexts/UserContext';
 
 type FavoritesProps = {
     productId: number
@@ -22,6 +23,7 @@ type AccountProps = {
 export const useFavoritesRequests = () => {
     const axiosPrivate = useAxiosPrivate()
     const { setIsLoading } = useContext(LoadingContext)
+    const { setUser } = useContext(UserContext)
 
     const navigate = useNavigate()
 
@@ -32,6 +34,9 @@ export const useFavoritesRequests = () => {
             const response = await axiosPrivate.post(URL)
             if(response.status === 200){
                 callback({ productId: callbackArgs?.productId })
+                setUser(oldValue => {
+                    return {...oldValue, wishlist_quantity: oldValue.wishlist_quantity + 1}
+                })
             }
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
@@ -41,7 +46,7 @@ export const useFavoritesRequests = () => {
             }
         }   
         setIsLoading(false)
-    }, [axiosPrivate, navigate, setIsLoading])
+    }, [axiosPrivate, navigate, setIsLoading, setUser])
     
     const removeFromFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
@@ -49,11 +54,14 @@ export const useFavoritesRequests = () => {
             const response = await axiosPrivate.delete(`/favorites/delete/${productId}`)
             if(response.status === 200){
                 callback({ productId: callbackArgs?.productId })
+                setUser(oldValue => {
+                    return {...oldValue, wishlist_quantity: oldValue.wishlist_quantity - 1}
+                })
             }
         } catch (error) {
         } 
         setIsLoading(false)  
-    }, [axiosPrivate, setIsLoading])
+    }, [axiosPrivate, setIsLoading, setUser])
 
     return { addToFavorites, removeFromFavorites }
 }

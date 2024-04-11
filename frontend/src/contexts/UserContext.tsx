@@ -18,7 +18,9 @@ const userContextInitial: userContextType = {
         last_name: '',
         email: '',
         id_number: '',
-        is_verified: false
+        is_verified: false,
+        cart_quantity: 0,
+        wishlist_quantity: 0
     },
     setUser: () => {}
 }

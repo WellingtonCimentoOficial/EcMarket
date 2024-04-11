@@ -4,4 +4,6 @@ export type UserProfileType = {
     email: string
     is_verified: boolean,
     id_number: string
+    cart_quantity: number
+    wishlist_quantity: number
 }

@@ -13,6 +13,11 @@ import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import AddressesPage from './pages/AddressesPage/AddressesPage'
 import ChangePasswordPage from './pages/ChangePasswordPage/ChangePasswordPage'
+import CartPage from './pages/CartPage/CartPage'
+import CardsPage from './pages/CardsPage/CardsPage'
+import OrdersPage from './pages/OrdersPage/OrdersPage'
+import RatingsPage from './pages/RatingsPage/RatingsPage'
+import TransactionsPage from './pages/TransactionsPage/TransactionsPage'
 
 const Routes = (): JSX.Element => {
     return (
@@ -36,11 +41,13 @@ const Routes = (): JSX.Element => {
                     <Route element={<PrivateRoutes />}>
                         <Route path='profile' element={<ProfilePage />} />
                         <Route path='addresses' element={<AddressesPage />} />
-                        <Route path='orders' element={<ProfilePage />} />
                         <Route path='wishlist' element={<FavoritesPage />} />
-                        <Route path='cart' element={<ProfilePage />} />
-                        <Route path='cards' element={<ProfilePage />} />
                         <Route path='password/change' element={<ChangePasswordPage />} />
+                        <Route path='cart' element={<CartPage />} />
+                        <Route path='orders' element={<OrdersPage />} />
+                        <Route path='ratings' element={<RatingsPage />} />
+                        <Route path='cards' element={<CardsPage />} />
+                        <Route path='transactions' element={<TransactionsPage />} />
                     </Route>
                 </Route>
             </Route>

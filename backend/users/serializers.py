@@ -24,7 +24,20 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ('password', 'google_user_id', 'apple_user_id', 'gateway_user_id')
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    cart_quantity = serializers.SerializerMethodField()
+    wishlist_quantity = serializers.SerializerMethodField()
+
+    def get_cart_quantity(self, obj):
+        if hasattr(obj, 'cart'):
+            return 0
+        return 0
+
+    def get_wishlist_quantity(self, obj):
+        if hasattr(obj, 'favorite'):
+            return obj.favorite.products.count()
+        return 0
+
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'is_verified', 'id_number')
+        fields = ('first_name', 'last_name', 'email', 'is_verified', 'id_number', 'cart_quantity', 'wishlist_quantity')
         

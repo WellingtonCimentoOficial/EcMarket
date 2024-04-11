@@ -4,8 +4,11 @@ from .models import User, VerificationCode
 
 
 class UserAdmin(BaseUserAdmin):
+    readonly_fields = ('google_password', 'google_user_id', 'gateway_user_id')
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
+        ('Default Auth', {'fields': ('email', 'password')}),
+        ('Google Auth', {'fields': ('google_user_id', 'google_password')}),
+        ('Gateway Info', {'fields': ('gateway_user_id',)}),
         ('Personal Info', {'fields': ('first_name', 'last_name', 'id_number')}),
         ('Verification', {'fields': ('is_verified',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
