@@ -12,16 +12,20 @@
     width: 100%;
 }
 .containerImage {
-    height: 130px;
-    width: 130px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
+    height: 130px;
+    width: 130px;
 }
 .flexImage {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
 }
 .image {
     max-width: 100%;

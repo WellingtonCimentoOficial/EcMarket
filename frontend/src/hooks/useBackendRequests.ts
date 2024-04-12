@@ -1,11 +1,10 @@
 import { useCallback, useContext } from 'react'
 import { useAxiosPrivate } from './useAxiosPrivate'
 import { LoadingContext } from '../contexts/LoadingContext'
-import * as originalAxios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { axios } from '../services/api';
 import { Children } from '../types/ProductType';
 import { UserContext } from '../contexts/UserContext';
+import { CartType } from '../types/CartType';
 
 type FavoritesProps = {
     productId: number
@@ -20,14 +19,37 @@ type AccountProps = {
     callback: ({ sent } : { sent: boolean }) => void
 }
 
+type CartProps = {
+    callback: (data: CartType) => void
+}
+
+export const useCartRequests = () => {
+    const axiosPrivate = useAxiosPrivate()
+    const { setIsLoading } = useContext(LoadingContext)
+
+    const getCart = useCallback(async({ callback } : CartProps) => {
+        setIsLoading(true)
+        try {
+            const response = await axiosPrivate.get('/cart/')
+            if(response.status === 200){
+                const data: CartType = response.data
+                callback(data)
+            }
+        } catch (error) {
+
+        }
+        setIsLoading(false)
+    }, [axiosPrivate, setIsLoading])
+
+    return {getCart}
+}
+
 export const useFavoritesRequests = () => {
     const axiosPrivate = useAxiosPrivate()
     const { setIsLoading } = useContext(LoadingContext)
     const { setUser } = useContext(UserContext)
 
-    const navigate = useNavigate()
-
-    const addToFavorites = useCallback(async ({ productId, childId, callback, callbackArgs } : FavoritesProps) => {
+    const addToFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
         try {
             const URL = `/favorites/create/${productId}`
@@ -39,14 +61,10 @@ export const useFavoritesRequests = () => {
                 })
             }
         } catch (error) {
-            if(originalAxios.isAxiosError(error)){
-                if(error.response?.status === 401){
-                    navigate('/account/sign-in')
-                }
-            }
+
         }   
         setIsLoading(false)
-    }, [axiosPrivate, navigate, setIsLoading, setUser])
+    }, [axiosPrivate, setIsLoading, setUser])
     
     const removeFromFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
@@ -59,6 +77,7 @@ export const useFavoritesRequests = () => {
                 })
             }
         } catch (error) {
+
         } 
         setIsLoading(false)  
     }, [axiosPrivate, setIsLoading, setUser])

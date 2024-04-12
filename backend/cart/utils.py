@@ -7,16 +7,12 @@ from transactions.exceptions import InternalError
 
 def validate_cart_products(products):
     existing_ids = [product["id"] for product in products] # creating a list with product id
-    has_error = False
     if len(set(existing_ids)) == len(existing_ids):
         for product in products:
             product_instance = ProductChild.objects.filter(id=product.get("id")).first()
             if not product_instance or product_instance.quantity < product.get("quantity"):
-                has_error = True
-
-        if not has_error: # if no product is invalid, it returns True
-            return True
-        raise InvalidShoppingCartItemError() # raises an exception if any product is invalid
+                raise InvalidShoppingCartItemError() # raises an exception if any product is invalid
+        return True
         
     raise DuplicateItemError()
         

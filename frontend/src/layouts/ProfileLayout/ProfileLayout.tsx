@@ -57,7 +57,9 @@ const ProfileLayout = ({ title, text, children, contentClassName }: Props) => {
             </div>
             <div className={styles.wrapperBody}>
                 <div className={styles.userMenu}>
-                    <MyAccountMenu shadow />
+                    <div className={styles.myAccountMenuContainer}>
+                        <MyAccountMenu shadow />
+                    </div>
                 </div>
                 <div className={styles.container}>
                     <div className={styles.header}>

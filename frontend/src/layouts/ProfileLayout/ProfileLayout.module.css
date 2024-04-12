@@ -28,6 +28,13 @@
 }
 .userMenu {
     min-width: 20%;
+    background-color: transparent;
+}
+.myAccountMenuContainer {
+    width: 100%;
+    background-color: transparent;
+    position: sticky;
+    top: 140px;
 }
 .container {
     width: 100%;

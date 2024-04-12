@@ -127,8 +127,8 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     }, [searchText])
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            get_categories_name()
+        const timeout = setTimeout(async() => {
+            await get_categories_name()
         }, 300)
 
         return () => {

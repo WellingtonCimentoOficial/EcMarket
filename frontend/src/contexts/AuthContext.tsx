@@ -2,6 +2,8 @@ import { createContext, useEffect, useState, useCallback } from "react";
 import { axios } from "../services/api";
 import * as OriginalAxios from 'axios'
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import CryptoJS from 'crypto-js';
 
 type Props = {
     children: React.ReactNode
@@ -47,12 +49,54 @@ export const AuthContextProvider = ({children}: Props) => {
 
     const navigate = useNavigate()
 
+    const encryptionKey: string = process.env.REACT_APP_TOKEN_ENCRYPTION_KEY ?? ''
+    
+    const encryptToken = useCallback((token: string) => {
+        try {
+            return CryptoJS.AES.encrypt(token, encryptionKey).toString()
+        } catch (error) {
+            return token    
+        }
+    }, [encryptionKey])
+    
+    const decryptToken = useCallback((encryptedToken: string) => {
+        try {
+            const bytes = CryptoJS.AES.decrypt(encryptedToken, encryptionKey)
+            return bytes.toString(CryptoJS.enc.Utf8)
+        } catch (error) {
+            return encryptedToken
+        }
+    }, [encryptionKey])
+
+    const getClientToken = useCallback(() => {
+        try {
+            const tokenEncrypted = Cookies.get('token')
+            const tokenDecrypted = tokenEncrypted ? decryptToken(tokenEncrypted) : null
+            return tokenDecrypted
+        } catch (error) {
+            return null
+        }
+    }, [decryptToken])
+
+    const storeToken = useCallback((token: string) => {
+        try{
+            const tokenEncrypted = encryptToken(token)
+            Cookies.set('token', tokenEncrypted, { expires: 60 })
+        }catch (error){
+
+        }
+    }, [encryptToken])
+
     const logout = useCallback(({ redirect=true, href='/account/sign-in' } : LogoutPropsType={}) => {
-        setTokens(prev => {
-            return {...prev, access: null, refresh: null}
-        })
-        localStorage.removeItem('token')
-        redirect && navigate(href)
+        try {
+            setTokens(prev => {
+                return {...prev, access: null, refresh: null}
+            })
+            Cookies.remove('token')
+            redirect && navigate(href)
+        } catch (error) {
+            
+        }
     }, [navigate])
 
     const refreshTokens = useCallback(async (refreshToken: string) => {
@@ -69,38 +113,24 @@ export const AuthContextProvider = ({children}: Props) => {
             }
         } catch (error) {
             if(OriginalAxios.isAxiosError(error)){
-                if(error.response?.data.cod === 35 || error.response?.status === 401 || error.code === 'ERR_NETWORK'){
+                if(error.response?.data.cod === 35 || error.response?.status === 401){
                     logout()
                 }
                 return Promise.resolve()
             }
         }
-    }, [logout])
-
-    const getClientToken = useCallback(() => {
-        const token = localStorage.getItem('token')
-        return token
-    }, [])
-
-    const storeToken = (token: string) => {
-        localStorage.setItem('token', token)
-    }
+    }, [logout, storeToken])
 
 
     useEffect(() => {
-        (async () => {
-            try {
-                const refreshToken = getClientToken()
-                if(refreshToken){
-                    const newTokens = await refreshTokens(refreshToken)
-                    setTokens(prev => {
-                        return {...prev, access: newTokens?.access, refresh: newTokens?.refresh}
-                    })
-                }
-            } catch (error) {
-                
+        try {
+            const refreshToken = getClientToken()
+            if(refreshToken){
+                refreshTokens(refreshToken)
             }
-        })()
+        } catch (error) {
+            
+        }
     }, [getClientToken, refreshTokens, setTokens])
 
 

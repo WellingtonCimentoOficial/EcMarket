@@ -99,7 +99,7 @@
 /* Personaliza o polegar (botão) da scrollbar vertical */
 .container::-webkit-scrollbar-thumb, .container::-webkit-scrollbar-thumb:horizontal,
 .containerChildBody::-webkit-scrollbar-thumb, .containerChildBody::-webkit-scrollbar-thumb:horizontal {
-    background-color: #bebebe;
+    background-color: #cfcfcf;
     border-radius: 6px;
 }
 /* Personaliza o polegar (botão) da scrollbar quando hover */

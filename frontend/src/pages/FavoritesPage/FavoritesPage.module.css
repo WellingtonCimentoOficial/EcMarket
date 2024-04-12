@@ -1,10 +1,8 @@
-.favoritesWrapper {
-    padding: 0px 30px;
-}
 .container {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    background-color: transparent;
 }
 .item {
     border-bottom-width: 1px;
@@ -19,4 +17,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.container::-webkit-scrollbar{
+    width: 8px; /* Largura da scrollbar vertical */
+    height: 8px; /* Altura da scrollbar horizontal */
+}
+
+/* Personaliza o fundo da scrollbar */
+.container::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 6px;
+}
+
+/* Personaliza o polegar (botão) da scrollbar vertical */
+.container::-webkit-scrollbar-thumb, .container::-webkit-scrollbar-thumb:horizontal {
+    background-color: #cfcfcf;
+    border-radius: 6px;
+}
+/* Personaliza o polegar (botão) da scrollbar quando hover */
+.container::-webkit-scrollbar-thumb:hover {
+    background-color: #acacac;
 }

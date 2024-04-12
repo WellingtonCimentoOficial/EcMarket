@@ -56,7 +56,7 @@ const AddressLookup = (props: Props) => {
         e.preventDefault()
 
         if(!isLoading && zipCodeText.replaceAll(/\D/g, "").length === 8){
-            get_address()
+            await get_address()
         }
     }
 
