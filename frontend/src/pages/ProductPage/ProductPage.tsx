@@ -36,7 +36,6 @@ import { Delivery } from '../../types/DeliveryType'
 import { Category } from '../../types/CategoryType'
 import { Attribute, Children, Product, Variant } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
-import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { AuthContext } from '../../contexts/AuthContext'
 import { useFavoritesRequests, useProductRequests } from '../../hooks/useBackendRequests'
 import StyledSectionA from '../../styles/StyledSectionA'
@@ -97,12 +96,10 @@ const ProductPage = (props: Props) => {
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
 
-    const axiosPrivate = useAxiosPrivate()
-
     const { tokens } = useContext(AuthContext)
 
     const { addToFavorites, removeFromFavorites } = useFavoritesRequests()
-    const { getProductChildren } = useProductRequests()
+    const { getProduct, getProductChildren } = useProductRequests()
     const { addParam } = useQueryParam()
 
     const handleAddToFavorites = () => {
@@ -113,23 +110,11 @@ const ProductPage = (props: Props) => {
         setIsFavorite(false)
     }
 
-    const get_product = useCallback(async ({ isAuthenticated }:{ isAuthenticated?: boolean }={}) => {
-        setIsLoading(true)
-        try {
-            const path = `/products/${productId}`
-            const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
-            if(response.status === 200){
-                const data: Product = await response.data
-                setProduct(data)
-                setIsFavorite(data.is_favorite)
-                updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
-                !data.has_variations && setCurrentImage(data.images.principal_image)
-            }
-        } catch (error) {
-            setProduct(null)
-        }
-        setIsLoading(false)
-    }, [productId, axiosPrivate, setIsLoading, updateTitle])
+    const handleProduct = useCallback((data: Product) => {
+        setProduct(data)
+        updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
+        !data.has_variations && setCurrentImage(data.images.principal_image)
+    }, [updateTitle])
     
     const get_rating_statistics = useCallback(async () => {
         setIsLoading(true)
@@ -202,6 +187,7 @@ const ProductPage = (props: Props) => {
             setCurrentImage(startChild?.images.principal_image || '')
             setIsFirstRender(false)
             addParam("child", String(startChild.id))
+            setIsFavorite(startChild.is_favorite)
         }
     }, [addParam])
 
@@ -221,26 +207,36 @@ const ProductPage = (props: Props) => {
         const chosenChildId = newCurrentChild?.id || firstChildWithThisVariant?.id
 
         getProductChildren({
-            productId: Number(productId), 
+            productId: Number(productId),
+            isAuthenticated: !!tokens.refresh, 
             callback: (data: Children[] | null) => handleChildren(data, chosenChildId), 
             setIsLoading: setIsLoading
         })
     }
-
-    useEffect(() => {get_product({ isAuthenticated: !!tokens.refresh })}, [tokens.refresh, get_product])
+    
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
     useEffect(() => {get_categories()}, [get_categories])
     useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
+    
+    useEffect(() => {
+        getProduct({ 
+            productId: Number(productId),
+            isAuthenticated: !!tokens.refresh,
+            callback: handleProduct,
+            setIsLoading: setIsLoading
+        })
+    }, [productId, tokens.refresh, getProduct, handleProduct, setIsLoading])
 
     useEffect(() => {
         if(productId && product?.has_variations && isFirstRender)
             getProductChildren({
-                productId: Number(productId), 
+                productId: Number(productId),
+                isAuthenticated: !!tokens.refresh,
                 callback: (data) => handleChildren(data, Number(childParam)), 
                 setIsLoading: setIsLoading
             })
-    }, [productId, product?.has_variations, childParam, isFirstRender, handleChildren, getProductChildren, setIsLoading])
+    }, [tokens.refresh, productId, product?.has_variations, childParam, isFirstRender, handleChildren, getProductChildren, setIsLoading])
     
     useEffect(() => {
         if(product && comments){
@@ -322,7 +318,11 @@ const ProductPage = (props: Props) => {
                                             <div 
                                                 className={styles.favoriteButton} 
                                                 onClick={() => isFavorite ? 
-                                                removeFromFavorites({ productId: product.id, callback: handleRemoveFromFavorites }) : 
+                                                removeFromFavorites({ 
+                                                    productId: product.id,
+                                                    childId: product.has_variations ? currentChild?.id : null,
+                                                    callback: handleRemoveFromFavorites 
+                                                }) : 
                                                 addToFavorites({
                                                     productId: product.id, 
                                                     childId: product.has_variations ? currentChild?.id : null, 

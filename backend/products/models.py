@@ -1,10 +1,5 @@
 from django.db import models
-from django.dispatch import receiver
-from django.db.models.signals import pre_delete
-from django.db.models import ImageField
-from django.conf import settings
 from django.core.exceptions import ValidationError
-import os
 
 # Create your models here.
 class ProductImage(models.Model):
@@ -106,20 +101,6 @@ class ProductChild(models.Model):
             attributes_formated = ''.join([f'{item[0]}: {item[1]} | ' for item in attributes])
             return f'{self.product_variant.first().product_father.name} - {attributes_formated}'
         return "Empty Variant"
-    
-@receiver(pre_delete, sender=ProductChild)
-def delete_product_child_images(sender, instance, **kwargs):
-    fields = instance._meta.get_fields()
-
-    for field in fields:
-        if isinstance(field, ImageField):
-            image = getattr(instance, field.name)
-            if image:
-                try:
-                    image_path = os.path.join(settings.MEDIA_ROOT, str(image))
-                    os.remove(image_path)
-                except:
-                    print("imagem não deletada")
 
 
 class ProductPresentation(models.Model):

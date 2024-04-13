@@ -1,7 +1,7 @@
 from products.models import ProductChild
 from .exceptions import InvalidShoppingCartItemError, InvalidQuantitytError, ItemNotFoundInCartError, DuplicateItemError
 from products.models import ProductChild
-from products.exceptions import ProductNotFoundError
+from products.exceptions import ProductFatherNotFoundError
 from transactions.exceptions import InternalError
 
 
@@ -64,7 +64,7 @@ def update_cart_product(cart_instance, product_id, quantity=None):
                         else:
                             # deleting the product from the cart, if it no longer exists in the db
                             delete_cart_product(cart_instance, product_id)
-                            raise ProductNotFoundError()
+                            raise ProductFatherNotFoundError()
             
             #raising an exception if the value of the variable found product is False
             if not found_product:

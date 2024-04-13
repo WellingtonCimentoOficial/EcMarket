@@ -40,16 +40,27 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         exclude = ['product_father']
 
 class ProductChildDetailSerializer(serializers.ModelSerializer):
+    product_father_id = serializers.SerializerMethodField()
     default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_percentage = serializers.SerializerMethodField()
     installment_details = serializers.SerializerMethodField()
     images = ProductImageSerializer()
+    is_favorite = serializers.SerializerMethodField()
     product_variant = ProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductChild
         fields = '__all__'
+
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.favorite.product_childs.filter(id=obj.id).exists()
+        return False
+
+    def get_product_father_id(self, obj):
+        return obj.product_variant.first().product_father.id
 
     def get_discount_percentage(self, obj):
         return obj.discount_percentage()
@@ -112,7 +123,6 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
     store = StoreSerializer()
     sales = serializers.SerializerMethodField()
-    is_favorite = serializers.SerializerMethodField()
     default_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_price = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
     discount_percentage = serializers.SerializerMethodField()
@@ -124,12 +134,6 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
         variants_children = ProductChild.objects.filter(product_variant__in=variants)
         variants_children_serialized = ProductChildDetailSerializer(variants_children, many=True)
         return variants_children_serialized.data
-    
-    def get_is_favorite(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return user.favorite.products.filter(id=obj.id).exists()
-        return False
 
     def get_rating(self, obj):
         average_rating = obj.comments.aggregate(Avg('rating'))['rating__avg']

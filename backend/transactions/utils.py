@@ -9,7 +9,7 @@ from .exceptions import InvalidTransactionStatusError, UnauthorizedProductPurcha
 from cart.exceptions import InvalidShoppingCartItemError
 from uuid import uuid4
 from cards.utils import save_card
-from products.exceptions import ProductNotFoundError
+from products.exceptions import ProductFatherNotFoundError
 import os
     
 def map_payment_method_to_numeric(payment_method_id):
@@ -197,5 +197,5 @@ def check_product_owner(user_instance):
             if product_instance.product_father.store.owner == user_instance:
                 raise UnauthorizedProductPurchaseError()
         else:
-            raise ProductNotFoundError()
+            raise ProductFatherNotFoundError()
     return True

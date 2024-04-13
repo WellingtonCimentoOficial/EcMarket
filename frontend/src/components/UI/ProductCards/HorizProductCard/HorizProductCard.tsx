@@ -10,19 +10,25 @@ import { LoadingContext } from '../../../../contexts/LoadingContext'
 import { useProductRequests } from '../../../../hooks/useBackendRequests'
 
 type Props = {
-    product: Product
+    product?: Product
+    child?: Children
     addToCartCallback?: () => void
     removeFromFavoritesCallback?: () => void
 }
 
-const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallback }: Props) => {
+const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavoritesCallback }: Props) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
     const navigate = useNavigate()
 
     const { setIsLoading } = useContext(LoadingContext)
-    const [child, setChild] = useState<Children | null>(null)
-    const { getProductChildren } = useProductRequests()
+    const [localProduct, setLocalProduct] = useState<Product | null>(null)
+    const [localChild, setLocalChild] = useState<Children | null>(null)
+    const { getProduct, getProductChildren } = useProductRequests()
+
+    const handleProduct = (data: Product) => {
+        setLocalProduct(data)
+    }
 
     const handleChildren = (data: Children[] | null) => {
         if(data){
@@ -30,19 +36,26 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
             const childWithGreaterDiscount = childrenWithQuantityAvailable.reduce(
                 (previousChild, currentChild) => (currentChild.discount_percentage || 0) > (previousChild.discount_percentage || 0) ? currentChild : previousChild
             )
-            setChild(childWithGreaterDiscount)
+            setLocalChild(childWithGreaterDiscount)
         }
     }
 
     useEffect(() => {
-        if(product.has_variations){
+        product && setLocalProduct(product)
+        child && setLocalChild(child)
+    }, [product, child])
+
+    useEffect(() => {
+        if(product?.has_variations){
             getProductChildren({productId: product.id, callback: handleChildren, setIsLoading: setIsLoading})
+        }else if(localChild){
+            getProduct({productId: localChild.product_father_id, isAuthenticated: false, setIsLoading, callback: handleProduct})
         }
-    }, [product.id, product.has_variations, setIsLoading, getProductChildren])
+    }, [localChild, product?.id, product?.has_variations, getProduct, setIsLoading, getProductChildren])
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
-        navigate(`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`)
+        navigate(`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}?child=${localChild?.id}`)
     }
 
     return (
@@ -52,45 +65,45 @@ const HorizProductCard = ({ product, addToCartCallback, removeFromFavoritesCallb
                     <div className={styles.flexImage}>
                         <img 
                             className={styles.image}
-                            src={product.has_variations ? child?.images.principal_image : product.images.principal_image} 
-                            alt={product.name} 
+                            src={localProduct?.has_variations ? localChild?.images.principal_image : localProduct?.images.principal_image} 
+                            alt={localProduct?.name} 
                         />
                     </div>
                 </div>
                 <div className={styles.containerContent}>
                     <div className={styles.header}>
-                        <a className={styles.title} href={`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`} onClick={handleClick}>
+                        <a className={styles.title} href={`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}?child=${localChild?.id}`} onClick={handleClick}>
                             {(() => {
-                                if(product.has_variations){
-                                    const variantDescriptionsFormatted = child?.product_variant.map(
-                                        (variant, index) => (index + 1) !== child?.product_variant.length ? 
+                                if(localProduct?.has_variations){
+                                    const variantDescriptionsFormatted = localChild?.product_variant.map(
+                                        (variant, index) => (index + 1) !== localChild?.product_variant.length ? 
                                         `${variant.description} ` : 
                                         `(${variant.description})`
                                     )
-                                    const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
+                                    const formattedName = `${localProduct?.name} - ${variantDescriptionsFormatted}`
                                     const shortenedName = formattedName.length > 80 ? `${formattedName.slice(0, 80)}...` : formattedName
                                     return shortenedName
                                 }
-                                return product.name
+                                return localProduct?.name
                             })()}
                         </a>
                         <span className={styles.text}>
-                            {product.description && product.description.length > 90 ? `${product.description?.slice(0, 90)}...` : product.description}
+                            {localProduct?.description && localProduct?.description.length > 90 ? `${localProduct?.description?.slice(0, 90)}...` : localProduct?.description}
                         </span>
                     </div>
                     <div className={styles.body}>
                         <div className={styles.bodyPrices}>
                             <span className={styles.price}>
-                                {CurrencyFormatter((product.has_variations && child?.default_price) ? child.default_price : (product.default_price || 0))}
+                                {CurrencyFormatter((localProduct?.has_variations && localChild?.default_price) ? localChild.default_price : (localProduct?.default_price || 0))}
                             </span>
-                            {(product.has_variations && child?.discount_price) || product.discount_price ? (
+                            {(localProduct?.has_variations && localChild?.discount_price) || localProduct?.discount_price ? (
                                 <span className={styles.discount_price}>
-                                    {CurrencyFormatter((product.has_variations && child?.discount_price) ? child.discount_price : (product.discount_price || 0))}
+                                    {CurrencyFormatter((localProduct?.has_variations && localChild?.discount_price) ? localChild.discount_price : (localProduct?.discount_price || 0))}
                                 </span>
                             ): null}
                         </div>
                         <span className={styles.text}>
-                            ou 12x {CurrencyFormatter((product.has_variations && child?.installment_details?.installment_price) ? child.installment_details.installment_price : (product.installment_details?.installment_price || 0))} sem juros
+                            ou 12x {CurrencyFormatter((localProduct?.has_variations && localChild?.installment_details?.installment_price) ? localChild.installment_details.installment_price : (localProduct?.installment_details?.installment_price || 0))} sem juros
                         </span>
                     </div>
                 </div>

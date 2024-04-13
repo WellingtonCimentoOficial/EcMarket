@@ -64,6 +64,8 @@ type ProductInfo = {
 
 export type Children = ProductInfo & {
     id: number
+    is_favorite: boolean
+    product_father_id: number
     product_variant: Variant[]
     created_at: string
     updated_at: string
@@ -82,6 +84,5 @@ export interface Product extends ProductInfo {
     store: Store
     technical_informations: TechnicalInformation[]
     sales: Sales
-    is_favorite: boolean
     has_variations: boolean
 }

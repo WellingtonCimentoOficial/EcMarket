@@ -34,7 +34,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_wishlist_quantity(self, obj):
         if hasattr(obj, 'favorite'):
-            return obj.favorite.products.count()
+            return obj.favorite.product_fathers.count() + obj.favorite.product_childs.count()
         return 0
 
     class Meta:

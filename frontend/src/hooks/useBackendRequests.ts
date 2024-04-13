@@ -2,16 +2,17 @@ import { useCallback, useContext } from 'react'
 import { useAxiosPrivate } from './useAxiosPrivate'
 import { LoadingContext } from '../contexts/LoadingContext'
 import { axios } from '../services/api';
-import { Children } from '../types/ProductType';
+import { Children, Product } from '../types/ProductType';
 import { UserContext } from '../contexts/UserContext';
 import { CartType } from '../types/CartType';
 
 type FavoritesProps = {
     productId: number
     childId?: number | null
-    callback: ({ productId } : { productId?: number }) => void
+    callback: ({ productId, childId } : { productId?: number, childId?: number }) => void
     callbackArgs?: {
         productId: number
+        childId?: number
     }
 }
 
@@ -49,10 +50,10 @@ export const useFavoritesRequests = () => {
     const { setIsLoading } = useContext(LoadingContext)
     const { setUser } = useContext(UserContext)
 
-    const addToFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
+    const addToFavorites = useCallback(async ({ productId, childId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
         try {
-            const URL = `/favorites/create/${productId}`
+            const URL = childId ? `/favorites/create/${productId}?child=${childId}` : `/favorites/create/${productId}`
             const response = await axiosPrivate.post(URL)
             if(response.status === 200){
                 callback({ productId: callbackArgs?.productId })
@@ -66,12 +67,13 @@ export const useFavoritesRequests = () => {
         setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
     
-    const removeFromFavorites = useCallback(async ({ productId, callback, callbackArgs } : FavoritesProps) => {
+    const removeFromFavorites = useCallback(async ({ productId, childId, callback, callbackArgs } : FavoritesProps) => {
         setIsLoading(true)
         try {
-            const response = await axiosPrivate.delete(`/favorites/delete/${productId}`)
+            const URL = childId ? `/favorites/delete/${productId}?child=${childId}` : `/favorites/delete/${productId}`
+            const response = await axiosPrivate.delete(URL)
             if(response.status === 200){
-                callback({ productId: callbackArgs?.productId })
+                callback({ productId: callbackArgs?.productId, childId: callbackArgs?.childId })
                 setUser(oldValue => {
                     return {...oldValue, wishlist_quantity: oldValue.wishlist_quantity - 1}
                 })
@@ -108,18 +110,42 @@ export const useAccountRequests = () => {
     return { sendAccountVerificationCode }
 }
 
-type GetProductChildrenArgs = { 
-    productId: number, 
-    callback: (data: Children[] | null) => void | React.Dispatch<React.SetStateAction<Children[] | null>> 
+type DefaultProductRequestsArgs = {
+    productId: number
+    isAuthenticated?: boolean
     setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const useProductRequests = () => {
+type GetProductChildrenArgs = DefaultProductRequestsArgs & { 
+    callback: (data: Children[] | null) => void | React.Dispatch<React.SetStateAction<Children[] | null>> 
+}
 
-    const getProductChildren = useCallback(async ({ productId, callback, setIsLoading }: GetProductChildrenArgs) => {
+type GetProductArgs = DefaultProductRequestsArgs & {
+    callback: (data: Product) => void
+}
+
+export const useProductRequests = () => {
+    const axiosPrivate = useAxiosPrivate()
+
+    const getProduct = useCallback(async ({ productId, isAuthenticated, setIsLoading, callback }: GetProductArgs) => {
         setIsLoading && setIsLoading(true)
         try {
-            const response = await axios.get(`/products/${productId}/children`)
+            const path = `/products/${productId}`
+            const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
+            if(response.status === 200){
+                const data: Product = await response.data
+                callback(data)
+            }
+        } catch (error) {
+        }
+        setIsLoading && setIsLoading(false)
+    }, [axiosPrivate])
+
+    const getProductChildren = useCallback(async ({ productId, isAuthenticated, callback, setIsLoading }: GetProductChildrenArgs) => {
+        setIsLoading && setIsLoading(true)
+        try {
+            const path = `/products/${productId}/children`
+            const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
             if(response.status === 200){
                 const data: Children[] = response.data
                 callback(data)
@@ -128,7 +154,7 @@ export const useProductRequests = () => {
             callback(null)
         }
         setIsLoading && setIsLoading(false)
-    }, [])
+    }, [axiosPrivate])
 
-    return { getProductChildren }
+    return { getProduct, getProductChildren }
 }

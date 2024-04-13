@@ -6,7 +6,7 @@ import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
 import HorizProductCard from '../../components/UI/ProductCards/HorizProductCard/HorizProductCard'
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
 import { LoadingContext } from '../../contexts/LoadingContext'
-import { Product } from '../../types/ProductType'
+import { Children, Product } from '../../types/ProductType'
 import { useFavoritesRequests } from '../../hooks/useBackendRequests'
 
 type Props = {}
@@ -16,13 +16,20 @@ const FavoritesPage = (props: Props) => {
     const axiosPrivate = useAxiosPrivate()
     const { setIsLoading } = useContext(LoadingContext)
     const [products, setProducts] = useState<Product[] | null>(null)
+    const [children, setChildren] = useState<Children[] | null>(null)
 
     const { removeFromFavorites } = useFavoritesRequests()
 
-    const handleRemoveFromFavorites = ({ productId } : { productId?: number }) => {
-        setProducts(prev => {
-            return prev?.filter(item => item.id !== productId) || []
-        })
+    const handleRemoveFromFavorites = ({ productId, childId } : { productId?: number, childId?: number }) => {
+        if(childId){
+            setChildren(prev => {
+                return prev?.filter(item => item.id !== childId) || []
+            })
+        }else{
+            setProducts(prev => {
+                return prev?.filter(item => item.id !== productId) || []
+            })
+        }
     }
 
     const get_favorites = useCallback(async () => {
@@ -30,8 +37,10 @@ const FavoritesPage = (props: Props) => {
         try {
             const response = await axiosPrivate.get('/favorites/')
             if(response?.status === 200){
-                const data: Product[] = response.data.products
-                setProducts(data.length > 0 ? data : null)
+                const productFathersData: Product[] = response.data.product_fathers
+                const productChildsData: Children[] = response.data.product_childs
+                setProducts(productFathersData.length > 0 ? productFathersData : null)
+                setChildren(productChildsData.length > 0 ? productChildsData : null)
             }
         } catch (error) {
             
@@ -53,11 +62,10 @@ const FavoritesPage = (props: Props) => {
                 contentClassName={styles.favoritesWrapper}
             >
                 <div className={styles.container}>
-                    {products ? (
+                    {products && (
                         products.map(product => (
                             <div className={styles.item} key={product.id}>
                                 <HorizProductCard 
-                                    key={product.id} 
                                     product={product}
                                     removeFromFavoritesCallback={() => removeFromFavorites({ 
                                         productId: product.id, 
@@ -67,11 +75,27 @@ const FavoritesPage = (props: Props) => {
                                 />
                             </div>
                         ))
-                    ):(
+                    )}
+                    {children && (
+                        children.map(child => (
+                            <div className={styles.item} key={child.id}>
+                                <HorizProductCard 
+                                    child={child}
+                                    removeFromFavoritesCallback={() => removeFromFavorites({ 
+                                        productId: child.product_father_id,
+                                        childId: child.id, 
+                                        callback: handleRemoveFromFavorites, 
+                                        callbackArgs: {productId: child.product_father_id, childId: child.id } 
+                                    })}  
+                                />
+                            </div>
+                        ))
+                    )}
+                    {!products && !children &&
                         <div className={styles.container2}>
                             <span>Você ainda não adicionou nenhum produto nos seus favoritos.</span>
                         </div>
-                    )}
+                    }
                 </div>
             </ProfileLayout>
         </WidthLayout>

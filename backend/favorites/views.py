@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from products.models import ProductFather
-from products.exceptions import ProductNotFoundError
+from products.models import ProductFather, ProductChild
+from products.exceptions import ProductFatherNotFoundError, ProductChildNotFoundError
 
 # Create your views here.
 @api_view(['GET'])
@@ -22,13 +22,21 @@ def get_favorites(request):
 @permission_classes([IsAuthenticated])
 def add_to_favorites(request, pk):
     try:
-        product = ProductFather.objects.filter(id=pk).first()
+        child_param = request.query_params.get('child')
+        product_father = ProductFather.objects.filter(id=pk).first()
+        product_child = ProductChild.objects.filter(id=child_param).first()
 
-        if product is None:
-            raise ProductNotFoundError()
+        if not child_param and product_father is None:
+            raise ProductFatherNotFoundError()
         
-        request.user.favorite.products.add(product)
+        if child_param and product_child is None:
+            raise ProductChildNotFoundError()
 
+        if product_child:
+            request.user.favorite.save(product_childs_to_add=[product_child])
+        else:
+            request.user.favorite.save(product_fathers_to_add=[product_father])
+        
         serializer = FavoriteSerializer(request.user.favorite, context={'request': request})
         return Response(serializer.data)
     
@@ -41,12 +49,20 @@ def add_to_favorites(request, pk):
 @permission_classes([IsAuthenticated])
 def delete_favorite(request, pk):
     try:
-        product = ProductFather.objects.filter(id=pk).first()
+        child_param = request.query_params.get('child')
+        product_father = ProductFather.objects.filter(id=pk).first()
+        product_child = ProductChild.objects.filter(id=child_param).first()
 
-        if product is not None:
-            request.user.favorite.products.remove(product)
+        if not child_param and product_father is None:
+            raise ProductFatherNotFoundError()
+        
+        if child_param and product_child is None:
+            raise ProductChildNotFoundError()
+
+        if product_child:
+            request.user.favorite.product_childs.remove(product_child)
         else:
-            raise ProductNotFoundError()
+            request.user.favorite.product_fathers.remove(product_father)
 
         serializer = FavoriteSerializer(request.user.favorite, context={'request': request})
         return Response(serializer.data)

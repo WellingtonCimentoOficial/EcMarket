@@ -1,4 +1,4 @@
-from products.exceptions import ProductNotFoundError
+from products.exceptions import ProductFatherNotFoundError
 from stores.exceptions import StoreNotFoundError
 from .exceptions import InvalidCommentError, InvalidCommentRatingError
 from django.utils.html import escape
@@ -8,7 +8,7 @@ def validate_data(product_id, comment, rating, is_store=False):
     if not isinstance(product_id, int):
         if is_store:
             raise StoreNotFoundError()
-        raise ProductNotFoundError()
+        raise ProductFatherNotFoundError()
     
     # verifing if a comment is not empty
     if not comment:

@@ -7,7 +7,7 @@ from .serializers import ProductCommentSerializer, StoreCommentSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from .models import ProductComment, StoreComment
-from products.exceptions import ProductNotFoundError
+from products.exceptions import ProductFatherNotFoundError
 from .utils import validate_data, apply_filters
 from .exceptions import CommentNotFoundError
 from utils.custom_pagination import CustomPagination
@@ -90,7 +90,7 @@ def add_product_comment(request):
 
         # checking if the product exists
         if product is None:
-            raise ProductNotFoundError()
+            raise ProductFatherNotFoundError()
         
         # saving the comment in the database
         new_comment = ProductComment.objects.create(product=product, comment=comment, rating=rating, owner=request.user)
