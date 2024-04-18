@@ -44,11 +44,12 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
     const [suggestions, setSuggestions] = useState<CategoryName[]>([])
     const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
     const [locationIsFocused, setLocationIsFocused] = useState<boolean>(false)
+
     const searchInputRef = useRef<HTMLInputElement>(null)
 
     const navigate = useNavigate()
 
-    const { tokens, logout } = useContext(AuthContext)
+    const { isAuthenticated, areTokensUpdated, logout } = useContext(AuthContext)
 
     const { user } = useContext(UserContext)
 
@@ -138,11 +139,11 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
 
     useEffect(() => {
         (async () => {
-            if(tokens.refresh){
+            if(areTokensUpdated && isAuthenticated){
                 await getUserAddress({ setData: setZipCodeContextData })
             }
         })()
-    }, [tokens.refresh, getUserAddress, setZipCodeContextData])
+    }, [areTokensUpdated, isAuthenticated, getUserAddress, setZipCodeContextData])
 
     return (
         <div className={`${styles.wrapper} ${shadow ? styles.shadow : null}`}>
@@ -205,7 +206,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         <div className={styles.utilIconContainer} >
                             <PiUserLight className={styles.utilIcon} />
                             <div className={styles.flexUtilHeader}>
-                                {(tokens.refresh && user.first_name) ? 
+                                {(areTokensUpdated && isAuthenticated && user.first_name) ? 
                                     <>
                                         <div className={styles.flexUtilHeaderTitleContainer}>
                                             <span className={styles.flexUtilHeaderTitleContainerText}>
@@ -228,7 +229,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                         <div className={styles.flexUtilBody}>
                             <div className={styles.flexUtilBodyContainer}>
                                 <div className={styles.flexUtilBodyContainerHeader}>
-                                    {(tokens.refresh && user.first_name) ? (
+                                    {(areTokensUpdated && isAuthenticated && user.first_name) ? (
                                         <>
                                             <PiUserLight className={styles.flexUtilBodyContainerHeaderProfileIcon} />
                                             <div className={styles.flexUtilBodyContainerHeaderRight}>

@@ -47,11 +47,18 @@ class ProductChildDetailSerializer(serializers.ModelSerializer):
     installment_details = serializers.SerializerMethodField()
     images = ProductImageSerializer()
     is_favorite = serializers.SerializerMethodField()
+    is_added_to_cart = serializers.SerializerMethodField()
     product_variant = ProductVariantSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductChild
         fields = '__all__'
+
+    def get_is_added_to_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.carts.filter(product_child=obj).exists()
+        return False
 
     def get_is_favorite(self, obj):
         user = self.context['request'].user
@@ -128,6 +135,20 @@ class ProductFatherDetailSerializer(serializers.ModelSerializer):
     discount_percentage = serializers.SerializerMethodField()
     installment_details = serializers.SerializerMethodField()
     images = ProductImageSerializer()
+    is_favorite = serializers.SerializerMethodField()
+    is_added_to_cart = serializers.SerializerMethodField()
+
+    def get_is_added_to_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.carts.filter(product_father=obj).exists()
+        return False
+    
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.favorite.product_fathers.filter(id=obj.id).exists()
+        return False
 
     def get_children(self, obj):
         variants = obj.variants.all().values_list('pk', flat=True)
@@ -200,6 +221,20 @@ class ProductFatherMinimalSerializer(serializers.ModelSerializer):
     discount_percentage = serializers.SerializerMethodField()
     installment_details = serializers.SerializerMethodField()
     images = ProductImageSerializer()
+    is_favorite = serializers.SerializerMethodField()
+    is_added_to_cart = serializers.SerializerMethodField()
+
+    def get_is_added_to_cart(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.carts.filter(product_father=obj).exists()
+        return False
+    
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return user.favorite.product_fathers.filter(id=obj.id).exists()
+        return False
 
     def get_rating(self, obj):
         average_rating = obj.comments.aggregate(Avg('rating'))['rating__avg']

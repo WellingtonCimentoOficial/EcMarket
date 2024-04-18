@@ -1,7 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from favorites.models import Favorite
-from cart.models import Cart
 from django.contrib.auth import get_user_model
 from .utils import get_or_create_user_in_payment_gateway, create_new_account_verification_code, send_account_verification_code
 from django.core.mail import EmailMessage
@@ -26,9 +25,6 @@ def create_user_profile_and_related_objects_signal(sender, instance, created, **
     if created:
         #creating a favorites
         Favorite.objects.create(user=instance)
-
-        #creating a cart
-        Cart.objects.create(user=instance)
 
         #creating a verification code
         create_new_account_verification_code(user=instance)

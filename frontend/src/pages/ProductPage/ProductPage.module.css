@@ -265,15 +265,9 @@
 
 .containerMainInfoBodyActions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.containerMainInfoBodyActionsSubOne {
-    display: flex;
     gap: 10px;
     background-color: transparent;
 }
-
 .containerSecondary {
     background-color: transparent;
 }

@@ -22,11 +22,6 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     
-    def has_shopping_cart(self):
-        if hasattr(self, 'cart'):
-            return True
-        raise ShoppingCartNotFoundError()
-    
     def has_address(self):
         if hasattr(self, 'address'):
             return True

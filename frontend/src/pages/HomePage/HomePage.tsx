@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from "./HomePage.module.css"
 import NiceCarousel from '../../components/UI/Carousels/NiceCarousel/NiceCarousel'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
 import SimpleProductCard from '../../components/UI/ProductCards/SimpleProductCard/SimpleProductCard'
 import { Category } from '../../types/CategoryType'
-import { axios } from '../../services/api'
 import MacBanner from '../../components/UI/Banners/MacBanner/MacBanner'
 import BoxBanner from '../../components/UI/Banners/BoxBanner/BoxBanner'
 import BoxAccordion from '../../components/UI/Accordions/BoxAccordion/BoxAccordion'
 import LuminexBanner from '../../components/UI/Banners/LuminexBanner/LuminexBanner'
-import { LoadingContext } from '../../contexts/LoadingContext'
 import StyledSectionA from '../../styles/StyledSectionA'
+import { useCategoriesRequests } from '../../hooks/useBackendRequests'
 
 const HomePage = (): JSX.Element => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
-    const { setIsLoading } = useContext(LoadingContext)
+    const {  getCategories } = useCategoriesRequests()
 
     const carouselData = [
         {
@@ -64,21 +63,11 @@ const HomePage = (): JSX.Element => {
     ]
 
     useEffect(() => {
-        const get_categories = async () => {
-            setIsLoading(true)
-            try {
-                const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
-                if(response.status === 200){
-                    setCategoriesData(response.data.results)
-                }
-                
-            } catch (error) {
-                setCategoriesData([])
-            }
-            setIsLoading(false)
-        }
-        get_categories()
-    }, [setIsLoading])
+        getCategories({
+            limit: 6,
+            callback: (data: Category[]) => setCategoriesData(data)
+        })
+    }, [getCategories])
 
     return (
         <>

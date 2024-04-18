@@ -1,6 +1,6 @@
 // HOOKS
 import React, { useEffect, useState, useContext, useCallback, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
@@ -21,7 +21,6 @@ import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import StarRating from '../../components/UI/Ratings/StarRating/StarRating'
 import BarPagination from '../../components/UI/Paginations/BarPagination/BarPagination'
 import SimpleProgressBar from '../../components/UI/ProgressBars/SimpleProgressBar/SimpleProgressBar'
-import BtnA01 from '../../components/UI/Buttons/BtnA01/BtnA01'
 import BtnB02 from '../../components/UI/Buttons/BtnB02/BtnB02'
 import QuantitySelect from '../../components/UI/Selects/QuantitySelect/QuantitySelect'
 import HeaderAndContentLayout from '../../layouts/HeaderAndContentLayout/HeaderAndContentLayout'
@@ -37,9 +36,10 @@ import { Category } from '../../types/CategoryType'
 import { Attribute, Children, Product, Variant } from '../../types/ProductType'
 import { Comment } from '../../types/CommentType'
 import { AuthContext } from '../../contexts/AuthContext'
-import { useFavoritesRequests, useProductRequests } from '../../hooks/useBackendRequests'
+import { useCartRequests, useCategoriesRequests, useFavoritesRequests, useProductRequests } from '../../hooks/useBackendRequests'
 import StyledSectionA from '../../styles/StyledSectionA'
 import { useQueryParam } from '../../hooks/useQueryParam'
+import BtnB01 from '../../components/UI/Buttons/BtnB01/BtnB01'
 
 type Props = {}
 
@@ -77,6 +77,7 @@ const ProductPage = (props: Props) => {
 
     const [product, setProduct] = useState<Product | null>(null)
     const [children, setChildren] = useState<Children[] | null>(null)
+    const [quantity, setQuantity] = useState<number>(0)
     const [currentImage, setCurrentImage] = useState<string>('')
     const [deliveryInfo, setDeliveryInfo] = useState<Delivery | null>(null)
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
@@ -89,31 +90,41 @@ const ProductPage = (props: Props) => {
     const [shouldScroll, setShouldScroll] = useState<boolean>(false)
     const [starRatingFilter, setStarRatingFilter] = useState<number | null>(null)
     const [isFavorite, setIsFavorite] = useState<boolean>(false)
+    const [isAddedToCart, setIsAddedToCart] = useState<boolean>(false)
     const [currentChild, setCurrentChild] = useState<Children | null>(null)
     const [variantDescriptions, setVariantDescriptions] = useState<{id: number, description: string} | null>(null)
-    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
     const itemsPerPage = 10
 
     const sectionToScrollRef = useRef<HTMLDivElement>(null)
 
-    const { tokens } = useContext(AuthContext)
+    const { isAuthenticated, areTokensUpdated } = useContext(AuthContext)
 
     const { addToFavorites, removeFromFavorites } = useFavoritesRequests()
     const { getProduct, getProductChildren } = useProductRequests()
     const { addParam } = useQueryParam()
+    const { addToCart } = useCartRequests()
 
-    const handleAddToFavorites = () => {
-        setIsFavorite(true)
-    }
+    const { getCategories } = useCategoriesRequests()
+    const navigate = useNavigate()
 
-    const handleRemoveFromFavorites = () => {
-        setIsFavorite(false)
+    const handleAddToCart = ({ redirect } : {redirect: boolean}) => {
+        product && addToCart({
+            productId: product.id,
+            childId: currentChild?.id,
+            quantity: quantity,
+            callback: () => {
+                setIsAddedToCart(true)
+                redirect && navigate("/account/cart")
+            }
+        })
     }
 
     const handleProduct = useCallback((data: Product) => {
         setProduct(data)
         updateTitle(`${data.name} | ${process.env.REACT_APP_PROJECT_NAME}`)
         !data.has_variations && setCurrentImage(data.images.principal_image)
+        setIsFavorite(data.is_favorite)
+        setQuantity(data.quantity ? 1 : 0)
     }, [updateTitle])
     
     const get_rating_statistics = useCallback(async () => {
@@ -144,20 +155,6 @@ const ProductPage = (props: Props) => {
         setIsLoading(false)
     },[productId, currentPage, itemsPerPage, starRatingFilter, setComments, setIsLoading])
 
-    const get_categories = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            const response = await axios.get('/categories/?limit=6&min_product_count=10&max_product_count=20&random=true')
-            if(response.status === 200){
-                setCategoriesData(response.data.results)
-            }
-            
-        } catch (error) {
-            setCategoriesData([])
-        }
-        setIsLoading(false)
-    }, [setIsLoading])
-
     const get_delivery_info = useCallback(async () => {
         try {
             const response = await axios.get(`/products/${productId}/delivery/${zipCodeContextData?.zip_code}`)
@@ -185,9 +182,9 @@ const ProductPage = (props: Props) => {
             setChildren(data)
             setCurrentChild(startChild)
             setCurrentImage(startChild?.images.principal_image || '')
-            setIsFirstRender(false)
             addParam("child", String(startChild.id))
             setIsFavorite(startChild.is_favorite)
+            setQuantity(startChild.quantity ? 1 : 0)
         }
     }, [addParam])
 
@@ -208,35 +205,43 @@ const ProductPage = (props: Props) => {
 
         getProductChildren({
             productId: Number(productId),
-            isAuthenticated: !!tokens.refresh, 
+            isAuthenticated: isAuthenticated, 
             callback: (data: Children[] | null) => handleChildren(data, chosenChildId), 
-            setIsLoading: setIsLoading
+            setIsLoadingHandler: setIsLoading
         })
     }
     
     useEffect(() => {get_rating_statistics()}, [get_rating_statistics])
     useEffect(() => {get_comments()}, [get_comments])
-    useEffect(() => {get_categories()}, [get_categories])
     useEffect(() => {zipCodeContextData ? get_delivery_info() : setDeliveryInfo(null)}, [zipCodeContextData, get_delivery_info, setDeliveryInfo])
-    
-    useEffect(() => {
-        getProduct({ 
-            productId: Number(productId),
-            isAuthenticated: !!tokens.refresh,
-            callback: handleProduct,
-            setIsLoading: setIsLoading
-        })
-    }, [productId, tokens.refresh, getProduct, handleProduct, setIsLoading])
 
     useEffect(() => {
-        if(productId && product?.has_variations && isFirstRender)
+        getCategories({
+            limit: 2,
+            callback: (data: Category[]) => setCategoriesData(data)
+        })
+    }, [getCategories])
+    
+    useEffect(() => {
+        if(areTokensUpdated){
+            getProduct({ 
+                productId: Number(productId),
+                isAuthenticated: isAuthenticated,
+                callback: handleProduct,
+                setIsLoadingHandler: setIsLoading
+            })
+        }
+    }, [productId, isAuthenticated, areTokensUpdated, getProduct, handleProduct, setIsLoading])
+
+    useEffect(() => {
+        if(productId && product?.has_variations && areTokensUpdated)
             getProductChildren({
                 productId: Number(productId),
-                isAuthenticated: !!tokens.refresh,
-                callback: (data) => handleChildren(data, Number(childParam)), 
-                setIsLoading: setIsLoading
+                isAuthenticated: isAuthenticated,
+                callback: (data) => handleChildren(data, Number(childParam)),
+                setIsLoadingHandler: setIsLoading
             })
-    }, [tokens.refresh, productId, product?.has_variations, childParam, isFirstRender, handleChildren, getProductChildren, setIsLoading])
+    }, [isAuthenticated, areTokensUpdated, productId, product?.has_variations, childParam, handleChildren, getProductChildren, setIsLoading])
     
     useEffect(() => {
         if(product && comments){
@@ -321,12 +326,12 @@ const ProductPage = (props: Props) => {
                                                 removeFromFavorites({ 
                                                     productId: product.id,
                                                     childId: product.has_variations ? currentChild?.id : null,
-                                                    callback: handleRemoveFromFavorites 
+                                                    callback: () => setIsFavorite(false) 
                                                 }) : 
                                                 addToFavorites({
                                                     productId: product.id, 
                                                     childId: product.has_variations ? currentChild?.id : null, 
-                                                    callback: handleAddToFavorites 
+                                                    callback: () => setIsFavorite(true) 
                                                 })}
                                             >
                                                 {isFavorite ? (
@@ -574,26 +579,40 @@ const ProductPage = (props: Props) => {
                                     <div className={styles.containerMainInfoBodyStock}>
                                         <span className={styles.containerMainInfoBodyStockTextFocus}>Quantidade:</span>
                                         <QuantitySelect 
+                                            value={quantity}
                                             min={(product.has_variations && currentChild?.quantity) || product.quantity ? 1 : 0} 
                                             max={currentChild?.quantity || product.quantity || 0} 
+                                            setValue={setQuantity}
                                         />
                                         <span className={styles.containerMainInfoBodyStockText} style={(product.has_variations && currentChild?.quantity) || product.quantity ? undefined : {color: 'red'}}>
                                             restam {product.has_variations ? currentChild?.quantity : product.quantity} disponíveis
                                         </span>
                                     </div>
                                     <div ref={sectionToScrollRef} className={styles.containerMainInfoBodyActions}>
-                                        <div className={styles.containerMainInfoBodyActionsSubOne}>
-                                            <BtnB02 autoWidth>Adicionar aos favoritos</BtnB02>
-                                            <BtnB02 autoWidth>Adicionar ao carrinho</BtnB02>
-                                        </div>
-                                        <div className={styles.containerMainInfoBodyActionsSubTwo}>
-                                            <BtnA01 
-                                                href='' 
-                                                autoWidth 
-                                                disabled={(product.has_variations && currentChild?.quantity) || product.quantity ? false : true}>
-                                                    Comprar
-                                            </BtnA01>
-                                        </div>
+                                        {(() => {
+                                            const isInvalidQuantity = (product.has_variations && currentChild?.quantity) || product.quantity ? false : true
+                                            return (
+                                                <>
+                                                    <BtnB01 
+                                                        autoWidth 
+                                                        disabled={isInvalidQuantity}
+                                                        onClick={() => {!isInvalidQuantity && handleAddToCart({redirect: true})}}>
+                                                            Comprar
+                                                    </BtnB01>
+                                                    <BtnB02 
+                                                        autoWidth 
+                                                        disabled={isAddedToCart || isInvalidQuantity}
+                                                        onClick={() => {
+                                                            if(!isAddedToCart && !isInvalidQuantity && quantity){
+                                                                handleAddToCart({redirect: false})
+                                                            }
+                                                        }}
+                                                        >
+                                                        {isAddedToCart ? "Adicionado" : "Adicionar ao carrinho"}
+                                                    </BtnB02>
+                                                </>
+                                            )
+                                        })()}
                                     </div>
                                 </div>
                             </div>

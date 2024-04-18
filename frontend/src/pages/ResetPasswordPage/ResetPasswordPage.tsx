@@ -12,7 +12,7 @@ type Props = {}
 
 const ResetPasswordPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
-    const { tokens } = useContext(AuthContext)
+    const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
     const { initializeRecaptchaScript } = useReCaptchaToken()
     const [searchParams] = useSearchParams()
     const emailParam = searchParams.get("email")
@@ -23,12 +23,13 @@ const ResetPasswordPage = (props: Props) => {
 
     useEffect(() => {
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Reset Password`)
-        if((tokens.refresh && !emailParam) || (tokens.refresh && emailParam !== user.email)){
+        const userIsAuthenticated = areTokensUpdated && isAuthenticated
+        if((userIsAuthenticated && !emailParam) || (userIsAuthenticated && emailParam !== user.email)){
             navigate('/account/password/change')
-        }else if(!tokens.refresh && emailParam){
+        }else if(!userIsAuthenticated && emailParam){
             removeParam("email")
         }
-    }, [tokens.refresh, emailParam, removeParam, user.email, updateTitle, navigate])
+    }, [areTokensUpdated, isAuthenticated, emailParam, removeParam, user.email, updateTitle, navigate])
 
     useEffect(() => {
         initializeRecaptchaScript()

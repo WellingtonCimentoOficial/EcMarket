@@ -60,11 +60,12 @@ type ProductInfo = {
     images: Images
     sku: string
     quantity: number
+    is_favorite: boolean
+    is_added_to_cart: boolean
 }
 
 export type Children = ProductInfo & {
     id: number
-    is_favorite: boolean
     product_father_id: number
     product_variant: Variant[]
     created_at: string

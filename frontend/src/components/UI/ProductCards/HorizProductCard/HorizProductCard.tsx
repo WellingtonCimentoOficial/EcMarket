@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useCallback } from 'react'
 import styles from './HorizProductCard.module.css'
 import { Children, Product } from '../../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../../hooks/useCurrencyFormatter'
@@ -7,7 +7,9 @@ import { useSlug } from '../../../../hooks/useSlug'
 import BtnB01 from '../../Buttons/BtnB01/BtnB01'
 import BtnB02 from '../../Buttons/BtnB02/BtnB02'
 import { LoadingContext } from '../../../../contexts/LoadingContext'
-import { useProductRequests } from '../../../../hooks/useBackendRequests'
+import { useCartRequests, useProductRequests } from '../../../../hooks/useBackendRequests'
+import { PiCheckLight } from "react-icons/pi";
+import { useProductTitle } from '../../../../hooks/useProductTitle'
 
 type Props = {
     product?: Product
@@ -22,9 +24,30 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
     const navigate = useNavigate()
 
     const { setIsLoading } = useContext(LoadingContext)
+    const [localIsLoading, setLocalIsLoading] = useState<boolean>(false)
     const [localProduct, setLocalProduct] = useState<Product | null>(null)
     const [localChild, setLocalChild] = useState<Children | null>(null)
     const { getProduct, getProductChildren } = useProductRequests()
+    const { addToCart } = useCartRequests()
+    const { titleHandler } = useProductTitle()
+
+    const handleAddToCart = useCallback((hasVariations: boolean) => {
+        if(hasVariations){
+            setLocalChild(oldValue => {
+                if(oldValue){
+                    return {...oldValue, is_added_to_cart: true}
+                }
+                return oldValue
+            })
+        }else{
+            setLocalProduct(oldValue => {
+                if(oldValue){
+                    return {...oldValue, is_added_to_cart: true}
+                }
+                return oldValue
+            })
+        }
+    }, [])
 
     const handleProduct = (data: Product) => {
         setLocalProduct(data)
@@ -41,17 +64,17 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
     }
 
     useEffect(() => {
-        product && setLocalProduct(product)
-        child && setLocalChild(child)
+        product && setLocalProduct({...product, is_added_to_cart: false})
+        child && setLocalChild({...child, is_added_to_cart: false})
     }, [product, child])
 
     useEffect(() => {
         if(product?.has_variations){
-            getProductChildren({productId: product.id, callback: handleChildren, setIsLoading: setIsLoading})
-        }else if(localChild){
-            getProduct({productId: localChild.product_father_id, isAuthenticated: false, setIsLoading, callback: handleProduct})
+            getProductChildren({productId: product.id, callback: handleChildren, setIsLoadingHandler: setIsLoading})
+        }else if(child){
+            getProduct({productId: child.product_father_id, isAuthenticated: false, setIsLoadingHandler: setIsLoading, callback: handleProduct})
         }
-    }, [localChild, product?.id, product?.has_variations, getProduct, setIsLoading, getProductChildren])
+    }, [child, product, getProduct, setIsLoading, getProductChildren])
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault()
@@ -73,19 +96,7 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
                 <div className={styles.containerContent}>
                     <div className={styles.header}>
                         <a className={styles.title} href={`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}?child=${localChild?.id}`} onClick={handleClick}>
-                            {(() => {
-                                if(localProduct?.has_variations){
-                                    const variantDescriptionsFormatted = localChild?.product_variant.map(
-                                        (variant, index) => (index + 1) !== localChild?.product_variant.length ? 
-                                        `${variant.description} ` : 
-                                        `(${variant.description})`
-                                    )
-                                    const formattedName = `${localProduct?.name} - ${variantDescriptionsFormatted}`
-                                    const shortenedName = formattedName.length > 80 ? `${formattedName.slice(0, 80)}...` : formattedName
-                                    return shortenedName
-                                }
-                                return localProduct?.name
-                            })()}
+                            {titleHandler({productName: localProduct?.name ?? "", child: localChild, length: 79*2})}
                         </a>
                         <span className={styles.text}>
                             {localProduct?.description && localProduct?.description.length > 90 ? `${localProduct?.description?.slice(0, 90)}...` : localProduct?.description}
@@ -109,10 +120,24 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
                 </div>
                 <div className={styles.containerControllers}>
                     <BtnB01 
-                        onClick={() => addToCartCallback && addToCartCallback()}
-                        autoWidth 
+                        onClick={() => addToCart({
+                            productId: localProduct?.id ?? 10**1000,
+                            childId: localChild?.id,
+                            quantity: 1,
+                            callback: () => handleAddToCart(localChild?.id ? true : false),
+                            setIsLoadingHandler: setLocalIsLoading
+                        })}
+                        autoWidth
+                        isLoading={localIsLoading}
+                        disabled={(localProduct?.has_variations && localChild?.is_added_to_cart) || localProduct?.is_added_to_cart ? true : false}
                         className={styles.flexController}>
-                            Adicionar ao Carrinho
+                            {(localProduct?.has_variations && localChild?.is_added_to_cart) || localProduct?.is_added_to_cart ? 
+                                <div className={styles.btnAddToCart}>
+                                    Adicionado
+                                    <PiCheckLight className={styles.btnAddToCartIcon} />
+                                </div> : 
+                                "Adicionar ao Carrinho"
+                            }
                     </BtnB01>
                     <BtnB02 
                         onClick={() => removeFromFavoritesCallback && removeFromFavoritesCallback()}

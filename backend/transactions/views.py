@@ -9,7 +9,7 @@ from .serializers import TransactionSerializer
 from datetime import datetime
 from .utils import calculate_purchase_price, create_payment_request_payload, update_products_stock, process_payment, map_status_to_numeric
 from users.utils import get_or_create_user_in_payment_gateway
-from cart.utils import validate_cart_products
+# from cart.utils import validate_cart_products
 from .utils import check_product_owner
 
 # Create your views here.
@@ -43,7 +43,7 @@ def create_payment(request):
         cart_products = request.user.cart.products
 
         #checking that all products in the shopping cart still exist and that the quantity is less than or equal to what is in stock
-        validate_cart_products(cart_products)
+        # validate_cart_products(cart_products)
 
         #calculating the purchase price
         transaction_amount = calculate_purchase_price(discount_coupon, cart_products, installments, payment_method_id)

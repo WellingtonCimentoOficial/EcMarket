@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from django.db.models import Sum
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -28,9 +29,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     wishlist_quantity = serializers.SerializerMethodField()
 
     def get_cart_quantity(self, obj):
-        if hasattr(obj, 'cart'):
-            return 0
-        return 0
+        return obj.carts.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
 
     def get_wishlist_quantity(self, obj):
         if hasattr(obj, 'favorite'):

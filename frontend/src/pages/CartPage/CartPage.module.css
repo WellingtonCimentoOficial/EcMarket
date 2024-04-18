@@ -1,0 +1,100 @@
+.wrapper {
+    background-color: transparent;
+    margin-top: 30px;
+}
+.header {
+    
+}
+.body {
+    background-color: transparent;
+}
+.containerMain {
+
+}
+.flexCard {
+
+}
+.containerSummary {
+
+}
+.flexSummary {
+
+}
+.flexSummaryHeader {
+}
+.flexSummaryHeaderTitle {
+    font-size: 15pt;
+    font-weight: 500;
+}
+.body {
+    display: flex;
+    gap: 30px;
+}
+.containerMain {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.containerSummary {
+    background-color: transparent;
+    min-width: 400px;
+}
+.flexSummary {
+    position: sticky;
+    top: 150px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 0px 30px;
+}
+.flexSummaryHeader {
+    background-color: transparent;
+    border-bottom-width: 1px;
+    border-style: dashed;
+    border-color: var(--text-color-two);
+}
+.flexSummaryBody {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.flexSummaryItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.flexSummaryFooter {
+    background-color: transparent;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.flexSummaryFooterTitle {
+}
+.flexSummaryFooterDescription {
+    
+}
+.footer {
+    background-color: transparent;
+}
+.customText {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+.containerMessage {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.flexSummaryFooterTitle, .flexSummaryFooterDescription {
+    font-size: 14pt;
+    font-weight: 500;
+}
+.flexSummaryHeader, .flexSummaryBody {
+    padding: 15px 0px;
+}
+.flexCard, .flexSummary {
+    box-shadow: var(--shadow-complete);
+}

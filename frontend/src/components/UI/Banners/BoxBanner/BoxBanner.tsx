@@ -36,7 +36,7 @@ const BoxBanner = ({ products }: Props) => {
                 getProductChildren({
                     productId: product.id, 
                     callback: (data) => handleChildren(data, product), 
-                    setIsLoading: setIsLoading
+                    setIsLoadingHandler: setIsLoading
                 })
             }else{
                 setCustomProducts(prevState => [...prevState, product])

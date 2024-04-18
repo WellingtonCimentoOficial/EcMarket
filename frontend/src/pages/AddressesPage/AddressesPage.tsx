@@ -48,7 +48,7 @@ const AddressesPage = (props: Props) => {
     const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddressType[] | null>(null)
     const { updateTitle } = usePageTitleChanger()
     const axiosPrivate = useAxiosPrivate()
-    const { tokens } = useContext(AuthContext)
+    const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
     const { setIsLoading } = useContext(LoadingContext)
     const [showForm, setShowForm] = useState<{
         show: boolean, 
@@ -85,6 +85,7 @@ const AddressesPage = (props: Props) => {
     const [zipCodeIsValid, setZipCodeIsValid] = useState<boolean>(false)
 
     const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
+    const [isFirstRenderFirst, setIsFirstRenderFirst] = useState<boolean>(true)
 
     const { getCaptchaToken, initializeRecaptchaScript } = useReCaptchaToken()
     
@@ -364,11 +365,12 @@ const AddressesPage = (props: Props) => {
     }
 
     useEffect(() => {
-        if(tokens.refresh){
+        if(areTokensUpdated && isAuthenticated && isFirstRenderFirst){
             getUserAddress({ setIsLoading, setData: setAddress })
             getDeliveryAddresses()
+            setIsFirstRenderFirst(false)
         }
-    }, [tokens.refresh, getUserAddress, getDeliveryAddresses, setIsLoading])
+    }, [areTokensUpdated, isAuthenticated, isFirstRenderFirst, getUserAddress, getDeliveryAddresses, setIsLoading])
 
     useEffect(() => {
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Addresses`)

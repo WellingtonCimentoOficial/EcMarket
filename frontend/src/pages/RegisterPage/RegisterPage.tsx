@@ -10,17 +10,17 @@ type Props = {}
 
 const RegisterPage = (props: Props) => {
     const { updateTitle } = usePageTitleChanger()
-    const { tokens } = useContext(AuthContext)
+    const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
     const { initializeRecaptchaScript } = useReCaptchaToken()
 
     const navigate = useNavigate()
 
     useEffect(() => { //SEND USER TO HOME PAGE IF HE IS ALREADY AUTHENTICATED
         updateTitle(`${process.env.REACT_APP_PROJECT_NAME} | Register`)
-        if(tokens.refresh){
+        if(areTokensUpdated && isAuthenticated){
             navigate('/')
         }
-    }, [tokens.refresh, updateTitle, navigate])
+    }, [areTokensUpdated, isAuthenticated, updateTitle, navigate])
 
     useEffect(() => {
         initializeRecaptchaScript()

@@ -81,3 +81,12 @@
     padding: 0;
     min-height: 40px;
 }
+.btnAddToCart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+.btnAddToCartIcon {
+    font-size: 20px;
+}

@@ -6,6 +6,7 @@ import StarRating from '../../Ratings/StarRating/StarRating'
 import { useSlug } from '../../../../hooks/useSlug'
 import { LoadingContext } from '../../../../contexts/LoadingContext'
 import { useProductRequests } from '../../../../hooks/useBackendRequests'
+import { useProductTitle } from '../../../../hooks/useProductTitle'
 
 type Props = {
     product: Product
@@ -24,7 +25,8 @@ const SimpleProductCard: React.FC<Props> = ({
     const { setIsLoading } = useContext(LoadingContext)
     const [child, setChild] = useState<Children | null>(null)
     const [children, setChildren]  = useState<Children[] | null>(null)
-    const {  getProductChildren } = useProductRequests()
+    const { getProductChildren } = useProductRequests()
+    const { titleHandler } = useProductTitle()
 
     const handleChildren = useCallback(() => {
         const childrenWithQuantityAvailable = children?.filter(child => child.quantity > 0)
@@ -48,7 +50,7 @@ const SimpleProductCard: React.FC<Props> = ({
 
     useEffect(() => {
         if(product.has_variations){
-            getProductChildren({productId: product.id, callback: setChildren, setIsLoading: setIsLoading})
+            getProductChildren({productId: product.id, callback: setChildren, setIsLoadingHandler: setIsLoading})
         }
     }, [product.id, product.has_variations, getProductChildren, setIsLoading])
 
@@ -63,19 +65,7 @@ const SimpleProductCard: React.FC<Props> = ({
                     </div>
                     <div className={styles.containerText}>
                         <h3 className={styles.title}>
-                            {(() => {
-                                if(product.has_variations){
-                                    const variantDescriptionsFormatted = child?.product_variant.map(
-                                        (variant, index) => (index + 1) !== child?.product_variant.length ? 
-                                        `${variant.description} ` : 
-                                        `(${variant.description})`
-                                    )
-                                    const formattedName = `${product?.name} - ${variantDescriptionsFormatted}`
-                                    const shortenedName = formattedName.length > 40 ? `${formattedName.slice(0, 40)}...` : formattedName
-                                    return shortenedName
-                                }
-                                return product.name
-                            })()}
+                            {titleHandler({productName: product.name, child: child, length: 40})}
                         </h3>
                         {product.description && 
                             <p className={styles.description}>{product.description.length > 25 ? `${product.description.slice(0, 25)}...` : product.description}</p>

@@ -4,21 +4,18 @@ import { AuthContext } from '../../contexts/AuthContext'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
 import ProfileLayout from '../../layouts/ProfileLayout/ProfileLayout'
 import HorizProductCard from '../../components/UI/ProductCards/HorizProductCard/HorizProductCard'
-import { useAxiosPrivate } from '../../hooks/useAxiosPrivate'
-import { LoadingContext } from '../../contexts/LoadingContext'
 import { Children, Product } from '../../types/ProductType'
 import { useFavoritesRequests } from '../../hooks/useBackendRequests'
+import { FavoriteType } from '../../types/FavoritesType'
 
 type Props = {}
 
 const FavoritesPage = (props: Props) => {
-    const { tokens } = useContext(AuthContext)
-    const axiosPrivate = useAxiosPrivate()
-    const { setIsLoading } = useContext(LoadingContext)
+    const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
     const [products, setProducts] = useState<Product[] | null>(null)
     const [children, setChildren] = useState<Children[] | null>(null)
 
-    const { removeFromFavorites } = useFavoritesRequests()
+    const { getFavorites, removeFromFavorites } = useFavoritesRequests()
 
     const handleRemoveFromFavorites = ({ productId, childId } : { productId?: number, childId?: number }) => {
         if(childId){
@@ -32,27 +29,18 @@ const FavoritesPage = (props: Props) => {
         }
     }
 
-    const get_favorites = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            const response = await axiosPrivate.get('/favorites/')
-            if(response?.status === 200){
-                const productFathersData: Product[] = response.data.product_fathers
-                const productChildsData: Children[] = response.data.product_childs
-                setProducts(productFathersData.length > 0 ? productFathersData : null)
-                setChildren(productChildsData.length > 0 ? productChildsData : null)
-            }
-        } catch (error) {
-            
-        }
-        setIsLoading(false)
-    }, [setIsLoading, axiosPrivate])
+    const handleFavorites = useCallback((data: FavoriteType) => {
+        const productFathersData: Product[] = data.product_fathers
+        const productChildsData: Children[] = data.product_childs
+        setProducts(productFathersData.length > 0 ? productFathersData : null)
+        setChildren(productChildsData.length > 0 ? productChildsData : null)
+    }, [])
 
     useEffect(() => {
-        if(tokens.refresh){
-            get_favorites()
+        if(areTokensUpdated && isAuthenticated){
+            getFavorites({callback: handleFavorites})
         }
-    }, [tokens.refresh, get_favorites])
+    }, [areTokensUpdated, isAuthenticated, getFavorites, handleFavorites])
 
     return (
         <WidthLayout width={90}>

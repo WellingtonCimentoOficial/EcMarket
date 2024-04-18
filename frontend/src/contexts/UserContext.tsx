@@ -29,24 +29,30 @@ export const UserContext = createContext<userContextType>(userContextInitial)
 
 export const UserContextProvider = ({ children } : UserContextProviderProps) => {
     const [user, setUser] = useState<UserProfileType>(userContextInitial.user)
+    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
 
     const axiosPrivate = useAxiosPrivate()
 
-    const { tokens } = useContext(AuthContext)
+    const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
 
     const get_user_profile = useCallback(async () => {
-        const response = await axiosPrivate.get('/accounts/profile/')
-        if(response?.status === 200){
-            const data: UserProfileType = response.data
-            setUser(data)
+        try {
+            const response = await axiosPrivate.get('/accounts/profile/')
+            if(response?.status === 200){
+                const data: UserProfileType = response.data
+                setUser(data)
+            }
+        } catch (error) {
+            
         }
     }, [axiosPrivate])
 
     useEffect(() => {
-        if(tokens.refresh){
+        if(areTokensUpdated && isAuthenticated && isFirstRender){
             get_user_profile()
+            setIsFirstRender(false)
         }
-    }, [tokens.refresh, get_user_profile])
+    }, [areTokensUpdated, isAuthenticated, isFirstRender, get_user_profile])
     
     return (
         <UserContext.Provider value={{user, setUser}}>

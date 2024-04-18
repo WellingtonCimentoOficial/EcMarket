@@ -16,6 +16,8 @@ type TokensType = {
 
 type AuthContextType = {
     tokens: TokensType,
+    isAuthenticated: boolean,
+    areTokensUpdated: boolean,
     setTokens: React.Dispatch<React.SetStateAction<TokensType>>
     getClientToken: () => string | null
     storeToken: (token: string) => void
@@ -28,6 +30,8 @@ const initialValue: AuthContextType = {
         access: null, 
         refresh: null
     },
+    isAuthenticated: false,
+    areTokensUpdated: false,
     setTokens: () => {},
     getClientToken: () => null,
     storeToken: () => {},
@@ -46,6 +50,8 @@ export const AuthContext = createContext<AuthContextType>(initialValue)
 
 export const AuthContextProvider = ({children}: Props) => {
     const [tokens, setTokens] = useState<TokensType>(initialValue.tokens)
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialValue.isAuthenticated)
+    const [areTokensUpdated, setAreTokensUpdated] = useState<boolean>(initialValue.areTokensUpdated)
 
     const navigate = useNavigate()
 
@@ -92,6 +98,7 @@ export const AuthContextProvider = ({children}: Props) => {
             setTokens(prev => {
                 return {...prev, access: null, refresh: null}
             })
+            setIsAuthenticated(false)
             Cookies.remove('token')
             redirect && navigate(href)
         } catch (error) {
@@ -101,6 +108,7 @@ export const AuthContextProvider = ({children}: Props) => {
 
     const refreshTokens = useCallback(async (refreshToken: string) => {
         try {
+            setAreTokensUpdated(false)
             const response = await axios.post('/accounts/sign-in/token/refresh/', {
                 'refresh': refreshToken
             })
@@ -118,24 +126,42 @@ export const AuthContextProvider = ({children}: Props) => {
                 }
                 return Promise.resolve()
             }
+        } finally {
+            setAreTokensUpdated(true)
         }
     }, [logout, storeToken])
 
+    useEffect(() => setIsAuthenticated(!!tokens.refresh), [tokens])
 
     useEffect(() => {
-        try {
+        (async() => {
             const refreshToken = getClientToken()
+    
             if(refreshToken){
-                refreshTokens(refreshToken)
+                await refreshTokens(refreshToken)
+            }else{
+                setAreTokensUpdated(true)
             }
-        } catch (error) {
-            
+        })()
+    }, [refreshTokens, getClientToken])
+
+
+    useEffect(() => {
+        const intervaloTokens = setInterval(async() => {
+            if(tokens.refresh){
+                await refreshTokens(tokens.refresh)
+            }
+        }, 15 * 60 * 1000)
+
+        return () => {
+            clearInterval(intervaloTokens)
         }
-    }, [getClientToken, refreshTokens, setTokens])
+        
+    }, [tokens.refresh, refreshTokens])
 
 
     return (
-        <AuthContext.Provider value={{tokens, setTokens, refreshTokens, getClientToken, storeToken, logout}}>
+        <AuthContext.Provider value={{tokens, isAuthenticated, areTokensUpdated, setTokens, refreshTokens, getClientToken, storeToken, logout}}>
             {children}
         </AuthContext.Provider>
     )

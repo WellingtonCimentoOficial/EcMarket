@@ -22,7 +22,7 @@ def get_favorites(request):
 @permission_classes([IsAuthenticated])
 def add_to_favorites(request, pk):
     try:
-        child_param = request.query_params.get('child')
+        child_param = request.data.get('childId')
         product_father = ProductFather.objects.filter(id=pk).first()
         product_child = ProductChild.objects.filter(id=child_param).first()
 

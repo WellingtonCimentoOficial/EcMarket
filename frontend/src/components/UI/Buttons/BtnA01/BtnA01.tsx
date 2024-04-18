@@ -5,11 +5,12 @@ type Props = {
     autoWidth?: boolean
     children: React.ReactNode
     disabled?: boolean
+    onClick?: () => void
 }
 
-const BtnA01 = ({ autoWidth, href, children, disabled}: Props) => {
+const BtnA01 = ({ autoWidth, href, children, disabled, onClick}: Props) => {
     return (
-        <div className={`${styles.wrapper} ${autoWidth ? styles.AutoWidth : null} ${disabled ? styles.disabled : null}`}>
+        <div onClick={() => onClick && onClick()} className={`${styles.wrapper} ${autoWidth ? styles.AutoWidth : null} ${disabled ? styles.disabled : null}`}>
             <a className={`${styles.BtnA01} ${autoWidth ? styles.AutoWidth : null}`} href={href}>{children}</a>
         </div>
     )

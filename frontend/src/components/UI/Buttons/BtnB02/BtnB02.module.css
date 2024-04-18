@@ -1,5 +1,6 @@
 .wrapper {
     background-color: transparent;
+    user-select: none;
 }
 .BtnB02 {
     background-color: transparent;
@@ -12,8 +13,9 @@
     cursor: pointer;
     transition: 0.3s;
 }
-.BtnB02:hover {
-
+.BtnB02:disabled {
+    pointer-events: none;
+    opacity: 50%;
 }
 .AutoWidth {
     width: 100%;

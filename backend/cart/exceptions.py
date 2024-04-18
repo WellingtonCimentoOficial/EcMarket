@@ -3,7 +3,7 @@ from rest_framework.exceptions import APIException
 class ShoppingCartNotFoundError(APIException):
     status_code = 400
     default_code = 'no_cart'
-    default_detail = 'User does not have a shopping cart'
+    default_detail = 'User does not have this shopping cart'
 
     def __init__(self, detail=None):
         self.detail = detail or self.default_detail
@@ -41,10 +41,26 @@ class InvalidQuantitytError(APIException):
     def __init__(self, detail=None):
         self.detail = detail or self.default_detail
 
+class InvalidQuantitytFormatError(APIException):
+    status_code = 400
+    default_code = 'invalid_quantity_format'
+    default_detail = "The quantity format is invalid"
+
+    def __init__(self, detail=None):
+        self.detail = detail or self.default_detail
+
 class DuplicateItemError(APIException):
     status_code = 400
     default_code = 'duplicate_item'
     default_detail = "There are duplicate products"
+
+    def __init__(self, detail=None):
+        self.detail = detail or self.default_detail
+
+class ProductFatherMismatchError(APIException):
+    status_code = 400
+    default_code = 'product_father_mismatch'
+    default_detail = "The product's parent does not match the expected parent."
 
     def __init__(self, detail=None):
         self.detail = detail or self.default_detail

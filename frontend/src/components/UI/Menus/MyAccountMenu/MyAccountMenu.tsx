@@ -49,16 +49,16 @@ const MyAccountMenu = ({ shadow }: Props) => {
             iconFill: <PiHeartFill />
         },
         {
-            name: 'Trocar senha',
-            href: '/account/password/change',
-            icon: <PiKeyLight />,
-            iconFill: <PiKeyFill />
-        },
-        {
             name: 'Carrinho',
             href: '/account/cart',
             icon: <PiShoppingCartLight />,
             iconFill: <PiShoppingCartFill />
+        },
+        {
+            name: 'Trocar senha',
+            href: '/account/password/change',
+            icon: <PiKeyLight />,
+            iconFill: <PiKeyFill />
         },
         {
             name: 'Pedidos',

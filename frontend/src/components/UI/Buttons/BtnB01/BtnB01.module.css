@@ -1,5 +1,6 @@
 .wrapper {
     background-color: transparent;
+    user-select: none;
 }
 .BtnB01 {
     background-color: var(--primary-color);
@@ -11,7 +12,6 @@
     font-size: 12pt;
     cursor: pointer;
     transition: 0.3s;
-    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;

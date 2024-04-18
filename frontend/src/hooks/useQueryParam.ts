@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 type ArgsAddParam = (key: string, value: string) => void
@@ -6,7 +7,7 @@ type ArgsRemoveParam = (key: string) => void
 export const useQueryParam = (): { addParam: ArgsAddParam, removeParam: ArgsRemoveParam} => {
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const addParam: ArgsAddParam = (key, value) => {
+    const addParam: ArgsAddParam = useCallback((key, value) => {
         const currentParams = new URLSearchParams(searchParams.toString())
         if(searchParams.has(key)){
             if(value !== searchParams.get(key)){
@@ -18,7 +19,7 @@ export const useQueryParam = (): { addParam: ArgsAddParam, removeParam: ArgsRemo
             currentParams.append(key, value)
             setSearchParams(currentParams)
         }
-    }
+    }, [searchParams, setSearchParams])
 
     const removeParam: ArgsRemoveParam = (key) => {
         const currentParams = new URLSearchParams(searchParams.toString());

@@ -20,6 +20,7 @@ import { usePageTitleChanger } from '../../hooks/usePageTitleChanger'
 import { Filter, FilterData } from '../../types/FilterType'
 import NickRangeSlider from '../../components/UI/RangeSliders/NickRangeSlider/NickRangeSlider'
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter'
+import { useCategoriesRequests } from '../../hooks/useBackendRequests'
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams()
@@ -52,6 +53,7 @@ const SearchPage = () => {
     const [priceFilter, setPriceFilter] = useState<[number, number]>(minPriceParam !== null && /^[0-9]+$/.test(minPriceParam) && maxPriceParam !== null && /^[0-9]+$/.test(maxPriceParam) ? [parseFloat(minPriceParam), parseFloat(maxPriceParam)] : [minPrice, maxPrice])
     const [priceFilterText, setPriceFilterText] = useState<[number, number]>([Number(minPriceParam), Number(maxPriceParam)])
 
+    const { getCategories } = useCategoriesRequests()
     
     const itemsPerPageData = [
         {
@@ -210,20 +212,6 @@ const SearchPage = () => {
         }
         setIsLoading(false)
     }, [queryParam, setIsLoading, setFilters])
-    
-    const get_categories = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            const response = await axios.get('/categories/?limit=1&min_product_count=10&max_product_count=20&random=true')
-            if(response.status === 200){
-                setCategoriesData(response.data.results)
-            }
-        } catch (error) {
-            setCategoriesData([])
-        }
-        setIsLoading(false)
-    }, [setIsLoading, setCategoriesData])
-
 
     useEffect(() => {filters.length > 0 && setCheckBoxValues(checkBoxInitialValues())}, [setCheckBoxValues, checkBoxInitialValues, filters])
     useEffect(() => handlePrice(), [handlePrice]) // calls a function whenever the page is loaded
@@ -235,7 +223,13 @@ const SearchPage = () => {
     useEffect(() => updateTitle(queryParam ? `(${totalProductCount}) ${queryParam} | ${process.env.REACT_APP_PROJECT_NAME}` : ""), [queryParam, totalProductCount, updateTitle]) // update page title whenever queryParam and totalProductCount update
     useEffect(() => {get_filters()}, [get_filters]) // calls a function whenever the products state is updated with new products
     useEffect(() => {filters.length > 0 && get_products()}, [get_products, filters]) // calls a function whenever the page is loaded
-    useEffect(() => {get_categories()}, [get_categories]) // calls a function whenever the page is loaded
+    
+    useEffect(() => {
+        getCategories({
+            limit: 1,
+            callback: (data: Category[]) => setCategoriesData(data)
+        })
+    }, [getCategories])
 
     return (
         <WidthLayout width={90}>

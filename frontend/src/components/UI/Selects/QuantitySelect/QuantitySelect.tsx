@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styles from "./QuantitySelect.module.css"
 import { PiPlus, PiMinus } from 'react-icons/pi';
 
@@ -6,10 +6,11 @@ import { PiPlus, PiMinus } from 'react-icons/pi';
 type Props = {
     min: number
     max: number
+    value: number
+    setValue: React.Dispatch<React.SetStateAction<number>>
 }
 
-const QuantitySelect = ({min, max} : Props) => {
-    const [value, setValue] = useState<number>(0)
+const QuantitySelect = ({value, min, max, setValue} : Props) => {
     
     const handleNext = () => {
         setValue(oldValue => oldValue + 1 <= max ? oldValue + 1 : oldValue)
@@ -18,8 +19,6 @@ const QuantitySelect = ({min, max} : Props) => {
     const handlePrevious = () => {
         setValue(oldValue => oldValue - 1 >= min ? oldValue - 1 : oldValue)
     }
-
-    useEffect(() => setValue(min), [min])
 
     return (
         <div className={styles.wrapper}>
