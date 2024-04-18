@@ -76,11 +76,6 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
         }
     }, [child, product, getProduct, setIsLoading, getProductChildren])
 
-    const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        e.preventDefault()
-        navigate(`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}?child=${localChild?.id}`)
-    }
-
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
@@ -95,7 +90,7 @@ const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavorit
                 </div>
                 <div className={styles.containerContent}>
                     <div className={styles.header}>
-                        <a className={styles.title} href={`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}?child=${localChild?.id}`} onClick={handleClick}>
+                        <a className={styles.title} href={`/${createSlug(localProduct?.name ?? '')}/p/${localProduct?.id}${localChild ? `?child=${localChild.id}` : ''}`}>
                             {titleHandler({productName: localProduct?.name ?? "", child: localChild, length: 79*2})}
                         </a>
                         <span className={styles.text}>

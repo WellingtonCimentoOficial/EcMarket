@@ -58,7 +58,7 @@ const SimpleProductCard: React.FC<Props> = ({
 
     return (
         <div className={styles.wrapper}>
-            <a className={styles.container} href={`/${createSlug(product.name)}/p/${product.id}?child=${child?.id}`}>
+            <a className={styles.container} href={`/${createSlug(product.name)}/p/${product.id}${child ? `?child=${child.id}` : ''}`}>
                 <div className={styles.header}>
                     <div className={styles.containerImage}>
                         <img className={styles.image} src={product.has_variations ? child?.images.principal_image : product.images.principal_image} alt="" />
