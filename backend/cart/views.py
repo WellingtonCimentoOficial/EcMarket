@@ -40,7 +40,7 @@ def get_cart_details(request):
         )
     )["total_discount_price"]
 
-    final_price = total_price - total_discount_price
+    final_price = total_price - total_discount_price if total_price is not None and total_discount_price is not None else 0
 
     data = {
         "products_quantity": products_quantity,

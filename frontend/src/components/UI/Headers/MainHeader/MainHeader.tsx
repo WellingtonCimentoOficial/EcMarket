@@ -20,6 +20,7 @@ import { AuthContext } from '../../../../contexts/AuthContext';
 import BtnA01 from '../../Buttons/BtnA01/BtnA01';
 import { UserContext } from '../../../../contexts/UserContext';
 import { useAddressRequests } from '../../../../hooks/useAddressRequests';
+import { SIGN_IN_PATH } from '../../../../routes';
 
 type Props = {
     shadow?: boolean
@@ -240,7 +241,7 @@ const MainHeader: React.FC<Props> = ({ shadow }): JSX.Element => {
                                             </div>
                                         </>
                                     ):(
-                                        <BtnA01 href='/account/sign-in' autoWidth>Fazer login</BtnA01>
+                                        <BtnA01 href={SIGN_IN_PATH} autoWidth>Fazer login</BtnA01>
                                     )}
                                 </div>
                                 <div className={styles.flexUtilBodyContainerBody}>

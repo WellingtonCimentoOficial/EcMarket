@@ -29,7 +29,6 @@ export const UserContext = createContext<userContextType>(userContextInitial)
 
 export const UserContextProvider = ({ children } : UserContextProviderProps) => {
     const [user, setUser] = useState<UserProfileType>(userContextInitial.user)
-    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
 
     const axiosPrivate = useAxiosPrivate()
 
@@ -48,11 +47,10 @@ export const UserContextProvider = ({ children } : UserContextProviderProps) => 
     }, [axiosPrivate])
 
     useEffect(() => {
-        if(areTokensUpdated && isAuthenticated && isFirstRender){
+        if(areTokensUpdated && isAuthenticated){
             get_user_profile()
-            setIsFirstRender(false)
         }
-    }, [areTokensUpdated, isAuthenticated, isFirstRender, get_user_profile])
+    }, [areTokensUpdated, isAuthenticated, get_user_profile])
     
     return (
         <UserContext.Provider value={{user, setUser}}>

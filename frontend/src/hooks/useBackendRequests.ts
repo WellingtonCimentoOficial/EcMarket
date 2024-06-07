@@ -2,6 +2,7 @@ import { useCallback, useContext } from 'react'
 import { useAxiosPrivate } from './useAxiosPrivate'
 import { LoadingContext } from '../contexts/LoadingContext'
 import { axios } from '../services/api';
+import * as originalAxios from 'axios';
 import { Children, Product } from '../types/ProductType';
 import { UserContext } from '../contexts/UserContext';
 import { CartDetailsType, CartType } from '../types/CartType';
@@ -20,6 +21,7 @@ type FavoritesProps = LoadingHandlerType & {
         productId: number
         childId?: number
     }
+    errorCallback?: (error: originalAxios.AxiosError) => void
 }
 
 type GetFavoritesProps = LoadingHandlerType & {
@@ -38,6 +40,7 @@ type AddToCartProps = CartProps & {
     productId: number
     childId?: number
     quantity: number
+    errorCallback?: (error: originalAxios.AxiosError) => void
 }
 
 type UpdateCartProps = LoadingHandlerType & {
@@ -83,22 +86,21 @@ export const useCartRequests = () => {
     const { setUser } = useContext(UserContext)
 
     const getCart = useCallback(async({ callback, setIsLoadingHandler } : CartProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.get('/cart/')
             if(response.status === 200){
                 const data: CartType[] = response.data
                 callback(data)
             }
-        } catch (error) {
-
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
     const getCartDetails = useCallback(async({ callback, setIsLoadingHandler } : getCartDetailsProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.get('/cart/details')
             if(response.status === 200){
                 const data: CartDetailsType = response.data
@@ -107,15 +109,14 @@ export const useCartRequests = () => {
                     return {...oldValue, cart_quantity: data.products_quantity}
                 })
             }
-        } catch (error) {
-
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
 
-    const addToCart = useCallback(async({ productId, childId, quantity, callback, setIsLoadingHandler} : AddToCartProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
+    const addToCart = useCallback(async({ productId, childId, quantity, callback, errorCallback, setIsLoadingHandler} : AddToCartProps) => {
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.post(`/cart/create/${productId}`, {childId, quantity})
             if(response.status === 200 || response.status === 201){
                 const data: CartType[] = response.data
@@ -125,14 +126,17 @@ export const useCartRequests = () => {
                 })
             }
         } catch (error) {
-            
+            if(originalAxios.isAxiosError(error)){
+                errorCallback && errorCallback(error)
+            }
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
 
     const updateCart = useCallback(async({ cartId, quantity, setIsLoadingHandler, callback, errorCallback } : UpdateCartProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.put(`/cart/update/${cartId}`, {quantity})
             if(response.status === 200){
                 const data: CartType = response.data
@@ -143,21 +147,23 @@ export const useCartRequests = () => {
             }
         } catch (error) {
             errorCallback && errorCallback()
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
 
     const deleteCart = useCallback(async({ cartId, setIsLoadingHandler, callback, errorCallback } : DeleteCartProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.delete(`/cart/delete/${cartId}`)
             if(response.status === 200 || response.status === 204){
                 callback()
             }
         } catch (error) {
             errorCallback && errorCallback()
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
     return {getCart, getCartDetails, addToCart, updateCart, deleteCart}
@@ -169,22 +175,23 @@ export const useFavoritesRequests = () => {
     const { setUser } = useContext(UserContext)
 
     const getFavorites = useCallback(async ({ callback, setIsLoadingHandler } : GetFavoritesProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.get('/favorites/')
             if(response.status === 200){
                 const data: FavoriteType = response.data
                 callback(data)
             }
-        } catch (error) {
-            
+        } catch {
+            return Promise.resolve()
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
-    const addToFavorites = useCallback(async ({ productId, childId, callback, callbackArgs, setIsLoadingHandler } : FavoritesProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
+    const addToFavorites = useCallback(async ({ productId, childId, callback, callbackArgs, errorCallback, setIsLoadingHandler } : FavoritesProps) => {
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const URL = `/favorites/create/${productId}`
             const response = await axiosPrivate.post(URL, {childId})
             if(response.status === 200){
@@ -193,15 +200,18 @@ export const useFavoritesRequests = () => {
                     return {...oldValue, wishlist_quantity: oldValue.wishlist_quantity + 1}
                 })
             }
-        } catch (error) {
-
+        } catch(error) {
+            if(originalAxios.isAxiosError(error)){
+                errorCallback && errorCallback(error)
+            }
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }   
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
     
     const removeFromFavorites = useCallback(async ({ productId, childId, callback, callbackArgs, setIsLoadingHandler } : FavoritesProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const URL = childId ? `/favorites/delete/${productId}?child=${childId}` : `/favorites/delete/${productId}`
             const response = await axiosPrivate.delete(URL)
             if(response.status === 200){
@@ -210,10 +220,9 @@ export const useFavoritesRequests = () => {
                     return {...oldValue, wishlist_quantity: oldValue.wishlist_quantity - 1}
                 })
             }
-        } catch (error) {
-
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         } 
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading, setUser])
 
     return { getFavorites, addToFavorites, removeFromFavorites }
@@ -224,19 +233,17 @@ export const useAccountRequests = () => {
     const { setIsLoading } = useContext(LoadingContext)
 
     const sendAccountVerificationCode = useCallback(async ({ callback, setIsLoadingHandler } : AccountProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const response = await axiosPrivate.get('/accounts/verify/code')
             if(response.status === 200){
                 callback({ sent: true })
             }
         } catch (error) {
             callback({ sent: false })
-            // if(originalAxios.isAxiosError(error)){
-            //     console.log(error)
-            // }
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
     return { sendAccountVerificationCode }
@@ -248,22 +255,22 @@ export const useProductRequests = () => {
     const { setIsLoading } = useContext(LoadingContext)
 
     const getProduct = useCallback(async ({ productId, isAuthenticated, setIsLoadingHandler, callback }: GetProductArgs) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const path = `/products/${productId}`
             const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
             if(response.status === 200){
                 const data: Product = await response.data
                 callback(data)
             }
-        } catch (error) {
+        } finally{
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
     const getProductChildren = useCallback(async ({ productId, isAuthenticated, callback, setIsLoadingHandler }: GetProductChildrenArgs) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const path = `/products/${productId}/children`
             const response = isAuthenticated ? await axiosPrivate.get(path) : await axios.get(path)
             if(response.status === 200){
@@ -272,8 +279,9 @@ export const useProductRequests = () => {
             }
         } catch (error) {
             callback(null)
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [axiosPrivate, setIsLoading])
 
     return { getProduct, getProductChildren }
@@ -283,17 +291,17 @@ export const useCategoriesRequests = () => {
     const { setIsLoading } = useContext(LoadingContext)
 
     const getCategories = useCallback(async({ limit=1, maxProductCount=20, minProductCount=10, random=true, callback, setIsLoadingHandler } : GetCategoriesProps) => {
-        setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
         try {
+            setIsLoadingHandler ? setIsLoadingHandler(true) : setIsLoading(true)
             const URL = `/categories/?limit=${limit}&min_product_count=${minProductCount}&max_product_count=${maxProductCount}&random=${random}`
             const response = await axios.get(URL)
             if(response.status === 200){
                 const data: Category[] = response.data.results
                 callback(data)
             }
-        } catch (error) {
+        } finally {
+            setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
         }
-        setIsLoadingHandler ? setIsLoadingHandler(false) : setIsLoading(false)
     }, [setIsLoading])
 
     return {getCategories}

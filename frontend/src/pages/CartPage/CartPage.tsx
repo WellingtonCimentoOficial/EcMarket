@@ -126,7 +126,7 @@ const CartPage = (props: Props) => {
                         </>
                     ):(
                         <div className={styles.containerMessage}>
-                            <span>Você não tem nenhum produto adicionado no carrinho.</span>
+                            <span>Você ainda não tem nenhum produto adicionado no carrinho. &#128530;</span>
                         </div>
                     )}
                 </div>

@@ -14,6 +14,7 @@ import {
     INVALID_ACCOUNT_VERIFICATION_CODE_ERROR, INVALID_ACCOUNT_VERIFICATION_CODE_FORMAT_ERROR, 
     RECAPTCHA_ERROR 
 } from '../../constants/errorMessages'
+import { SIGN_IN_PATH } from '../../routes'
 
 type Props = {}
 
@@ -126,9 +127,9 @@ const VerifyAccountPage = (props: Props) => {
                             <p className={styles.headerDescription}>
                                 {message?.text + ' '}
                                 {isVerified ? 
-                                    <><a href="/account/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                    <><a href={SIGN_IN_PATH}>Clique aqui</a> para fazer login na sua conta. </>
                                     :
-                                    <>Para fazer a solicitação de outro <a href="/account/sign-in">Clique aqui</a> para fazer login na sua conta. </>
+                                    <>Para fazer a solicitação de outro <a href={SIGN_IN_PATH}>Clique aqui</a> para fazer login na sua conta. </>
                                 }
                             </p>
                         </div>

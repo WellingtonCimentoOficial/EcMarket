@@ -56,3 +56,7 @@ const Routes = (): JSX.Element => {
 }
 
 export default Routes
+
+export const HOME_PATH = "/"
+export const SIGN_IN_PATH = "/account/sign-in"
+export const SIGN_UP_PATH = "/account/sign-up"

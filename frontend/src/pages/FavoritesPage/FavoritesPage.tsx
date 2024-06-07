@@ -12,8 +12,8 @@ type Props = {}
 
 const FavoritesPage = (props: Props) => {
     const { areTokensUpdated, isAuthenticated } = useContext(AuthContext)
-    const [products, setProducts] = useState<Product[] | null>(null)
-    const [children, setChildren] = useState<Children[] | null>(null)
+    const [products, setProducts] = useState<Product[]>([])
+    const [children, setChildren] = useState<Children[]>([])
 
     const { getFavorites, removeFromFavorites } = useFavoritesRequests()
 
@@ -32,8 +32,8 @@ const FavoritesPage = (props: Props) => {
     const handleFavorites = useCallback((data: FavoriteType) => {
         const productFathersData: Product[] = data.product_fathers
         const productChildsData: Children[] = data.product_childs
-        setProducts(productFathersData.length > 0 ? productFathersData : null)
-        setChildren(productChildsData.length > 0 ? productChildsData : null)
+        setProducts(productFathersData.length > 0 ? productFathersData : [])
+        setChildren(productChildsData.length > 0 ? productChildsData : [])
     }, [])
 
     useEffect(() => {
@@ -50,7 +50,7 @@ const FavoritesPage = (props: Props) => {
                 contentClassName={styles.favoritesWrapper}
             >
                 <div className={styles.container}>
-                    {products && (
+                    {products.length > 0 && (
                         products.map(product => (
                             <div className={styles.item} key={product.id}>
                                 <HorizProductCard 
@@ -64,7 +64,7 @@ const FavoritesPage = (props: Props) => {
                             </div>
                         ))
                     )}
-                    {children && (
+                    {children.length > 0 && (
                         children.map(child => (
                             <div className={styles.item} key={child.id}>
                                 <HorizProductCard 
@@ -79,9 +79,9 @@ const FavoritesPage = (props: Props) => {
                             </div>
                         ))
                     )}
-                    {!products && !children &&
+                    {products.length === 0 && children.length === 0 &&
                         <div className={styles.container2}>
-                            <span>Você ainda não adicionou nenhum produto nos seus favoritos.</span>
+                            <span>Você ainda não adicionou nenhum produto nos seus favoritos. &#128530;</span>
                         </div>
                     }
                 </div>

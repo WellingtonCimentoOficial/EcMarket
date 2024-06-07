@@ -12,6 +12,7 @@ import SimpleErrorResponseMessage from '../../UI/ResponseMessages/SimpleErrorRes
 import { ACCOUNT_CREATED_SUCCESS } from '../../../constants/successMessages';
 import { EMAIL_ALREADY_USED_ERROR, RECAPTCHA_ERROR, REQUEST_ERROR, TERMS_NOT_ACCEPTED_ERROR } from '../../../constants/errorMessages';
 import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
+import { SIGN_IN_PATH } from '../../../routes';
 
 const RegisterForm = () => {
     const [acceptTerms, setAcceptTerms] = useState<boolean>(false)
@@ -355,7 +356,7 @@ const RegisterForm = () => {
                 </div>
                 <div className={`${styles.containerFooter} ${isLoading ? styles.loading : null}`}>
                     <span>Já tem uma conta?</span>
-                    <a href="/account/sign-in">Entrar</a>
+                    <a href={SIGN_IN_PATH}>Entrar</a>
                 </div>
             </div>
         </div>

@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState, useCallback } from 'react'
 import styles from './HorizProductCard.module.css'
 import { Children, Product } from '../../../../types/ProductType'
 import { useCurrencyFormatter } from '../../../../hooks/useCurrencyFormatter'
-import { useNavigate } from 'react-router-dom'
 import { useSlug } from '../../../../hooks/useSlug'
 import BtnB01 from '../../Buttons/BtnB01/BtnB01'
 import BtnB02 from '../../Buttons/BtnB02/BtnB02'
@@ -21,7 +20,6 @@ type Props = {
 const HorizProductCard = ({ product, child, addToCartCallback, removeFromFavoritesCallback }: Props) => {
     const { CurrencyFormatter } = useCurrencyFormatter()
     const { createSlug } = useSlug()
-    const navigate = useNavigate()
 
     const { setIsLoading } = useContext(LoadingContext)
     const [localIsLoading, setLocalIsLoading] = useState<boolean>(false)

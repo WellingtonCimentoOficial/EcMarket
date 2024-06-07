@@ -97,6 +97,18 @@
     margin-top: 2px;
     
 }
+.containerFavorite {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.favoriteIcon {
+    font-size: 35px;
+    color: var(--primary-color);
+}
 
 /* CONJUNTOS */
 .installments, .description, .defaultPrice {

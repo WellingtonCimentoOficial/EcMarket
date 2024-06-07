@@ -40,6 +40,7 @@ import { useCartRequests, useCategoriesRequests, useFavoritesRequests, useProduc
 import StyledSectionA from '../../styles/StyledSectionA'
 import { useQueryParam } from '../../hooks/useQueryParam'
 import BtnB01 from '../../components/UI/Buttons/BtnB01/BtnB01'
+import { SIGN_IN_PATH } from '../../routes'
 
 type Props = {}
 
@@ -115,6 +116,11 @@ const ProductPage = (props: Props) => {
             callback: () => {
                 setIsAddedToCart(true)
                 redirect && navigate("/account/cart")
+            },
+            errorCallback: (error) => {
+                if(error.response?.status === 401){
+                    navigate(SIGN_IN_PATH)
+                }
             }
         })
     }
@@ -331,7 +337,8 @@ const ProductPage = (props: Props) => {
                                                 addToFavorites({
                                                     productId: product.id, 
                                                     childId: product.has_variations ? currentChild?.id : null, 
-                                                    callback: () => setIsFavorite(true) 
+                                                    callback: () => setIsFavorite(true),
+                                                    errorCallback: (error) => error.response?.status === 401 && navigate(SIGN_IN_PATH)
                                                 })}
                                             >
                                                 {isFavorite ? (

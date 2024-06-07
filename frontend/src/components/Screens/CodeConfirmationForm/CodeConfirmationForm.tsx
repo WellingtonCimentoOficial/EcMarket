@@ -11,6 +11,7 @@ import { EXPIRED_CODE_ERROR, INVALID_THIRD_PARTY_AUTHENTICATION_ERROR, INVALID_C
 import { PASSWORD_CHANGED_SUCCESS } from '../../../constants/successMessages';
 import StandardInput from '../../UI/Inputs/PasswordInput/StandardInput';
 import RedirectErrorResponseMessage from '../../UI/ResponseMessages/RedirectErrorResponseMessage/RedirectErrorResponseMessage';
+import { SIGN_IN_PATH } from '../../../routes';
 
 type Props = {
     userEmail?: string | null
@@ -442,7 +443,7 @@ const CodeConfirmationForm = ({ userEmail }: Props) => {
                     {message &&
                         <>
                             {success ? (
-                                <RedirectErrorResponseMessage title={message.title} text={message.text} seconds={10} path='/account/sign-in' />
+                                <RedirectErrorResponseMessage title={message.title} text={message.text} seconds={10} path={SIGN_IN_PATH} />
                             ):(
                                 <SimpleErrorResponseMessage title={message.title} text={message.text} isError={message.isError} />
                             )}

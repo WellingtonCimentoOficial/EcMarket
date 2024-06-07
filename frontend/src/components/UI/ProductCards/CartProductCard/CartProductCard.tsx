@@ -84,9 +84,11 @@ const CartProductCard = ({ cart, setUpdated, onDeleteCallback }: Props) => {
                         </span>
                     </div>
                     <div className={styles.containerPrices}>
-                        <span className={styles.discountPercentage}>
-                            {Math.floor((product.has_variations && child?.discount_percentage) ? child.discount_percentage : (product.discount_percentage ?? 0))}% OFF
-                        </span>
+                        {(product.has_variations && child?.discount_percentage) || product.discount_percentage ? (
+                            <span className={styles.discountPercentage}>
+                                {Math.floor((product.has_variations && child?.discount_percentage) ? child.discount_percentage : (product.discount_percentage ?? 0))}% OFF
+                            </span>
+                        ): null}
                         {(product.has_variations && child?.discount_price) || (!product.has_variations && product.discount_price) ? (
                             <>
                                 <span className={styles.defaultPrice}>

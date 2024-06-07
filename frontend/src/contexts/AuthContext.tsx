@@ -4,6 +4,7 @@ import * as OriginalAxios from 'axios'
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import CryptoJS from 'crypto-js';
+import { SIGN_IN_PATH } from "../routes";
 
 type Props = {
     children: React.ReactNode
@@ -93,12 +94,13 @@ export const AuthContextProvider = ({children}: Props) => {
         }
     }, [encryptToken])
 
-    const logout = useCallback(({ redirect=true, href='/account/sign-in' } : LogoutPropsType={}) => {
+    const logout = useCallback(({ redirect=true, href=SIGN_IN_PATH } : LogoutPropsType={}) => {
         try {
             setTokens(prev => {
                 return {...prev, access: null, refresh: null}
             })
             setIsAuthenticated(false)
+            setAreTokensUpdated(false)
             Cookies.remove('token')
             redirect && navigate(href)
         } catch (error) {

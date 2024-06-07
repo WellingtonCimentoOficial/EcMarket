@@ -7,6 +7,7 @@ import { useSlug } from '../../../../hooks/useSlug'
 import { LoadingContext } from '../../../../contexts/LoadingContext'
 import { useProductRequests } from '../../../../hooks/useBackendRequests'
 import { useProductTitle } from '../../../../hooks/useProductTitle'
+import { PiHeartFill } from 'react-icons/pi'
 
 type Props = {
     product: Product
@@ -117,6 +118,11 @@ const SimpleProductCard: React.FC<Props> = ({
                             </span>
                         </div>
                     }
+                    {(product.has_variations && child?.is_added_to_cart) || product.is_added_to_cart ? (
+                        <div className={styles.containerFavorite}>
+                            <PiHeartFill className={styles.favoriteIcon} />
+                        </div>
+                    ): null}
                 </>
             </a>
         </div>
