@@ -77,8 +77,6 @@ class GoogleOAuth2TokenObtainPairView(TokenObtainPairViewOriginal):
                 return Response({'access': access_token, 'refresh': refresh_token}, status=status.HTTP_200_OK)
             
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        except exceptions.UserAlreadyExists:
-            return Response({'cod': 1, 'error': 'Authenticate using the form'}, status=status.HTTP_401_UNAUTHORIZED)
         except exceptions.InvalidGoogleToken:
             return Response({'cod': 2, 'error': 'Invalid google oauth token'}, status=status.HTTP_401_UNAUTHORIZED)
         except exceptions.InternalError:

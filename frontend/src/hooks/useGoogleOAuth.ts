@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import * as originalAxios from 'axios'
 import { useIsScriptAlreadyAdded } from './useIsScriptAlreadyAddes'
-import { GOOGLE_OAUTH2_TOKEN_VALIDATION_ERROR, INVALID_GOOGLE_OAUTH2_TOKEN_ERROR, INVALID_USER_AUTHENTICATION_METHOD_ERROR, RECAPTCHA_ERROR } from '../constants/errorMessages'
+import { GOOGLE_OAUTH2_TOKEN_VALIDATION_ERROR, INVALID_GOOGLE_OAUTH2_TOKEN_ERROR, RECAPTCHA_ERROR } from '../constants/errorMessages'
 import { useReCaptchaToken } from './useReCaptchaToken'
 
 type Props = {
@@ -44,13 +44,7 @@ export const useGoogleOAuth = ({ config, oAuthButtonsRef, setMessage, setIsLoadi
             }
         } catch (error) {
             if(originalAxios.isAxiosError(error)){
-                if(error.response?.data.cod === 1){
-                    setMessage({
-                        title: INVALID_USER_AUTHENTICATION_METHOD_ERROR.title,
-                        text: INVALID_USER_AUTHENTICATION_METHOD_ERROR.text,
-                        isError: true
-                    })
-                }else if(error.response?.data.cod === 2){
+                if(error.response?.data.cod === 2){
                     setMessage({
                         title: INVALID_GOOGLE_OAUTH2_TOKEN_ERROR.title,
                         text: INVALID_GOOGLE_OAUTH2_TOKEN_ERROR.text,

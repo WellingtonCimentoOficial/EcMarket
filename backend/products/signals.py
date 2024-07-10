@@ -1,9 +1,21 @@
-from django.db.models.signals import pre_save, pre_delete
+from django.db.models.signals import pre_save, pre_delete, post_save
 from django.dispatch import receiver
-from .models import ProductFather, ProductChild
+from .models import ProductFather, ProductChild, ProductTechnicalInformation
 from django.db.models import ImageField
 from django.conf import settings
 import os
+
+@receiver(post_save, sender=ProductFather)
+def create_default_product_technical_informations(sender, instance, created, **kwargs):
+    if created:
+        try:
+            ProductTechnicalInformation.objects.create(product=instance, name="Peso", description=f"{instance.weight} gramas")
+            ProductTechnicalInformation.objects.create(product=instance, name="Altura", description=f"{instance.height} centímetros")
+            ProductTechnicalInformation.objects.create(product=instance, name="Largura", description=f"{instance.width} centímetros")
+            ProductTechnicalInformation.objects.create(product=instance, name="Profundidade", description=f"{instance.length} centímetros")
+        except:
+            pass
+    
 
 @receiver(pre_delete, sender=ProductChild)
 def delete_product_child_images(sender, instance, **kwargs):

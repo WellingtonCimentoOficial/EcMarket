@@ -1,13 +1,5 @@
 from rest_framework.exceptions import APIException
 
-class UserAlreadyExists(APIException):
-    status_code = 401
-    default_code = 'user_already_exists'
-    default_detail = 'User alredy exists'
-
-    def __init__(self, detail=None):
-        self.detail = detail or self.default_detail
-
 class InvalidGoogleToken(APIException):
     status_code = 401
     default_code = 'invalid_google_token'

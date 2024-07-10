@@ -245,6 +245,10 @@ const SearchPage = () => {
                                 <span>Frete grátis</span>
                                 <ToggleSwitchCheckBox onChange={setFreeShipping} value={freeShipping} />
                             </div>
+                            <div className={styles.flexFilterD}>
+                                <span>Somente em promoção</span>
+                                <ToggleSwitchCheckBox onChange={setFreeShipping} value={freeShipping} />
+                            </div>
                             <div className={styles.flexFilter}>
                                 <div className={styles.flexFilterHeader}>
                                     <h3 className={styles.flexFilterTitle}>Preço</h3>

@@ -1,5 +1,5 @@
 from utils.payment_gateway import Gateway
-from .exceptions import UserAlreadyExists, InvalidGoogleToken, InternalError
+from .exceptions import InvalidGoogleToken, InternalError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from . import exceptions
@@ -9,7 +9,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.conf import settings
-import requests
+from google.oauth2 import id_token
+from google.auth.transport import requests as googleRequests
 import os
 import re
 import random
@@ -93,21 +94,23 @@ def get_or_create_user_in_google(user_info):
                 password=make_password(userid)
             )
             return True, new_user
-        raise UserAlreadyExists()
+        user_by_email.google_user_id = userid
+        user_by_email.google_password = make_password(userid)
+        user_by_email.save()
+        return False, user_by_email
     return False, user
 
 def validate_google_token(token):
     try:
-        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
+        request = googleRequests.Request()
+        id_info = id_token.verify_oauth2_token(
+            id_token=token, 
+            request=request, 
+            audience=os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+        )
+        return id_info
     except:
-        raise InternalError()
-    
-    if response.status_code == 200 or response.status_code == 201:
-        user_info = response.json()
-        if user_info['aud'] == os.getenv('GOOGLE_OAUTH_CLIENT_ID'):
-            return user_info
         raise InvalidGoogleToken()
-    raise InvalidGoogleToken()
 
 def google_user_id_exists(email):
     User = get_user_model()

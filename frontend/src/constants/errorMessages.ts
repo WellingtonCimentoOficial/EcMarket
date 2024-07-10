@@ -30,10 +30,6 @@ export const FIRST_NAME_INVALID_ERROR = {
 
 
 // AUTHENTICATION ERRORS
-export const INVALID_USER_AUTHENTICATION_METHOD_ERROR = {
-    title: 'Autenticação Inválida',
-    text: 'Esse método de autenticação não está disponível para sua conta.'
-}
 export const INVALID_THIRD_PARTY_AUTHENTICATION_ERROR = {
     title: 'Autenticação Inválida',
     text: 'Não é possível redefinir sua senha, pois você utiliza o método de autenticação de terceiros.'

@@ -32,9 +32,9 @@ const HomePage = (): JSX.Element => {
     ]
 
     const macBannerData = {
-        title: "Lançamento do novo Iphone 14 Prox Max",
-        description: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae magni ducimus voluptas recusandae consequuntur corrupti, rem iusto soluta quae fugiat qui dolorum! Impedit, libero labore placeat voluptatem eos eligendi ipsa.`,
-        image: "https://www.smartprix.com/bytes/wp-content/uploads/2022/11/FiERK3lVEAEGyCO-photoutils.com_.jpeg",
+        title: "Whisky Chivas Regal 12 anos Blended Escocês",
+        description: `O chivas regal 12 anos é uma combinação de diferentes tipos de maltes e grãos, todos maturados por no mínimo 12 anos. Essa combinação rica e suave consegue equilibrar estilo com conteúdo e tradição com um toque moderno.`,
+        image: "http://127.0.0.1:8000/static/product/images/3_Umerp64.jpg",
         buttonText: "Compre já",
         path: "/"
     }
