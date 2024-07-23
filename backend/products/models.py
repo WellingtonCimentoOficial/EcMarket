@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 # Create your models here.
 class ProductImage(models.Model):
     name = models.CharField(max_length=255)
-    principal_image = models.ImageField(upload_to='static/images/', null=True)
+    principal_image = models.ImageField(upload_to='static/product/images/', null=True)
     image_2 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
     image_3 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)
     image_4 = models.ImageField(upload_to='static/product/images/', null=True, blank=True)

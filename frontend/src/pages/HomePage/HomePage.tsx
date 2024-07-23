@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styles from "./HomePage.module.css"
 import NiceCarousel from '../../components/UI/Carousels/NiceCarousel/NiceCarousel'
 import WidthLayout from '../../layouts/WidthLayout/WidthLayout'
@@ -11,25 +11,13 @@ import BoxAccordion from '../../components/UI/Accordions/BoxAccordion/BoxAccordi
 import LuminexBanner from '../../components/UI/Banners/LuminexBanner/LuminexBanner'
 import StyledSectionA from '../../styles/StyledSectionA'
 import { useCategoriesRequests } from '../../hooks/useBackendRequests'
+import { BannerType } from '../../types/BannerType'
+import { axios } from '../../services/api'
 
 const HomePage = (): JSX.Element => {
     const [categoriesData, setCategoriesData] = useState<Category[]>([])
+    const [carouselData, setCarouselData] = useState<BannerType[]>([])
     const {  getCategories } = useCategoriesRequests()
-
-    const carouselData = [
-        {
-            imageURL: "https://wearepolaris.sg/wp-content/uploads/2021/10/Apple_Watch_S7_Cell_Web_Banner_Avail_1400x700_Shop_AppleWatch.jpg",
-            path: "/search?q=apple+watch"
-        },
-        {
-            imageURL: "https://www.apple.com/newsroom/images/product/iphone/standard/Apple-iPhone-14-iPhone-14-Plus-5up-hero-220907_Full-Bleed-Image.jpg.large.jpg",
-            path: "/search?q=iphone"
-        },
-        {
-            imageURL: "https://9to5mac.com/wp-content/uploads/sites/6/2022/09/iPhone-14-wallpapers.jpg?quality=82&strip=all&w=1600",
-            path: "/search?q=iphone"
-        },
-    ]
 
     const macBannerData = {
         title: "Whisky Chivas Regal 12 anos Blended Escocês",
@@ -62,6 +50,18 @@ const HomePage = (): JSX.Element => {
         },
     ]
 
+    const getHomeBanners = useCallback(async () => {
+        try {
+            const response = await axios.get("/banners/home/")
+            if(response.status === 200) {
+                setCarouselData(response.data)
+            }
+        } catch (error) {
+        }
+    }, [])
+
+    useEffect(() => {getHomeBanners()}, [getHomeBanners])
+
     useEffect(() => {
         getCategories({
             limit: 6,
@@ -72,7 +72,7 @@ const HomePage = (): JSX.Element => {
     return (
         <>
             <WidthLayout>
-                <NiceCarousel autoScroll scrollInterval={30000} data={carouselData} />
+                <NiceCarousel autoScroll scrollInterval={30000} data={carouselData} random />
             </WidthLayout>
             <WidthLayout width={75}>
                 {categoriesData &&
