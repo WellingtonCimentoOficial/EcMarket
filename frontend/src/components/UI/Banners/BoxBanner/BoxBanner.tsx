@@ -69,7 +69,9 @@ const BoxBanner = ({ products }: Props) => {
                     <div className={styles.containerBig}>
                         <div className={styles.flexBig}>
                             <a href={`/${createSlug(mainProduct.name)}/p/${mainProduct.id}${mainProduct.child ? `?child=${mainProduct.child.id}` : ''}`} className={styles.flexBigHeader} title={mainProduct.name}>
-                                <img className={styles.flexBigImage} src={mainProduct.has_variations ? mainProduct.child?.images.principal_image : mainProduct.images.principal_image} alt="" />
+                                <div className={styles.flexBigImageContainer}>
+                                    <img className={styles.flexBigImage} src={mainProduct.has_variations ? mainProduct.child?.images.principal_image : mainProduct.images.principal_image} alt="" />
+                                </div>
                                 {(mainProduct.has_variations && mainProduct.child?.discount_percentage) || mainProduct.discount_percentage ? (
                                     <div className={styles.discountPercentageContainer}>
                                         <span className={styles.discountPercentage}>
@@ -88,8 +90,10 @@ const BoxBanner = ({ products }: Props) => {
                     <div className={styles.subContainerSmall}>
                         {customProducts.slice(0, 5).map((product) => (
                             <a href={`/${createSlug(product.name)}/p/${product.id}${product.child ? `?child=${product.child.id}` : ''}`} className={styles.flexSmall} key={product.id} title={product.name}>
-                                <img className={styles.flexSmallImage} src={
-                                    product.has_variations ? product.child?.images.principal_image : product.images.principal_image} alt="" />
+                                <div className={styles.flexSmallImageContainer}>
+                                    <img className={styles.flexSmallImage} src={
+                                        product.has_variations ? product.child?.images.principal_image : product.images.principal_image} alt="" />
+                                </div>
                                 {(product.has_variations && product.child?.discount_percentage) || product.discount_percentage ? (
                                     <div className={styles.discountPercentageContainer}>
                                         <span className={styles.discountPercentage}>
@@ -106,7 +110,9 @@ const BoxBanner = ({ products }: Props) => {
                     <div className={styles.subContainerSmall}>
                         {customProducts.slice(5, 10).map((product) => (
                             <a href={`/${createSlug(product.name)}/p/${product.id}${product.child ? `?child=${product.child.id}` : ''}`} className={styles.flexSmall} key={product.id} title={product.name}>
-                                <img className={styles.flexSmallImage} src={product.has_variations ? product.child?.images.principal_image : product.images.principal_image} alt="" />
+                                <div className={styles.flexSmallImageContainer}>
+                                    <img className={styles.flexSmallImage} src={product.has_variations ? product.child?.images.principal_image : product.images.principal_image} alt="" />
+                                </div>
                                 {(product.has_variations && product.child?.discount_percentage) || product.discount_percentage ? (
                                     <div className={styles.discountPercentageContainer}>
                                         <span className={styles.discountPercentage}>
