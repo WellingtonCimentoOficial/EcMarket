@@ -230,6 +230,10 @@ const SearchPage = () => {
             callback: (data: Category[]) => setCategoriesData(data)
         })
     }, [getCategories])
+    
+    useEffect(() => {
+        console.log(filters)
+    }, [filters])
 
     return (
         <WidthLayout width={90}>

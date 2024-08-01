@@ -14,7 +14,8 @@ const NickRangeSlider = ({value, min, max, onChange, onAfterChange}: Props) => {
 
     const renderTrack = (props: any, state: any) => {
         const trackClassName = state.index === 0 ? styles.track1 : state.index === 1 ? styles.track2 : styles.track0;
-        return <div {...props} className={`${styles.track} ${trackClassName}`}/>
+        const {key, ...restProps} = props
+        return <div key={key} {...restProps} className={`${styles.track} ${trackClassName}`}/>
     }
 
     return (
