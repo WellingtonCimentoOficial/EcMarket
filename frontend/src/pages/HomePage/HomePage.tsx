@@ -22,7 +22,7 @@ const HomePage = (): JSX.Element => {
     const macBannerData = {
         title: "Whisky Chivas Regal 12 anos Blended Escocês",
         description: `O chivas regal 12 anos é uma combinação de diferentes tipos de maltes e grãos, todos maturados por no mínimo 12 anos. Essa combinação rica e suave consegue equilibrar estilo com conteúdo e tradição com um toque moderno.`,
-        image: "http://127.0.0.1:8000/static/product/images/3_Umerp64.jpg",
+        image: "https://www.arenaatacado.com.br/on/demandware.static/-/Sites-storefront-catalog-sv/default/dwc116773d/Produtos/18021-5000299601402-whisky%20chivas%2012%20anos%201l-chivas-3.jpg",
         buttonText: "Compre já",
         path: "/"
     }

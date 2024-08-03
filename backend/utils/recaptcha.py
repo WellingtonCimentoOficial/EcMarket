@@ -17,6 +17,7 @@ class ReCaptcha:
 
     def validate_token(self):
         response = requests.post(self.url_base, data={"secret": self.secret,"response": self.token})
+        print(response.json())
         if response.status_code == 200 and response.json().get("success"):
             return True
         raise InvalidReCaptchaToken
