@@ -30,3 +30,4 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 
 <img width="1440" alt="19 5085fb640eff635dfe34" src="https://github.com/user-attachments/assets/e40ebec3-e6d9-4c8e-ab36-2df4a109066a">
 
+![dsddada](https://github.com/user-attachments/assets/549df2b8-1762-496c-aebc-5d1d29096ed1)
