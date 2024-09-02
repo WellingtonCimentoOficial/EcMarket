@@ -18,10 +18,11 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 ![Captura de tela 2024-02-18 163541](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/42480244-e41a-4fb7-b57f-034dffdfa872)
 ![Captura de tela 2024-02-19 023040](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/00d1930f-ce08-491a-ac54-f69d67835765)
 ![Captura de tela 2024-02-18 164107](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/b0c62900-707f-4b07-ad32-7a5a06fff7bf)
-![Captura de tela 2024-02-18 164442](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/c2a45654-f6c1-48cd-9983-f1d95baa0ee7)
+![Captura de tela 2024-02-18 164442](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/c2a45654-f6c1-48<img width="1440" alt="25 64264f7ab372540749b4" src="https://github.com/user-attachments/assets/ca7e558f-1179-487e-9134-ddec08980487">
+<img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://github.com/user-attachments/assets/e2aab758-1af8-4629-8a15-045c1b3c1f60">
+<img width="1440" alt="21 1f0511980da363a633d4" src="https://github.com/user-attachments/assets/8d3cd52d-2a6b-43c4-9d1b-e0e0567c060a">
+<img width="1440" alt="20 c2b320e9d438e197b8f7" src="https://github.com/user-attachments/assets/c1ec19bd-a811-40c3-931e-aa41a2701487">
+![18 df60530fa91c041bc496](https://github.com/user-attachments/assets/54427d19-3dea-420c-9429-a8bfe21d2dd2)
+cd-9983-f1d95baa0ee7)
 ![Captura de tela 2024-02-18 164502](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/145a3b0e-082b-4315-9607-6de83399936a)
-<img width="1440" alt="25 64264f7ab372540749b4" src="https://github.com/user-attachments/assets/8f833f5c-0997-447a-a3d1-22bc142cf829">
-<img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://github.com/user-attachments/assets/33a963b3-f91c-4020-865a-8e497caaefef">
-<img width="1440" alt="21 1f0511980da363a633d4" src="https://github.com/user-attachments/assets/87eb4fb0-f03f-42fe-b568-74b24d5de4de">
-<img width="1440" alt="20 c2b320e9d438e197b8f7" src="https://github.com/user-attachments/assets/2e691e2d-2285-4372-89a5-40a35f9f28c8">
-![18 df60530fa91c041bc496](https://github.com/user-attachments/assets/cb746580-a051-47e4-a59d-756516a901d7)
+
