@@ -24,5 +24,3 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 <img width="1440" alt="20 c2b320e9d438e197b8f7" src="https://github.com/user-attachments/assets/c1ec19bd-a811-40c3-931e-aa41a2701487">
 ![18 df60530fa91c041bc496](https://github.com/user-attachments/assets/54427d19-3dea-420c-9429-a8bfe21d2dd2)
 cd-9983-f1d95baa0ee7)
-![Captura de tela 2024-02-18 164502](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/145a3b0e-082b-4315-9607-6de83399936a)
-
