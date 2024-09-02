@@ -24,3 +24,9 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 <img width="1440" alt="20 c2b320e9d438e197b8f7" src="https://github.com/user-attachments/assets/c1ec19bd-a811-40c3-931e-aa41a2701487">
 ![18 df60530fa91c041bc496](https://github.com/user-attachments/assets/54427d19-3dea-420c-9429-a8bfe21d2dd2)
 cd-9983-f1d95baa0ee7)
+
+
+
+![305798790-00d1930f-ce08-491a-ac54-f69d67835765](https://github.com/user-attachments/assets/8b4fa58c-aed3-4da5-a539-31bdcaba2c37)
+<img width="1440" alt="25 64264f7ab372540749b4" src="https://github.com/user-attachments/assets/30fa390c-a029-49f4-a157-cd4dbff41034">
+
