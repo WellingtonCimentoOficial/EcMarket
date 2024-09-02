@@ -24,10 +24,11 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 <img width="1440" alt="20 c2b320e9d438e197b8f7" src="https://github.com/user-attachments/assets/c1ec19bd-a811-40c3-931e-aa41a2701487">
 <img width="1440" alt="21 1f0511980da363a633d4" src="https://github.com/user-attachments/assets/8d3cd52d-2a6b-43c4-9d1b-e0e0567c060a">
 <img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://github.com/user-attachments/assets/e2aab758-1af8-4629-8a15-045c1b3c1f60">
-<img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://wellingtoncimentooficial.github.io/portfolio/static/media/23.22437e13ab03c48fce1d.png">
+<img width="1440" alt="24" src="https://github.com/user-attachments/assets/9caf6d08-9019-485a-b924-b3791e2f0c64">
 <img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://wellingtoncimentooficial.github.io/portfolio/static/media/24.0578a21f37043e6bb89a.png">
 <img width="1440" alt="25 64264f7ab372540749b4" src="https://github.com/user-attachments/assets/30fa390c-a029-49f4-a157-cd4dbff41034">
 <img width="1440" alt="26 419119db29fab4c4b0a6" src="https://github.com/user-attachments/assets/3150a2a2-4ece-4617-8613-1c2ea9c18251">
+
 
 
 
