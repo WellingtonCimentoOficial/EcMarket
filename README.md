@@ -27,3 +27,4 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 <img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://wellingtoncimentooficial.github.io/portfolio/static/media/23.22437e13ab03c48fce1d.png">
 <img width="1440" alt="22 4cfbd769cf5f21bfd71a" src="https://wellingtoncimentooficial.github.io/portfolio/static/media/24.0578a21f37043e6bb89a.png">
 <img width="1440" alt="25 64264f7ab372540749b4" src="https://github.com/user-attachments/assets/30fa390c-a029-49f4-a157-cd4dbff41034">
+<img width="1440" alt="26 419119db29fab4c4b0a6" src="https://github.com/user-attachments/assets/3150a2a2-4ece-4617-8613-1c2ea9c18251">
