@@ -16,7 +16,6 @@ Assista o video com detalhes sobre a plataforma: https://youtu.be/xGnVH1XfkCs
 ![Captura de tela 2024-02-19 020855](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/7e89b69a-6e2c-4c92-b6f8-8c556fde2edf)
 ![Captura de tela 2024-02-19 020906](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/108cf28b-407c-4103-be0f-bc4a5205ad4e)
 ![Captura de tela 2024-02-18 163541](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/42480244-e41a-4fb7-b57f-034dffdfa872)
-![Captura de tela 2024-02-19 023040](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/00d1930f-ce08-491a-ac54-f69d67835765)
 ![305798790-00d1930f-ce08-491a-ac54-f69d67835765](https://github.com/user-attachments/assets/8b4fa58c-aed3-4da5-a539-31bdcaba2c37)
 ![Captura de tela 2024-02-18 164107](https://github.com/WellingtonCimentoOficial/EcMarket/assets/77591040/b0c62900-707f-4b07-ad32-7a5a06fff7bf)
 
